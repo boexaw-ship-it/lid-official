@@ -4,722 +4,257 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LID — Post Match Analysis</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:100%; height:100%; }
+body { width:1920px; height:1080px; overflow:hidden; font-family:'Barlow Condensed',sans-serif; transform-origin:top left; background:#0a0a0a; }
 
-html, body { width:100%; height:100%; }
+.stadium-bg { position:absolute; inset:0; background: radial-gradient(ellipse 900px 500px at 50% 110%, rgba(0,180,60,0.12) 0%, transparent 70%), radial-gradient(circle 200px at 50% 108%, rgba(0,220,80,0.15) 0%, transparent 60%), radial-gradient(circle 300px at 10% 0%, rgba(255,220,100,0.08) 0%, transparent 50%), radial-gradient(circle 300px at 90% 0%, rgba(255,220,100,0.08) 0%, transparent 50%), linear-gradient(to bottom, #0d0d0d 0%, #0a0f0a 60%, #050f05 100%); }
 
-body {
-  width: 1920px;
-  height: 1080px;
-  overflow: hidden;
-  background: #06080f;
-  font-family: 'Barlow Condensed', sans-serif;
-  transform-origin: top left;
-}
+.pitch-lines { position:absolute; bottom:0; left:0; right:0; height:380px; overflow:hidden; pointer-events:none; }
+.pitch-circle-outer { position:absolute; bottom:-220px; left:50%; transform:translateX(-50%); width:700px; height:700px; border-radius:50%; border:2px solid rgba(0,200,60,0.10); }
+.pitch-circle-inner { position:absolute; bottom:-290px; left:50%; transform:translateX(-50%); width:200px; height:200px; border-radius:50%; border:1.5px solid rgba(0,200,60,0.12); }
+.pitch-center-line { position:absolute; bottom:0; left:0; right:0; height:1.5px; background:rgba(0,200,60,0.10); }
+.pitch-penalty-left { position:absolute; bottom:0; left:0; width:280px; height:180px; border-top:1.5px solid rgba(0,200,60,0.08); border-right:1.5px solid rgba(0,200,60,0.08); }
+.pitch-penalty-right { position:absolute; bottom:0; right:0; width:280px; height:180px; border-top:1.5px solid rgba(0,200,60,0.08); border-left:1.5px solid rgba(0,200,60,0.08); }
 
-/* ── AUTO SCALE ── */
+.top-bar { position:absolute; top:0; left:0; right:0; height:5px; background:linear-gradient(90deg,#FF6400,#FF9500,#c84800,#FF6400); background-size:200% 100%; animation:shimmer 3s linear infinite; }
+@keyframes shimmer{0%{background-position:0%}100%{background-position:200%}}
 
-/* ── BACKGROUND LAYERS ── */
-.bg-grad {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 20% 50%, rgba(255,100,0,0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 50%, rgba(30,60,255,0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 100%, rgba(255,100,0,0.05) 0%, transparent 40%);
-}
+.header-bar { position:absolute; top:5px; left:0; right:0; height:80px; background:linear-gradient(to bottom,rgba(0,0,0,0.92),rgba(0,0,0,0.6)); border-bottom:1px solid rgba(255,100,0,0.25); display:flex; align-items:center; padding:0 48px; justify-content:space-between; }
+.logo-area { display:flex; align-items:center; gap:12px; }
+.logo-text { font-family:'Bebas Neue',sans-serif; font-size:42px; color:#FF6400; letter-spacing:4px; text-shadow:0 0 20px rgba(255,100,0,0.6); line-height:1; }
+.logo-div { width:2px; height:28px; background:rgba(255,100,0,0.4); }
+.logo-sub { font-size:11px; font-weight:700; letter-spacing:4px; color:rgba(255,255,255,0.35); text-transform:uppercase; line-height:1.6; }
+.match-title-bar { text-align:center; }
+.full-time-tag { font-size:11px; font-weight:700; letter-spacing:6px; color:rgba(255,100,0,0.7); text-transform:uppercase; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:2px; }
+.full-time-tag::before,.full-time-tag::after { content:''; display:block; width:30px; height:1px; background:rgba(255,100,0,0.4); }
+.match-teams-title { font-family:'Bebas Neue',sans-serif; font-size:36px; color:#fff; letter-spacing:4px; line-height:1; }
+.match-teams-title .vs { color:rgba(255,100,0,0.7); }
+.match-score-inline { font-family:'Bebas Neue',sans-serif; font-size:28px; color:#FF6400; letter-spacing:3px; margin-left:12px; }
+.type-badge { background:rgba(255,100,0,0.12); border:1px solid rgba(255,100,0,0.4); color:#FF6400; font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:3px; padding:7px 20px; clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px)); }
 
-.bg-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255,100,0,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,100,0,0.04) 1px, transparent 1px);
-  background-size: 80px 80px;
-  animation: gridMove 12s linear infinite;
-}
-@keyframes gridMove {
-  0%{transform:translate(0,0)}
-  100%{transform:translate(80px,80px)}
-}
+.main-layout { position:absolute; top:85px; bottom:55px; left:0; right:0; display:flex; }
+.webcam-zone { width:980px; height:100%; position:relative; flex-shrink:0; border-right:2px solid rgba(255,100,0,0.3); }
+.wc-corner { position:absolute; width:32px; height:32px; z-index:2; }
+.wc-tl { top:12px; left:12px; border-top:3px solid #FF6400; border-left:3px solid #FF6400; }
+.wc-tr { top:12px; right:12px; border-top:3px solid #FF6400; border-right:3px solid #FF6400; }
+.wc-bl { bottom:12px; left:12px; border-bottom:3px solid rgba(255,100,0,0.4); border-left:3px solid rgba(255,100,0,0.4); }
+.wc-br { bottom:12px; right:12px; border-bottom:3px solid rgba(255,100,0,0.4); border-right:3px solid rgba(255,100,0,0.4); }
+.wc-label { position:absolute; bottom:20px; left:50%; transform:translateX(-50%); font-size:12px; font-weight:700; letter-spacing:5px; color:rgba(255,100,0,0.18); text-transform:uppercase; }
 
-/* Diagonal accent */
-.bg-diagonal {
-  position: absolute;
-  top: 0; right: 0;
-  width: 600px; height: 100%;
-  background: linear-gradient(135deg, transparent 40%, rgba(255,100,0,0.03) 100%);
-  clip-path: polygon(30% 0, 100% 0, 100% 100%, 0% 100%);
-}
+.tv-panel { flex:1; height:100%; display:flex; flex-direction:column; }
+.tv-frame { flex:1; margin:16px 20px 4px 20px; border:2px solid rgba(255,255,255,0.08); border-radius:8px; background:rgba(0,0,0,0.5); position:relative; overflow:hidden; display:flex; flex-direction:column; }
+.tv-frame::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(to bottom,transparent 0px,transparent 3px,rgba(0,0,0,0.06) 3px,rgba(0,0,0,0.06) 4px); pointer-events:none; z-index:1; }
 
-/* ── TOP BAR ── */
-.top-bar {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 5px;
-  background: linear-gradient(90deg, #FF6400, #FF9500, #c84800, #FF6400);
-  background-size: 200% 100%;
-  animation: barShimmer 3s linear infinite;
-}
-@keyframes barShimmer {
-  0%{background-position:0%}
-  100%{background-position:200%}
-}
+.tv-header { background:linear-gradient(135deg,rgba(255,100,0,0.18),rgba(200,70,0,0.12)); border-bottom:1px solid rgba(255,100,0,0.25); padding:10px 16px; display:flex; align-items:center; justify-content:space-between; position:relative; z-index:2; }
+.tv-channel { font-family:'Bebas Neue',sans-serif; font-size:18px; color:#FF6400; letter-spacing:3px; }
+.tv-live-dot { width:8px; height:8px; border-radius:50%; background:#FF6400; animation:blink 2s ease-in-out infinite; }
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
 
-.bottom-bar {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 5px;
-  background: linear-gradient(90deg, #FF6400, #FF9500, #c84800, #FF6400);
-  background-size: 200% 100%;
-  animation: barShimmer 3s linear infinite reverse;
-}
+.tv-score-block { padding:14px 16px; background:rgba(0,0,0,0.3); border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:space-between; position:relative; z-index:2; }
+.tv-team { display:flex; flex-direction:column; align-items:center; gap:6px; }
+.tv-team-logo { width:44px; height:44px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:26px; cursor:pointer; overflow:hidden; transition:border-color 0.2s; }
+.tv-team-logo:hover { border-color:rgba(255,100,0,0.5); }
+.tv-team-logo img { width:100%; height:100%; object-fit:contain; display:none; }
+.tv-team-name { font-family:'Bebas Neue',sans-serif; font-size:18px; color:#fff; letter-spacing:2px; }
+.tv-score-center { text-align:center; }
+.tv-score-nums { font-family:'Bebas Neue',sans-serif; font-size:56px; color:#fff; line-height:1; display:flex; align-items:center; gap:10px; }
+.tv-score-num { cursor:pointer; transition:color 0.15s; }
+.tv-score-num:hover { color:#FF6400; }
+.tv-score-sep { color:rgba(255,100,0,0.6); font-size:40px; }
+.tv-ft { font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:4px; background:#FF6400; color:#000; padding:2px 12px; margin-top:4px; display:inline-block; }
 
-/* ── LOGO TOP LEFT ── */
-.logo-area {
-  position: absolute;
-  top: 36px; left: 56px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.logo-text {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 48px;
-  color: #FF6400;
-  letter-spacing: 4px;
-  text-shadow: 0 0 30px rgba(255,100,0,0.6);
-  line-height: 1;
-}
-.logo-div { width:2px; height:32px; background:rgba(255,100,0,0.4); }
-.logo-sub { font-size:12px; font-weight:700; letter-spacing:4px; color:rgba(255,255,255,0.35); text-transform:uppercase; line-height:1.6; }
+.tv-stats { flex:1; padding:10px 16px; display:flex; flex-direction:column; gap:8px; position:relative; z-index:2; }
+.tv-stat-row { display:flex; align-items:center; gap:8px; }
+.tv-stat-label { font-size:10px; font-weight:700; letter-spacing:2px; color:rgba(255,100,0,0.55); text-transform:uppercase; width:100px; text-align:center; }
+.tv-stat-bar { flex:1; height:5px; background:rgba(255,255,255,0.07); border-radius:3px; overflow:hidden; }
+.tv-stat-fill { height:100%; background:linear-gradient(90deg,#FF6400,#FF9500); border-radius:3px; }
+.tv-stat-home { font-family:'Bebas Neue',sans-serif; font-size:18px; color:#fff; width:36px; text-align:right; cursor:pointer; }
+.tv-stat-away { font-family:'Bebas Neue',sans-serif; font-size:18px; color:rgba(255,255,255,0.4); width:36px; cursor:pointer; }
+.tv-stat-home:hover,.tv-stat-away:hover,.tv-stat-home[contenteditable="true"],.tv-stat-away[contenteditable="true"] { color:#FF6400; outline:none; }
 
-/* ── TYPE BADGE TOP RIGHT ── */
-.type-badge {
-  position: absolute;
-  top: 36px; right: 56px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.badge-box {
-  background: rgba(255,100,0,0.15);
-  border: 1px solid rgba(255,100,0,0.5);
-  color: #FF6400;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 18px;
-  letter-spacing: 4px;
-  padding: 8px 22px;
-  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
-}
+.tv-bottom { display:grid; grid-template-columns:1fr 1fr; border-top:1px solid rgba(255,255,255,0.06); position:relative; z-index:2; }
+.tv-motm { padding:10px 16px; border-right:1px solid rgba(255,255,255,0.06); text-align:center; }
+.tv-motm-label { font-size:9px; font-weight:700; letter-spacing:3px; color:#FFD700; text-transform:uppercase; margin-bottom:4px; }
+.tv-motm-name { font-family:'Bebas Neue',sans-serif; font-size:20px; color:#FFD700; letter-spacing:2px; cursor:pointer; }
+.tv-motm-name[contenteditable="true"] { outline:none; opacity:0.8; }
+.tv-pred { padding:10px 16px; text-align:center; }
+.tv-pred-label { font-size:9px; font-weight:700; letter-spacing:3px; color:rgba(255,100,0,0.6); text-transform:uppercase; margin-bottom:4px; }
+.tv-pred-result { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:2px; }
+.pred-correct { color:#00e676; }
+.pred-wrong { color:#ff1744; }
+.pred-btns { display:flex; gap:4px; justify-content:center; margin-top:6px; }
+.pred-btn { font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:900; letter-spacing:2px; padding:3px 8px; border:none; cursor:pointer; text-transform:uppercase; }
+.pred-btn-win { background:#00c853; color:#000; }
+.pred-btn-lose { background:#c00; color:#fff; }
 
-/* ── MAIN TITLE CENTER ── */
-.main-title-area {
-  position: absolute;
-  top: 130px;
-  left: 0; right: 0;
-  text-align: center;
-}
-.main-tag {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 6px;
-  color: rgba(255,100,0,0.7);
-  text-transform: uppercase;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-}
-.main-tag::before, .main-tag::after {
-  content: '';
-  display: block;
-  width: 60px; height: 1px;
-  background: rgba(255,100,0,0.4);
-}
-.main-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 100px;
-  color: #fff;
-  letter-spacing: 6px;
-  line-height: 1;
-  text-shadow: 0 0 60px rgba(255,100,0,0.2);
-}
-.main-title span { color: #FF6400; }
-
-/* ── SCORE DISPLAY ── */
-.score-area {
-  position: absolute;
-  top: 280px;
-  left: 0; right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-}
-
-.team-side {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  min-width: 300px;
-}
-.team-logo-box {
-  width: 90px; height: 90px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 50px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: border-color 0.2s;
-}
-.team-logo-box:hover { border-color: rgba(255,100,0,0.5); }
-.team-logo-box img { width:100%; height:100%; object-fit:contain; display:none; }
-.team-name-pm {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 36px;
-  color: #fff;
-  letter-spacing: 3px;
-}
-
-.score-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 48px;
-}
-.score-final {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-.score-num {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 120px;
-  color: #fff;
-  line-height: 1;
-  text-shadow: 0 0 40px rgba(255,100,0,0.3);
-  cursor: pointer;
-  transition: color 0.15s;
-}
-.score-num:hover { color: #FF6400; }
-.score-dash {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 80px;
-  color: rgba(255,100,0,0.6);
-}
-.ft-badge {
-  margin-top: 6px;
-  background: #FF6400;
-  color: #000;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px;
-  letter-spacing: 4px;
-  padding: 4px 20px;
-}
-
-/* ── STATS SECTION ── */
-.stats-section {
-  position: absolute;
-  bottom: 80px;
-  left: 56px; right: 56px;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
-}
-
-.stat-card {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-top: 2px solid rgba(255,100,0,0.4);
-  padding: 20px 16px;
-  text-align: center;
-  position: relative;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-.stat-card:hover {
-  background: rgba(255,100,0,0.06);
-  border-top-color: #FF6400;
-  transform: translateY(-3px);
-}
-.stat-card-label {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 3px;
-  color: rgba(255,100,0,0.7);
-  text-transform: uppercase;
-  margin-bottom: 12px;
-}
-.stat-bar-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-.stat-val-home {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 28px;
-  color: #fff;
-  min-width: 36px;
-  text-align: right;
-  cursor: pointer;
-}
-.stat-val-home:hover { color: #FF6400; }
-.stat-bar-track {
-  flex: 1;
-  height: 6px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 3px;
-  overflow: hidden;
-  position: relative;
-}
-.stat-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #FF6400, #FF9500);
-  border-radius: 3px;
-  transition: width 0.5s ease;
-}
-.stat-val-away {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 28px;
-  color: rgba(255,255,255,0.5);
-  min-width: 36px;
-  text-align: left;
-  cursor: pointer;
-}
-.stat-val-away:hover { color: #FF6400; }
-
-/* MOTM card — special */
-.stat-card.motm {
-  border-top-color: #FFD700;
-  grid-column: span 1;
-}
-.stat-card.motm:hover { border-top-color: #FFD700; }
-.motm-icon { font-size: 36px; margin-bottom: 6px; }
-.motm-name {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 26px;
-  color: #FFD700;
-  letter-spacing: 2px;
-  cursor: pointer;
-}
-.motm-name:hover { opacity: 0.8; }
-.motm-sub { font-size: 11px; letter-spacing: 3px; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-top: 4px; }
-
-/* Prediction result card */
-.stat-card.pred-result {
-  border-top-color: rgba(255,100,0,0.8);
-}
-.pred-icon { font-size: 30px; margin-bottom: 6px; }
-.pred-result-text {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  letter-spacing: 2px;
-  cursor: pointer;
-}
-.pred-correct { color: #00e676; }
-.pred-wrong { color: #ff1744; }
-.pred-sub { font-size: 11px; letter-spacing: 2px; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-top: 4px; }
-
-/* ── WEBCAM ZONE ── */
-.webcam-zone {
-  position: absolute;
-  right: 56px;
-  top: 130px;
-  width: 420px;
-  height: 280px;
-  border: 1px solid rgba(255,100,0,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.wc-corner { position:absolute; width:20px; height:20px; }
-.wc-tl { top:-1px; left:-1px; border-top:2px solid #FF6400; border-left:2px solid #FF6400; }
-.wc-tr { top:-1px; right:-1px; border-top:2px solid #FF6400; border-right:2px solid #FF6400; }
-.wc-bl { bottom:-1px; left:-1px; border-bottom:2px solid #FF6400; border-left:2px solid #FF6400; }
-.wc-br { bottom:-1px; right:-1px; border-bottom:2px solid #FF6400; border-right:2px solid #FF6400; }
-.wc-label {
-  font-size:11px; font-weight:700; letter-spacing:4px;
-  color:rgba(255,100,0,0.2); text-transform:uppercase;
-}
-
-/* ── EDIT PANEL ── */
-.edit-panel {
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(6,8,15,0.97);
-  border: 1px solid rgba(255,100,0,0.5);
-  padding: 24px 28px;
-  display: none;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 100;
-  min-width: 460px;
-}
-.edit-panel.open { display: flex; }
-.edit-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px; color:#FF6400; letter-spacing:3px;
-  border-bottom: 1px solid rgba(255,100,0,0.3);
-  padding-bottom: 8px; margin-bottom: 4px;
-}
-.edit-row { display:flex; align-items:center; gap:10px; }
-.edit-label { font-size:12px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.4); text-transform:uppercase; min-width:100px; }
-.edit-input {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,100,0,0.3);
-  color: #fff;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 16px; font-weight:700;
-  padding: 6px 12px;
-  flex: 1;
-  text-transform: uppercase;
-}
-.edit-input:focus { outline:none; border-color:#FF6400; }
-.edit-input-sm { max-width: 80px; flex:none; }
-.btn {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px; font-weight:900; letter-spacing:2px;
-  text-transform: uppercase; padding:6px 16px;
-  border:none; cursor:pointer; transition:all 0.15s;
-}
+.tv-controls { padding:4px 20px 8px; display:flex; gap:6px; justify-content:flex-end; }
+.btn { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:900; letter-spacing:2px; text-transform:uppercase; padding:4px 12px; border:none; cursor:pointer; }
 .btn-orange { background:#FF6400; color:#000; }
-.btn-orange:hover { background:#FF9500; }
 .btn-gray { background:rgba(255,255,255,0.12); color:#fff; }
 .btn-gray:hover { background:rgba(255,255,255,0.2); }
-.btn-green { background:#00c853; color:#000; }
-.btn-red-sm { background:#c00; color:#fff; }
 
-/* toggle btn */
-.toggle-btn {
-  position: absolute;
-  top: 36px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-/* ── TICKER ── */
-.ticker-bar {
-  position: absolute;
-  bottom: 5px; left: 0; right: 0;
-  height: 52px;
-  background: linear-gradient(to right, rgba(255,100,0,0.18), rgba(255,100,0,0.08));
-  border-top: 1px solid rgba(255,100,0,0.25);
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-}
-.ticker-label {
-  flex-shrink: 0;
-  background: #FF6400;
-  color: #000;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 18px; letter-spacing:3px;
-  padding: 0 18px; height:100%;
-  display:flex; align-items:center;
-  border-right: 2px solid rgba(0,0,0,0.3);
-}
+.ticker-bar { position:absolute; bottom:0; left:0; right:0; height:55px; background:linear-gradient(to right,rgba(255,100,0,0.18),rgba(200,70,0,0.08)); border-top:2px solid rgba(255,100,0,0.25); display:flex; align-items:center; overflow:hidden; }
+.ticker-label { flex-shrink:0; background:#FF6400; color:#000; font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:3px; padding:0 18px; height:100%; display:flex; align-items:center; }
 .ticker-track { flex:1; overflow:hidden; height:100%; display:flex; align-items:center; }
-.ticker-inner {
-  display:flex; align-items:center;
-  white-space:nowrap;
-  animation: tickerMove 28s linear infinite;
-}
-@keyframes tickerMove {
-  0%{transform:translateX(0)}
-  100%{transform:translateX(-50%)}
-}
-.ticker-item { font-size:18px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.8); padding:0 36px; }
-.ticker-dot { color:rgba(255,100,0,0.6); font-size:16px; }
+.ticker-inner { display:flex; align-items:center; white-space:nowrap; animation:tickerMove 30s linear infinite; }
+@keyframes tickerMove{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ticker-item { font-size:19px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.8); padding:0 36px; }
+.ticker-dot { color:rgba(255,100,0,0.5); }
+
+.edit-panel { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(5,5,10,0.97); border:1px solid rgba(255,100,0,0.5); padding:24px 28px; display:none; flex-direction:column; gap:10px; z-index:200; min-width:400px; }
+.edit-panel.open { display:flex; }
+.edit-title { font-family:'Bebas Neue',sans-serif; font-size:22px; color:#FF6400; letter-spacing:3px; border-bottom:1px solid rgba(255,100,0,0.3); padding-bottom:8px; margin-bottom:4px; }
+.edit-row { display:flex; align-items:center; gap:10px; }
+.edit-label { font-size:11px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.4); text-transform:uppercase; min-width:90px; }
+.edit-input { background:rgba(255,255,255,0.06); border:1px solid rgba(255,100,0,0.3); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; padding:5px 10px; flex:1; text-transform:uppercase; }
+.edit-input:focus { outline:none; border-color:#FF6400; }
 </style>
 </head>
 <body>
-
-<!-- BG -->
-<div class="bg-grad"></div>
-<div class="bg-grid"></div>
-<div class="bg-diagonal"></div>
+<div class="stadium-bg"></div>
+<div class="pitch-lines">
+  <div class="pitch-circle-outer"></div>
+  <div class="pitch-circle-inner"></div>
+  <div class="pitch-center-line"></div>
+  <div class="pitch-penalty-left"></div>
+  <div class="pitch-penalty-right"></div>
+</div>
 <div class="top-bar"></div>
-<div class="bottom-bar"></div>
 
-<!-- LOGO -->
-<div class="logo-area">
-  <div class="logo-text">LID⚽</div>
-  <div class="logo-div"></div>
-  <div class="logo-sub">OFFICIAL<br>@XawBoe</div>
+<div class="header-bar">
+  <div class="logo-area">
+    <div class="logo-text">LID⚽</div>
+    <div class="logo-div"></div>
+    <div class="logo-sub">OFFICIAL<br>@XawBoe</div>
+  </div>
+  <div class="match-title-bar">
+    <div class="full-time-tag">Full Time</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="match-teams-title"><span id="hdr-home">MAN UTD</span><span class="vs"> VS </span><span id="hdr-away">ARSENAL</span></div>
+      <div class="match-score-inline" id="hdr-score">2 — 1</div>
+    </div>
+  </div>
+  <div class="type-badge">📊 Post-Match</div>
 </div>
 
-<!-- BADGE -->
-<div class="type-badge">
-  <div class="badge-box">📊 Post-Match Analysis</div>
+<div class="main-layout">
+  <div class="webcam-zone">
+    <div class="wc-corner wc-tl"></div><div class="wc-corner wc-tr"></div>
+    <div class="wc-corner wc-bl"></div><div class="wc-corner wc-br"></div>
+    <div class="wc-label">[ webcam ]</div>
+  </div>
+
+  <div class="tv-panel">
+    <div class="tv-frame">
+      <div class="tv-header">
+        <div class="tv-channel">📺 MATCH REVIEW</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="font-size:11px;letter-spacing:3px;color:rgba(255,255,255,0.3)">FT</div>
+          <div class="tv-live-dot"></div>
+        </div>
+      </div>
+      <div class="tv-score-block">
+        <div class="tv-team">
+          <div class="tv-team-logo" onclick="document.getElementById('home-logo-f').click()"><span id="home-emoji">🔴</span><img id="home-logo-img"/></div>
+          <div class="tv-team-name" id="tv-home-name">MAN UTD</div>
+        </div>
+        <div class="tv-score-center">
+          <div class="tv-score-nums">
+            <div class="tv-score-num" id="home-score" onclick="changeScore('home',1)">2</div>
+            <div class="tv-score-sep">—</div>
+            <div class="tv-score-num" id="away-score" onclick="changeScore('away',1)">1</div>
+          </div>
+          <div class="tv-ft">FULL TIME</div>
+        </div>
+        <div class="tv-team">
+          <div class="tv-team-logo" onclick="document.getElementById('away-logo-f').click()"><span id="away-emoji">🔵</span><img id="away-logo-img"/></div>
+          <div class="tv-team-name" id="tv-away-name">ARSENAL</div>
+        </div>
+      </div>
+      <div class="tv-stats">
+        <div class="tv-stat-row"><div class="tv-stat-home" onclick="makeEdit(this)" onblur="saveEdit(this)">55%</div><div class="tv-stat-label">Possession</div><div class="tv-stat-bar"><div class="tv-stat-fill" style="width:55%"></div></div><div class="tv-stat-away" onclick="makeEdit(this)" onblur="saveEdit(this)">45%</div></div>
+        <div class="tv-stat-row"><div class="tv-stat-home" onclick="makeEdit(this)" onblur="saveEdit(this)">6</div><div class="tv-stat-label">Shots on Target</div><div class="tv-stat-bar"><div class="tv-stat-fill" style="width:60%"></div></div><div class="tv-stat-away" onclick="makeEdit(this)" onblur="saveEdit(this)">4</div></div>
+        <div class="tv-stat-row"><div class="tv-stat-home" onclick="makeEdit(this)" onblur="saveEdit(this)">7</div><div class="tv-stat-label">Corners</div><div class="tv-stat-bar"><div class="tv-stat-fill" style="width:58%"></div></div><div class="tv-stat-away" onclick="makeEdit(this)" onblur="saveEdit(this)">5</div></div>
+        <div class="tv-stat-row"><div class="tv-stat-home" onclick="makeEdit(this)" onblur="saveEdit(this)">12</div><div class="tv-stat-label">Total Shots</div><div class="tv-stat-bar"><div class="tv-stat-fill" style="width:55%"></div></div><div class="tv-stat-away" onclick="makeEdit(this)" onblur="saveEdit(this)">10</div></div>
+        <div class="tv-stat-row"><div class="tv-stat-home" onclick="makeEdit(this)" onblur="saveEdit(this)">1</div><div class="tv-stat-label">Yellow Cards</div><div class="tv-stat-bar"><div class="tv-stat-fill" style="width:33%"></div></div><div class="tv-stat-away" onclick="makeEdit(this)" onblur="saveEdit(this)">2</div></div>
+      </div>
+      <div class="tv-bottom">
+        <div class="tv-motm">
+          <div class="tv-motm-label">⭐ Man of the Match</div>
+          <div class="tv-motm-name" id="motm-name" onclick="makeEdit(this)" onblur="saveEdit(this)">B. FERNANDES</div>
+        </div>
+        <div class="tv-pred">
+          <div class="tv-pred-label">🔮 Prediction</div>
+          <div class="tv-pred-result pred-correct" id="pred-result">CORRECT! ✅</div>
+          <div class="pred-btns">
+            <button class="pred-btn pred-btn-win" onclick="setPred(true)">WIN</button>
+            <button class="pred-btn pred-btn-lose" onclick="setPred(false)">WRONG</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tv-controls">
+      <button class="btn btn-gray" onclick="toggleEdit()">✏️ Edit</button>
+      <button class="btn btn-gray" onclick="clearAll()">🗑</button>
+    </div>
+  </div>
 </div>
 
-<!-- EDIT TOGGLE -->
-<button class="btn btn-gray toggle-btn" onclick="toggleEdit()" style="font-size:12px;padding:6px 18px;letter-spacing:2px">✏️ EDIT</button>
-
-<!-- MAIN TITLE -->
-<div class="main-title-area">
-  <div class="main-tag">Full Time</div>
-  <div class="main-title"><span id="title-home">MAN UTD</span> VS <span id="title-away">ARSENAL</span></div>
-</div>
-
-<!-- SCORE -->
-<div class="score-area">
-  <div class="team-side">
-    <div class="team-logo-box" onclick="document.getElementById('home-logo-f').click()" title="Upload logo">
-      <span id="home-emoji">🔴</span>
-      <img id="home-logo-img" />
-    </div>
-    <div class="team-name-pm" id="score-home-name">MAN UTD</div>
-  </div>
-
-  <div class="score-box">
-    <div class="score-final">
-      <div class="score-num" id="pm-home-score" onclick="changeScore('home',1)" title="Click +1 | Right-click -1">2</div>
-      <div class="score-dash">—</div>
-      <div class="score-num" id="pm-away-score" onclick="changeScore('away',1)" title="Click +1 | Right-click -1">1</div>
-    </div>
-    <div class="ft-badge">FULL TIME</div>
-  </div>
-
-  <div class="team-side">
-    <div class="team-logo-box" onclick="document.getElementById('away-logo-f').click()" title="Upload logo">
-      <span id="away-emoji">🔵</span>
-      <img id="away-logo-img" />
-    </div>
-    <div class="team-name-pm" id="score-away-name">ARSENAL</div>
-  </div>
-</div>
-
-<!-- STATS -->
-<div class="stats-section">
-
-  <!-- Possession -->
-  <div class="stat-card">
-    <div class="stat-card-label">Possession</div>
-    <div class="stat-bar-wrap">
-      <div class="stat-val-home" onclick="editStat(this)" contenteditable="true">55%</div>
-      <div class="stat-bar-track"><div class="stat-bar-fill" id="bar-poss" style="width:55%"></div></div>
-      <div class="stat-val-away" onclick="editStat(this)" contenteditable="true">45%</div>
-    </div>
-  </div>
-
-  <!-- Shots -->
-  <div class="stat-card">
-    <div class="stat-card-label">Shots on Target</div>
-    <div class="stat-bar-wrap">
-      <div class="stat-val-home" onclick="editStat(this)" contenteditable="true">6</div>
-      <div class="stat-bar-track"><div class="stat-bar-fill" id="bar-shots" style="width:60%"></div></div>
-      <div class="stat-val-away" onclick="editStat(this)" contenteditable="true">4</div>
-    </div>
-  </div>
-
-  <!-- Corners -->
-  <div class="stat-card">
-    <div class="stat-card-label">Corners</div>
-    <div class="stat-bar-wrap">
-      <div class="stat-val-home" onclick="editStat(this)" contenteditable="true">7</div>
-      <div class="stat-bar-track"><div class="stat-bar-fill" id="bar-corners" style="width:58%"></div></div>
-      <div class="stat-val-away" onclick="editStat(this)" contenteditable="true">5</div>
-    </div>
-  </div>
-
-  <!-- MOTM -->
-  <div class="stat-card motm">
-    <div class="stat-card-label">⭐ Man of the Match</div>
-    <div class="motm-icon">🏆</div>
-    <div class="motm-name" id="motm-name" onclick="this.contentEditable='true';this.focus()" onblur="this.contentEditable='false';save()">B. FERNANDES</div>
-    <div class="motm-sub" id="motm-team">MAN UTD</div>
-  </div>
-
-  <!-- Prediction Result -->
-  <div class="stat-card pred-result">
-    <div class="stat-card-label">🔮 Prediction Result</div>
-    <div class="pred-icon">✅</div>
-    <div class="pred-result-text pred-correct" id="pred-res-text">CORRECT!</div>
-    <div class="pred-sub" id="pred-res-sub">Predicted: MAN UTD WIN</div>
-    <div style="display:flex;gap:6px;margin-top:10px;justify-content:center">
-      <button class="btn btn-green" style="font-size:11px;padding:3px 10px" onclick="setPred(true)">✅ WIN</button>
-      <button class="btn btn-red-sm" style="font-size:11px;padding:3px 10px" onclick="setPred(false)">❌ WRONG</button>
-    </div>
-  </div>
-
-</div>
-
-<!-- WEBCAM ZONE -->
-<div class="webcam-zone">
-  <div class="wc-corner wc-tl"></div>
-  <div class="wc-corner wc-tr"></div>
-  <div class="wc-corner wc-bl"></div>
-  <div class="wc-corner wc-br"></div>
-  <div class="wc-label">[ webcam ]</div>
-</div>
-
-<!-- TICKER -->
 <div class="ticker-bar">
   <div class="ticker-label">LID⚽</div>
   <div class="ticker-track">
     <div class="ticker-inner">
-      <span class="ticker-item">📊 Full Time Analysis — LID OFFICIAL</span>
-      <span class="ticker-dot">◆</span>
-      <span class="ticker-item" id="tk-pred">🔮 Prediction: MAN UTD WIN · ✅ CORRECT</span>
-      <span class="ticker-dot">◆</span>
-      <span class="ticker-item">🔔 LID OFFICIAL Channel ကို Subscribe လုပ်ဖို့ မမေ့နဲ့!</span>
-      <span class="ticker-dot">◆</span>
-      <span class="ticker-item">⚽ Like · Share · @XawBoe</span>
-      <span class="ticker-dot">◆</span>
-      <!-- duplicate -->
-      <span class="ticker-item">📊 Full Time Analysis — LID OFFICIAL</span>
-      <span class="ticker-dot">◆</span>
-      <span class="ticker-item" id="tk-pred2">🔮 Prediction: MAN UTD WIN · ✅ CORRECT</span>
-      <span class="ticker-dot">◆</span>
-      <span class="ticker-item">🔔 LID OFFICIAL Channel ကို Subscribe လုပ်ဖို့ မမေ့နဲ့!</span>
-      <span class="ticker-dot">◆</span>
-      <span class="ticker-item">⚽ Like · Share · @XawBoe</span>
-      <span class="ticker-dot">◆</span>
+      <span class="ticker-item">📊 Full Time Analysis — LID OFFICIAL</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item" id="tk-pred1">🔮 Prediction: MAN UTD WIN · ✅ CORRECT</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item">🔔 Subscribe လုပ်ဖို့ မမေ့နဲ့! — @XawBoe</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item">⚽ Like · Share · @XawBoe</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item">📊 Full Time Analysis — LID OFFICIAL</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item" id="tk-pred2">🔮 Prediction: MAN UTD WIN · ✅ CORRECT</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item">🔔 Subscribe လုပ်ဖို့ မမေ့နဲ့! — @XawBoe</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item">⚽ Like · Share · @XawBoe</span><span class="ticker-dot">◆</span>
     </div>
   </div>
 </div>
 
-<!-- EDIT PANEL -->
 <div class="edit-panel" id="edit-panel">
   <div class="edit-title">✏️ Match Info</div>
+  <div class="edit-row"><div class="edit-label">Home</div><input class="edit-input" id="inp-home" value="MAN UTD" oninput="updateTeam('home',this.value)"></div>
+  <div class="edit-row"><div class="edit-label">Away</div><input class="edit-input" id="inp-away" value="ARSENAL" oninput="updateTeam('away',this.value)"></div>
+  <div class="edit-row"><div class="edit-label">MOTM</div><input class="edit-input" id="inp-motm" value="B. FERNANDES" oninput="document.getElementById('motm-name').textContent=this.value.toUpperCase();save()"></div>
+  <div class="edit-row"><div class="edit-label">Prediction</div><input class="edit-input" id="inp-pred" value="MAN UTD WIN" oninput="updatePredTicker(this.value)"></div>
   <div class="edit-row">
-    <div class="edit-label">Home Team</div>
-    <input class="edit-input" id="inp-home" value="MAN UTD" oninput="updateTeam('home',this.value)">
-  </div>
-  <div class="edit-row">
-    <div class="edit-label">Away Team</div>
-    <input class="edit-input" id="inp-away" value="ARSENAL" oninput="updateTeam('away',this.value)">
-  </div>
-  <div class="edit-row">
-    <div class="edit-label">MOTM</div>
-    <input class="edit-input" id="inp-motm" value="B. FERNANDES" oninput="document.getElementById('motm-name').textContent=this.value.toUpperCase();save()">
-  </div>
-  <div class="edit-row">
-    <div class="edit-label">Prediction</div>
-    <input class="edit-input" id="inp-pred-txt" value="MAN UTD WIN" oninput="updatePredTicker(this.value)">
-  </div>
-  <div class="edit-row">
-    <div class="edit-label">Upload Logo</div>
+    <div class="edit-label">Logo</div>
     <button class="btn btn-gray" onclick="document.getElementById('home-logo-f').click()">🔴 Home</button>
     <button class="btn btn-gray" onclick="document.getElementById('away-logo-f').click()">🔵 Away</button>
   </div>
-  <div class="edit-row" style="margin-top:6px;gap:8px">
+  <div class="edit-row" style="margin-top:6px">
     <button class="btn btn-orange" style="flex:1" onclick="toggleEdit()">Close ✕</button>
-    <button class="btn btn-gray" style="flex:1" onclick="clearAll()">🗑 Clear</button>
   </div>
 </div>
 
-<!-- Hidden inputs -->
 <input type="file" id="home-logo-f" accept="image/*" onchange="uploadLogo('home',this)">
 <input type="file" id="away-logo-f" accept="image/*" onchange="uploadLogo('away',this)">
 
 <script>
-// ── SCALE ──
-function autoScale() {
-  const scale = Math.min(window.innerWidth/1920, window.innerHeight/1080);
-  document.body.style.transform = `scale(${scale})`;
-}
-autoScale();
-window.addEventListener('resize', autoScale);
-
-// ── SCORE ──
-let homeGoals = 2, awayGoals = 1;
-
-function changeScore(team, delta) {
-  if (team==='home') { homeGoals=Math.max(0,homeGoals+delta); document.getElementById('pm-home-score').textContent=homeGoals; }
-  else { awayGoals=Math.max(0,awayGoals+delta); document.getElementById('pm-away-score').textContent=awayGoals; }
-  save();
-}
-document.getElementById('pm-home-score').addEventListener('contextmenu',e=>{e.preventDefault();changeScore('home',-1);});
-document.getElementById('pm-away-score').addEventListener('contextmenu',e=>{e.preventDefault();changeScore('away',-1);});
-
-// ── TEAM UPDATE ──
-function updateTeam(team, val) {
-  const v = val.toUpperCase();
-  document.getElementById('title-'+team).textContent = v;
-  document.getElementById('score-'+team+'-name').textContent = v;
-  if (team==='home') document.getElementById('motm-team').textContent = v;
-  save();
-}
-
-// ── PRED RESULT ──
-function setPred(correct) {
-  const txt = document.getElementById('pred-res-text');
-  const pred = document.getElementById('inp-pred-txt').value.toUpperCase();
-  if (correct) {
-    txt.textContent = 'CORRECT! ✅';
-    txt.className = 'pred-result-text pred-correct';
-    updatePredTicker(pred, true);
-  } else {
-    txt.textContent = 'WRONG ❌';
-    txt.className = 'pred-result-text pred-wrong';
-    updatePredTicker(pred, false);
-  }
-  save();
-}
-
-function updatePredTicker(pred, correct) {
-  const icon = correct === false ? '❌' : '✅';
-  const txt = `🔮 Prediction: ${pred.toUpperCase()} · ${icon}`;
-  document.getElementById('tk-pred').textContent = txt;
-  document.getElementById('tk-pred2').textContent = txt;
-  document.getElementById('pred-res-sub').textContent = 'Predicted: ' + pred.toUpperCase();
-}
-
-// ── LOGO UPLOAD ──
-function uploadLogo(team, input) {
-  const file = input.files[0]; if (!file) return;
-  const url = URL.createObjectURL(file);
-  const img = document.getElementById(team+'-logo-img');
-  const emoji = document.getElementById(team+'-emoji');
-  img.src = url; img.style.display='block'; emoji.style.display='none';
-}
-
-// ── EDIT PANEL ──
-function toggleEdit() {
-  document.getElementById('edit-panel').classList.toggle('open');
-}
-
-// ── LOCALSTORAGE ──
-function save() {
-  localStorage.setItem('lid_pm', JSON.stringify({
-    home: homeGoals, away: awayGoals,
-    homeName: document.getElementById('inp-home').value,
-    awayName: document.getElementById('inp-away').value,
-    motm: document.getElementById('inp-motm').value,
-    pred: document.getElementById('inp-pred-txt').value,
-    predCorrect: document.getElementById('pred-res-text').textContent
-  }));
-}
-
-function loadSaved() {
-  const d = localStorage.getItem('lid_pm');
-  if (!d) return;
-  const s = JSON.parse(d);
-  if (s.homeName) { document.getElementById('inp-home').value=s.homeName; updateTeam('home',s.homeName); }
-  if (s.awayName) { document.getElementById('inp-away').value=s.awayName; updateTeam('away',s.awayName); }
-  if (s.motm) { document.getElementById('inp-motm').value=s.motm; document.getElementById('motm-name').textContent=s.motm.toUpperCase(); }
-  if (s.pred) { document.getElementById('inp-pred-txt').value=s.pred; updatePredTicker(s.pred); }
-  homeGoals=s.home||2; awayGoals=s.away||1;
-  document.getElementById('pm-home-score').textContent=homeGoals;
-  document.getElementById('pm-away-score').textContent=awayGoals;
-}
-
-function clearAll() { localStorage.removeItem('lid_pm'); location.reload(); }
-
+function autoScale(){const s=Math.min(window.innerWidth/1920,window.innerHeight/1080);document.body.style.transform=`scale(${s})`;}
+autoScale();window.addEventListener('resize',autoScale);
+let homeGoals=2,awayGoals=1;
+function changeScore(t,d){if(t==='home'){homeGoals=Math.max(0,homeGoals+d);document.getElementById('home-score').textContent=homeGoals;}else{awayGoals=Math.max(0,awayGoals+d);document.getElementById('away-score').textContent=awayGoals;}document.getElementById('hdr-score').textContent=homeGoals+' — '+awayGoals;save();}
+document.getElementById('home-score').addEventListener('contextmenu',e=>{e.preventDefault();changeScore('home',-1);});
+document.getElementById('away-score').addEventListener('contextmenu',e=>{e.preventDefault();changeScore('away',-1);});
+function updateTeam(t,v){const u=v.toUpperCase();document.getElementById('tv-'+t+'-name').textContent=u;document.getElementById('hdr-'+t).textContent=u;save();}
+function setPred(correct){const pred=document.getElementById('inp-pred').value.toUpperCase();const el=document.getElementById('pred-result');el.textContent=correct?'CORRECT! ✅':'WRONG ❌';el.className='tv-pred-result '+(correct?'pred-correct':'pred-wrong');updatePredTicker(pred,correct);save();}
+function updatePredTicker(pred,correct){const icon=correct===false?'❌':'✅';const txt=`🔮 Prediction: ${pred.toUpperCase()} · ${icon}`;document.getElementById('tk-pred1').textContent=txt;document.getElementById('tk-pred2').textContent=txt;}
+function makeEdit(el){el.contentEditable='true';el.focus();}
+function saveEdit(el){el.contentEditable='false';save();}
+function uploadLogo(t,input){const f=input.files[0];if(!f)return;const url=URL.createObjectURL(f);const img=document.getElementById(t+'-logo-img');const emoji=document.getElementById(t+'-emoji');img.src=url;img.style.display='block';emoji.style.display='none';}
+function toggleEdit(){document.getElementById('edit-panel').classList.toggle('open');}
+function save(){localStorage.setItem('lid_pm2',JSON.stringify({home:document.getElementById('inp-home').value,away:document.getElementById('inp-away').value,motm:document.getElementById('inp-motm').value,pred:document.getElementById('inp-pred').value,homeGoals,awayGoals}));}
+function loadSaved(){const d=localStorage.getItem('lid_pm2');if(!d)return;const s=JSON.parse(d);if(s.home){document.getElementById('inp-home').value=s.home;updateTeam('home',s.home);}if(s.away){document.getElementById('inp-away').value=s.away;updateTeam('away',s.away);}if(s.motm){document.getElementById('inp-motm').value=s.motm;document.getElementById('motm-name').textContent=s.motm.toUpperCase();}if(s.pred){document.getElementById('inp-pred').value=s.pred;updatePredTicker(s.pred);}if(s.homeGoals!==undefined){homeGoals=s.homeGoals;awayGoals=s.awayGoals;document.getElementById('home-score').textContent=homeGoals;document.getElementById('away-score').textContent=awayGoals;document.getElementById('hdr-score').textContent=homeGoals+' — '+awayGoals;}}
+function clearAll(){localStorage.removeItem('lid_pm2');location.reload();}
 loadSaved();
 </script>
 </body>
