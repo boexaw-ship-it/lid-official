@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LID — FPL Points Overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:100%; height:100%; }
+body {
+  width:1920px; height:1080px;
+  overflow:hidden; background:#06060f;
+  font-family:'Barlow Condensed',sans-serif;
+  transform-origin:top left;
+}
+
+body::before {
+  content:''; position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(100,80,255,0.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(100,80,255,0.05) 1px,transparent 1px);
+  background-size:70px 70px;
+  animation:gridMove 9s linear infinite;
+  pointer-events:none; z-index:0;
+}
+@keyframes gridMove{0%{transform:translate(0,0)}100%{transform:translate(70px,70px)}}
+
+.glow-purple {
+  position:absolute; width:600px; height:600px; border-radius:50%;
+  background:radial-gradient(circle,rgba(100,80,255,0.10) 0%,transparent 65%);
+  top:50%; right:5%; transform:translateY(-50%);
+  animation:pulse 4s ease-in-out infinite; pointer-events:none;
+}
+.glow-orange {
+  position:absolute; width:400px; height:400px; border-radius:50%;
+  background:radial-gradient(circle,rgba(255,100,0,0.08) 0%,transparent 65%);
+  top:50%; left:15%; transform:translate(-50%,-50%);
+  animation:pulse 4s ease-in-out 2s infinite; pointer-events:none;
+}
+@keyframes pulse{0%,100%{opacity:0.6;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}}
+
+.top-bar { position:absolute; top:0; left:0; right:0; height:5px; background:linear-gradient(90deg,#FF6400,#9b59ff,#FF6400); }
+.bottom-bar { position:absolute; bottom:0; left:0; right:0; height:5px; background:linear-gradient(90deg,#9b59ff,#FF6400,#9b59ff); }
+.left-bar { position:absolute; left:0; top:0; bottom:0; width:5px; background:linear-gradient(to bottom,transparent,#FF6400,#9b59ff,transparent); }
+
+/* LOGO */
+.logo-area { position:absolute; top:36px; left:56px; display:flex; align-items:center; gap:14px; z-index:2; }
+.logo-text { font-family:'Bebas Neue',sans-serif; font-size:48px; color:#FF6400; letter-spacing:4px; text-shadow:0 0 30px rgba(255,100,0,0.6); line-height:1; }
+.logo-div { width:2px; height:32px; background:rgba(255,100,0,0.4); }
+.logo-sub { font-size:12px; font-weight:700; letter-spacing:4px; color:rgba(255,255,255,0.35); text-transform:uppercase; line-height:1.6; }
+
+/* BADGE */
+.type-badge { position:absolute; top:36px; right:56px; background:linear-gradient(135deg,rgba(100,80,255,0.2),rgba(155,89,255,0.15)); border:1px solid rgba(155,89,255,0.5); color:#9b59ff; font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:4px; padding:8px 22px; clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px)); z-index:2; }
+
+/* WEBCAM LEFT */
+.webcam-zone { position:absolute; left:56px; top:130px; width:560px; height:880px; border:1px solid rgba(255,100,0,0.12); display:flex; align-items:center; justify-content:center; }
+.wc-corner { position:absolute; width:24px; height:24px; }
+.wc-tl { top:-1px; left:-1px; border-top:2px solid #FF6400; border-left:2px solid #FF6400; }
+.wc-tr { top:-1px; right:-1px; border-top:2px solid #FF6400; border-right:2px solid #FF6400; }
+.wc-bl { bottom:-1px; left:-1px; border-bottom:2px solid #9b59ff; border-left:2px solid #9b59ff; }
+.wc-br { bottom:-1px; right:-1px; border-bottom:2px solid #9b59ff; border-right:2px solid #9b59ff; }
+.wc-label { font-size:12px; font-weight:700; letter-spacing:4px; color:rgba(255,100,0,0.2); text-transform:uppercase; }
+
+/* RIGHT PANEL */
+.right-panel { position:absolute; left:680px; top:110px; right:56px; bottom:60px; display:flex; flex-direction:column; gap:14px; z-index:2; }
+
+/* GW HEADER */
+.gw-header { background:rgba(155,89,255,0.08); border:1px solid rgba(155,89,255,0.2); border-top:3px solid #9b59ff; padding:20px 28px; display:flex; align-items:center; justify-content:space-between; }
+.gw-label { font-size:12px; font-weight:700; letter-spacing:5px; color:rgba(155,89,255,0.7); text-transform:uppercase; }
+.gw-num { font-family:'Bebas Neue',sans-serif; font-size:52px; color:#9b59ff; letter-spacing:2px; line-height:1; cursor:pointer; }
+.gw-num:hover { color:#b980ff; }
+.gw-pts-block { text-align:right; }
+.gw-pts-label { font-size:11px; font-weight:700; letter-spacing:3px; color:rgba(255,100,0,0.6); text-transform:uppercase; }
+.gw-pts-val { font-family:'Bebas Neue',sans-serif; font-size:72px; color:#FF6400; line-height:1; text-shadow:0 0 30px rgba(255,100,0,0.4); cursor:pointer; }
+.gw-pts-val:hover { color:#FF9500; }
+.gw-rank-block { text-align:center; }
+.gw-rank-label { font-size:11px; font-weight:700; letter-spacing:3px; color:rgba(255,255,255,0.3); text-transform:uppercase; }
+.gw-rank-val { font-family:'Bebas Neue',sans-serif; font-size:36px; color:#fff; cursor:pointer; }
+.gw-rank-val:hover { color:#FF6400; }
+
+/* PICKS ROW */
+.picks-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.pick-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); padding:18px 16px; text-align:center; position:relative; transition:all 0.2s; }
+.pick-card:hover { background:rgba(155,89,255,0.06); border-color:rgba(155,89,255,0.3); }
+.pick-card.captain { border-top:3px solid #FFD700; }
+.pick-card.captain:hover { border-color:rgba(255,215,0,0.4); }
+.pick-card.vice { border-top:3px solid #9b59ff; }
+.pick-card.differential { border-top:3px solid #FF6400; }
+.pick-icon { font-size:28px; margin-bottom:6px; }
+.pick-label { font-size:10px; font-weight:700; letter-spacing:4px; text-transform:uppercase; margin-bottom:8px; }
+.captain .pick-label { color:#FFD700; }
+.vice .pick-label { color:#9b59ff; }
+.differential .pick-label { color:#FF6400; }
+.pick-name { font-family:'Bebas Neue',sans-serif; font-size:26px; color:#fff; letter-spacing:2px; cursor:pointer; }
+.pick-name:hover { color:#FF6400; }
+.pick-name[contenteditable="true"] { outline:none; color:#FF6400; }
+.pick-pts { font-size:12px; letter-spacing:2px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-top:6px; cursor:pointer; }
+.pick-pts span { color:#FF6400; font-family:'Bebas Neue',sans-serif; font-size:18px; cursor:pointer; }
+.pick-pts span:hover { color:#FF9500; }
+
+/* TRANSFERS */
+.transfers-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.transfer-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-left:3px solid rgba(255,100,0,0.5); padding:16px 20px; display:flex; align-items:center; gap:16px; }
+.transfer-arrow { font-size:28px; }
+.transfer-info { flex:1; }
+.transfer-label { font-size:10px; font-weight:700; letter-spacing:3px; color:rgba(255,100,0,0.6); text-transform:uppercase; margin-bottom:4px; }
+.transfer-name { font-family:'Bebas Neue',sans-serif; font-size:26px; color:#fff; letter-spacing:2px; cursor:pointer; }
+.transfer-name:hover { color:#FF6400; }
+.transfer-name[contenteditable="true"] { outline:none; color:#FF6400; }
+.transfer-pts { font-size:12px; letter-spacing:2px; color:rgba(255,255,255,0.3); text-transform:uppercase; cursor:pointer; }
+
+/* OVERALL STATS */
+.overall-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+.overall-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-top:2px solid rgba(155,89,255,0.4); padding:14px 16px; text-align:center; }
+.overall-label { font-size:10px; font-weight:700; letter-spacing:3px; color:rgba(155,89,255,0.6); text-transform:uppercase; margin-bottom:6px; }
+.overall-val { font-family:'Bebas Neue',sans-serif; font-size:32px; color:#fff; cursor:pointer; }
+.overall-val:hover { color:#9b59ff; }
+.overall-val[contenteditable="true"] { outline:none; color:#9b59ff; }
+
+/* TICKER */
+.ticker-bar { position:absolute; bottom:5px; left:0; right:0; height:50px; background:linear-gradient(to right,rgba(155,89,255,0.15),rgba(255,100,0,0.08)); border-top:1px solid rgba(155,89,255,0.2); display:flex; align-items:center; overflow:hidden; }
+.ticker-label { flex-shrink:0; background:linear-gradient(135deg,#9b59ff,#6840ff); color:#fff; font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:3px; padding:0 16px; height:100%; display:flex; align-items:center; }
+.ticker-track { flex:1; overflow:hidden; height:100%; display:flex; align-items:center; }
+.ticker-inner { display:flex; align-items:center; white-space:nowrap; animation:tickerMove 30s linear infinite; }
+@keyframes tickerMove{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ticker-item { font-size:17px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.7); padding:0 32px; }
+.ticker-dot { color:rgba(155,89,255,0.5); }
+
+/* EDIT PANEL */
+.edit-panel { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(6,6,15,0.97); border:1px solid rgba(155,89,255,0.5); padding:24px 28px; display:none; flex-direction:column; gap:10px; z-index:100; min-width:440px; }
+.edit-panel.open { display:flex; }
+.edit-title { font-family:'Bebas Neue',sans-serif; font-size:22px; color:#9b59ff; letter-spacing:3px; border-bottom:1px solid rgba(155,89,255,0.3); padding-bottom:8px; margin-bottom:4px; }
+.edit-row { display:flex; align-items:center; gap:10px; }
+.edit-label { font-size:12px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.4); text-transform:uppercase; min-width:100px; }
+.edit-input { background:rgba(255,255,255,0.06); border:1px solid rgba(155,89,255,0.3); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; padding:6px 12px; flex:1; text-transform:uppercase; }
+.edit-input:focus { outline:none; border-color:#9b59ff; }
+.btn { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:900; letter-spacing:2px; text-transform:uppercase; padding:6px 16px; border:none; cursor:pointer; transition:all 0.15s; }
+.btn-purple { background:#9b59ff; color:#fff; }
+.btn-purple:hover { background:#b980ff; }
+.btn-orange { background:#FF6400; color:#000; }
+.btn-gray { background:rgba(255,255,255,0.12); color:#fff; }
+.btn-gray:hover { background:rgba(255,255,255,0.2); }
+
+.edit-toggle { position:absolute; top:36px; left:50%; transform:translateX(-50%); z-index:2; }
+</style>
+</head>
+<body>
+
+<div class="glow-purple"></div>
+<div class="glow-orange"></div>
+<div class="top-bar"></div>
+<div class="bottom-bar"></div>
+<div class="left-bar"></div>
+
+<div class="logo-area">
+  <div class="logo-text">LID⚽</div>
+  <div class="logo-div"></div>
+  <div class="logo-sub">OFFICIAL<br>@XawBoe</div>
+</div>
+
+<div class="type-badge">🏆 FPL Tips</div>
+
+<button class="btn btn-gray edit-toggle" onclick="toggleEdit()" style="font-size:12px;padding:5px 16px">✏️ EDIT</button>
+
+<div class="webcam-zone">
+  <div class="wc-corner wc-tl"></div><div class="wc-corner wc-tr"></div>
+  <div class="wc-corner wc-bl"></div><div class="wc-corner wc-br"></div>
+  <div class="wc-label">[ webcam ]</div>
+</div>
+
+<div class="right-panel">
+
+  <!-- GW Header -->
+  <div class="gw-header">
+    <div>
+      <div class="gw-label">Gameweek</div>
+      <div class="gw-num" id="gw-num" onclick="makeEdit(this)" onblur="saveEdit(this)">GW32</div>
+    </div>
+    <div class="gw-rank-block">
+      <div class="gw-rank-label">Overall Rank</div>
+      <div class="gw-rank-val" id="overall-rank" onclick="makeEdit(this)" onblur="saveEdit(this)">125,430</div>
+    </div>
+    <div class="gw-pts-block">
+      <div class="gw-pts-label">GW Points</div>
+      <div class="gw-pts-val" id="gw-pts" onclick="makeEdit(this)" onblur="saveEdit(this)">68</div>
+    </div>
+  </div>
+
+  <!-- Picks -->
+  <div class="picks-row">
+    <div class="pick-card captain">
+      <div class="pick-icon">⭐</div>
+      <div class="pick-label">Captain (2x)</div>
+      <div class="pick-name" id="cap-name" onclick="makeEdit(this)" onblur="saveEdit(this)">SALAH</div>
+      <div class="pick-pts">Points: <span id="cap-pts" onclick="makeEditSpan(this)" contenteditable="false">18</span></div>
+    </div>
+    <div class="pick-card vice">
+      <div class="pick-icon">🔷</div>
+      <div class="pick-label">Vice Captain</div>
+      <div class="pick-name" id="vc-name" onclick="makeEdit(this)" onblur="saveEdit(this)">HAALAND</div>
+      <div class="pick-pts">Points: <span id="vc-pts" onclick="makeEditSpan(this)" contenteditable="false">12</span></div>
+    </div>
+    <div class="pick-card differential">
+      <div class="pick-icon">🎯</div>
+      <div class="pick-label">Differential</div>
+      <div class="pick-name" id="diff-name" onclick="makeEdit(this)" onblur="saveEdit(this)">ISAK</div>
+      <div class="pick-pts">Points: <span id="diff-pts" onclick="makeEditSpan(this)" contenteditable="false">9</span></div>
+    </div>
+  </div>
+
+  <!-- Transfers -->
+  <div class="transfers-row">
+    <div class="transfer-card">
+      <div class="transfer-arrow">🔄</div>
+      <div class="transfer-info">
+        <div class="transfer-label">Transfer In</div>
+        <div class="transfer-name" id="tin-name" onclick="makeEdit(this)" onblur="saveEdit(this)">SALAH</div>
+        <div class="transfer-pts">Best Pick This GW</div>
+      </div>
+    </div>
+    <div class="transfer-card">
+      <div class="transfer-arrow">❌</div>
+      <div class="transfer-info">
+        <div class="transfer-label">Transfer Out</div>
+        <div class="transfer-name" id="tout-name" onclick="makeEdit(this)" onblur="saveEdit(this)">WATKINS</div>
+        <div class="transfer-pts">Poor Form / Fixtures</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overall Stats -->
+  <div class="overall-row">
+    <div class="overall-card">
+      <div class="overall-label">Total Points</div>
+      <div class="overall-val" id="total-pts" onclick="makeEdit(this)" onblur="saveEdit(this)">1,842</div>
+    </div>
+    <div class="overall-card">
+      <div class="overall-label">Team Value</div>
+      <div class="overall-val" id="team-val" onclick="makeEdit(this)" onblur="saveEdit(this)">£102.4m</div>
+    </div>
+    <div class="overall-card">
+      <div class="overall-label">Transfers Left</div>
+      <div class="overall-val" id="trans-left" onclick="makeEdit(this)" onblur="saveEdit(this)">2</div>
+    </div>
+    <div class="overall-card">
+      <div class="overall-label">Bank</div>
+      <div class="overall-val" id="bank-val" onclick="makeEdit(this)" onblur="saveEdit(this)">£1.5m</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-label">FPL</div>
+  <div class="ticker-track">
+    <div class="ticker-inner">
+      <span class="ticker-item" id="tk-cap1">⭐ Captain Pick: SALAH · 2x Points</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item">🔔 LID OFFICIAL Channel ကို Subscribe လုပ်ဖို့ မမေ့နဲ့!</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item" id="tk-diff1">🎯 Differential: ISAK · Low Ownership</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item">⚽ Like · Share · @XawBoe — LID OFFICIAL</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item" id="tk-cap2">⭐ Captain Pick: SALAH · 2x Points</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item">🔔 LID OFFICIAL Channel ကို Subscribe လုပ်ဖို့ မမေ့နဲ့!</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item" id="tk-diff2">🎯 Differential: ISAK · Low Ownership</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item">⚽ Like · Share · @XawBoe — LID OFFICIAL</span>
+      <span class="ticker-dot">◆</span>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PANEL -->
+<div class="edit-panel" id="edit-panel">
+  <div class="edit-title">✏️ FPL Info</div>
+  <div class="edit-row"><div class="edit-label">Gameweek</div><input class="edit-input" id="inp-gw" value="GW32" oninput="document.getElementById('gw-num').textContent=this.value;save()"></div>
+  <div class="edit-row"><div class="edit-label">GW Points</div><input class="edit-input" id="inp-gwpts" value="68" oninput="document.getElementById('gw-pts').textContent=this.value;save()"></div>
+  <div class="edit-row"><div class="edit-label">Captain</div><input class="edit-input" id="inp-cap" value="SALAH" oninput="document.getElementById('cap-name').textContent=this.value.toUpperCase();updateTicker();save()"></div>
+  <div class="edit-row"><div class="edit-label">Differential</div><input class="edit-input" id="inp-diff" value="ISAK" oninput="document.getElementById('diff-name').textContent=this.value.toUpperCase();updateTicker();save()"></div>
+  <div class="edit-row" style="margin-top:6px;gap:8px">
+    <button class="btn btn-purple" style="flex:1" onclick="toggleEdit()">Close ✕</button>
+    <button class="btn btn-gray" style="flex:1" onclick="clearAll()">🗑 Clear</button>
+  </div>
+</div>
+
+<script>
+function autoScale(){const s=Math.min(window.innerWidth/1920,window.innerHeight/1080);document.body.style.transform=`scale(${s})`;}
+autoScale(); window.addEventListener('resize',autoScale);
+
+function makeEdit(el){el.contentEditable='true';el.focus();}
+function saveEdit(el){el.contentEditable='false';save();}
+function makeEditSpan(el){el.contentEditable='true';el.focus();}
+
+function updateTicker(){
+  const cap=document.getElementById('cap-name').textContent;
+  const diff=document.getElementById('diff-name').textContent;
+  document.getElementById('tk-cap1').textContent=`⭐ Captain Pick: ${cap} · 2x Points`;
+  document.getElementById('tk-cap2').textContent=`⭐ Captain Pick: ${cap} · 2x Points`;
+  document.getElementById('tk-diff1').textContent=`🎯 Differential: ${diff} · Low Ownership`;
+  document.getElementById('tk-diff2').textContent=`🎯 Differential: ${diff} · Low Ownership`;
+}
+
+function toggleEdit(){document.getElementById('edit-panel').classList.toggle('open');}
+
+function save(){
+  localStorage.setItem('lid_fpl',JSON.stringify({
+    gw:document.getElementById('inp-gw').value,
+    gwpts:document.getElementById('inp-gwpts').value,
+    cap:document.getElementById('inp-cap').value,
+    diff:document.getElementById('inp-diff').value
+  }));
+}
+
+function loadSaved(){
+  const d=localStorage.getItem('lid_fpl');if(!d)return;
+  const s=JSON.parse(d);
+  if(s.gw){document.getElementById('inp-gw').value=s.gw;document.getElementById('gw-num').textContent=s.gw;}
+  if(s.gwpts){document.getElementById('inp-gwpts').value=s.gwpts;document.getElementById('gw-pts').textContent=s.gwpts;}
+  if(s.cap){document.getElementById('inp-cap').value=s.cap;document.getElementById('cap-name').textContent=s.cap.toUpperCase();}
+  if(s.diff){document.getElementById('inp-diff').value=s.diff;document.getElementById('diff-name').textContent=s.diff.toUpperCase();}
+  updateTicker();
+}
+
+function clearAll(){localStorage.removeItem('lid_fpl');location.reload();}
+loadSaved();
+</script>
+</body>
+</html>
