@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LID — FPL BG</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  width:1920px; height:1080px;
+  overflow:hidden; background:#06060f;
+  font-family:'Barlow Condensed',sans-serif;
+}
+
+/* Purple/blue tint for FPL */
+.grid {
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(100,80,255,0.06) 1px, transparent 1px),
+    linear-gradient(90deg,rgba(100,80,255,0.06) 1px, transparent 1px);
+  background-size:70px 70px;
+  animation:gridMove 9s linear infinite;
+}
+@keyframes gridMove { 0%{transform:translate(0,0)} 100%{transform:translate(70px,70px)} }
+
+.left-bar { position:absolute; left:0; top:0; bottom:0; width:6px; background:linear-gradient(to bottom,transparent,#FF6400,#FF9500,#FF6400,transparent); }
+.top-strip { position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg,#FF6400,#9b59ff,#FF6400); }
+
+.glow-purple {
+  position:absolute; width:600px; height:600px; border-radius:50%;
+  background:radial-gradient(circle,rgba(100,80,255,0.10) 0%,transparent 65%);
+  top:50%; right:10%; transform:translateY(-50%);
+  animation:pulse 4s ease-in-out infinite;
+}
+.glow-orange {
+  position:absolute; width:400px; height:400px; border-radius:50%;
+  background:radial-gradient(circle,rgba(255,100,0,0.08) 0%,transparent 65%);
+  top:50%; left:20%; transform:translate(-50%,-50%);
+  animation:pulse 4s ease-in-out 2s infinite;
+}
+@keyframes pulse {
+  0%,100%{opacity:0.6; transform:translate(-50%,-50%) scale(1)}
+  50%{opacity:1; transform:translate(-50%,-50%) scale(1.15)}
+}
+
+/* FPL Trophy badge */
+.fpl-badge {
+  position:absolute; top:48px; right:60px;
+  background:linear-gradient(135deg,#9b59ff,#6840ff);
+  color:#fff; font-size:15px; font-weight:900;
+  letter-spacing:4px; text-transform:uppercase;
+  padding:10px 28px;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+}
+
+.logo-area { position:absolute; top:48px; left:60px; display:flex; align-items:center; gap:16px; }
+.logo-text { font-family:'Bebas Neue',sans-serif; font-size:56px; color:#FF6400; letter-spacing:4px; text-shadow:0 0 30px rgba(255,100,0,0.6); line-height:1; }
+.logo-divider { width:2px; height:40px; background:rgba(255,100,0,0.4); }
+.logo-sub { font-size:14px; font-weight:700; letter-spacing:4px; color:rgba(255,255,255,0.4); text-transform:uppercase; line-height:1.6; }
+
+/* GW indicator left side */
+.gw-indicator {
+  position:absolute; left:60px; top:50%; transform:translateY(-50%);
+  display:flex; flex-direction:column; align-items:flex-start; gap:6px;
+}
+.gw-label { font-size:11px; font-weight:700; letter-spacing:4px; color:rgba(155,89,255,0.6); text-transform:uppercase; }
+.gw-num { font-family:'Bebas Neue',sans-serif; font-size:100px; color:rgba(155,89,255,0.12); line-height:1; }
+
+.corner { position:absolute; width:50px; height:50px; }
+.corner-tl { top:160px; left:140px; border-top:2px solid rgba(255,100,0,0.5); border-left:2px solid rgba(255,100,0,0.5); }
+.corner-tr { top:160px; right:140px; border-top:2px solid rgba(255,100,0,0.5); border-right:2px solid rgba(255,100,0,0.5); }
+.corner-bl { bottom:100px; left:140px; border-bottom:2px solid rgba(155,89,255,0.5); border-left:2px solid rgba(155,89,255,0.5); }
+.corner-br { bottom:100px; right:140px; border-bottom:2px solid rgba(155,89,255,0.5); border-right:2px solid rgba(155,89,255,0.5); }
+
+.center-zone { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:900px; height:600px; border:1px solid rgba(155,89,255,0.08); display:flex; align-items:center; justify-content:center; }
+.center-label { font-size:13px; font-weight:700; letter-spacing:5px; color:rgba(155,89,255,0.15); text-transform:uppercase; }
+
+.bg-text { position:absolute; bottom:-60px; right:40px; font-family:'Bebas Neue',sans-serif; font-size:300px; color:rgba(155,89,255,0.04); line-height:1; user-select:none; }
+
+/* Floating stars */
+.star { position:absolute; border-radius:50%; background:#9b59ff; animation:starFloat var(--d) ease-in-out infinite; opacity:0.15; }
+@keyframes starFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-20px)} }
+
+.bottom-bar { position:absolute; bottom:0; left:0; right:0; height:80px; background:linear-gradient(to right,rgba(255,100,0,0.10),rgba(155,89,255,0.08),transparent); border-top:1px solid rgba(155,89,255,0.2); display:flex; align-items:center; padding:0 60px; gap:40px; }
+.bottom-tag { font-size:12px; font-weight:700; letter-spacing:4px; color:rgba(155,89,255,0.7); text-transform:uppercase; }
+.bottom-line { flex:1; height:1px; background:linear-gradient(90deg,rgba(255,100,0,0.3),rgba(155,89,255,0.3),transparent); }
+.bottom-handle { font-size:14px; font-weight:700; letter-spacing:3px; color:rgba(255,255,255,0.3); }
+.bottom-handle span { color:#FF6400; }
+</style>
+</head>
+<body>
+<div class="grid"></div>
+<div class="glow-purple"></div>
+<div class="glow-orange"></div>
+<div class="left-bar"></div>
+<div class="top-strip"></div>
+<div class="bg-text">FPL</div>
+
+<!-- Floating stars -->
+<div class="star" style="width:6px;height:6px;top:20%;left:15%;--d:3s"></div>
+<div class="star" style="width:4px;height:4px;top:70%;left:80%;--d:4s"></div>
+<div class="star" style="width:8px;height:8px;top:40%;left:90%;--d:5s"></div>
+<div class="star" style="width:5px;height:5px;top:80%;left:30%;--d:3.5s"></div>
+
+<div class="logo-area">
+  <div class="logo-text">LID⚽</div>
+  <div class="logo-divider"></div>
+  <div class="logo-sub">OFFICIAL<br>@XawBoe</div>
+</div>
+
+<div class="fpl-badge">🏆 FPL Tips</div>
+
+<div class="gw-indicator">
+  <div class="gw-label">Gameweek</div>
+  <div class="gw-num">GW</div>
+</div>
+
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+
+<div class="center-zone"><div class="center-label">[ webcam / content area ]</div></div>
+
+<div class="bottom-bar">
+  <div class="bottom-tag">🏆 Fantasy Premier League</div>
+  <div class="bottom-line"></div>
+  <div class="bottom-handle"><span>@</span>XawBoe</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LID — Prediction BG</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  width:1920px; height:1080px;
+  overflow:hidden; background:#080808;
+  font-family:'Barlow Condensed',sans-serif;
+}
+.grid {
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(255,100,0,0.07) 1px, transparent 1px),
+    linear-gradient(90deg,rgba(255,100,0,0.07) 1px, transparent 1px);
+  background-size:80px 80px;
+  animation:gridMove 10s linear infinite;
+}
+@keyframes gridMove { 0%{transform:translate(0,0)} 100%{transform:translate(80px,80px)} }
+
+.left-bar { position:absolute; left:0; top:0; bottom:0; width:6px; background:linear-gradient(to bottom,transparent,#FF6400,#FF9500,#FF6400,transparent); }
+.top-strip { position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg,#FF6400,#FF9500,#FF6400); }
+
+.glow {
+  position:absolute; width:700px; height:700px; border-radius:50%;
+  background:radial-gradient(circle,rgba(255,100,0,0.10) 0%,transparent 65%);
+  top:50%; left:50%; transform:translate(-50%,-50%);
+  animation:pulse 4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100%{transform:translate(-50%,-50%) scale(1); opacity:0.7}
+  50%{transform:translate(-50%,-50%) scale(1.2); opacity:1}
+}
+
+.diagonal { position:absolute; top:-200px; right:-100px; width:500px; height:1600px; background:linear-gradient(135deg,rgba(255,100,0,0.04),transparent); transform:rotate(-15deg); }
+.bg-text { position:absolute; bottom:-40px; right:60px; font-family:'Bebas Neue',sans-serif; font-size:320px; color:rgba(255,100,0,0.04); line-height:1; user-select:none; }
+
+.logo-area { position:absolute; top:48px; left:60px; display:flex; align-items:center; gap:16px; }
+.logo-text { font-family:'Bebas Neue',sans-serif; font-size:56px; color:#FF6400; letter-spacing:4px; text-shadow:0 0 30px rgba(255,100,0,0.6); line-height:1; }
+.logo-divider { width:2px; height:40px; background:rgba(255,100,0,0.4); }
+.logo-sub { font-size:14px; font-weight:700; letter-spacing:4px; color:rgba(255,255,255,0.4); text-transform:uppercase; line-height:1.6; }
+
+.type-badge { position:absolute; top:48px; right:60px; background:#FF6400; color:#000; font-size:15px; font-weight:900; letter-spacing:4px; text-transform:uppercase; padding:10px 28px; clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px)); }
+
+.corner { position:absolute; width:50px; height:50px; }
+.corner-tl { top:160px; left:140px; border-top:2px solid rgba(255,100,0,0.5); border-left:2px solid rgba(255,100,0,0.5); }
+.corner-tr { top:160px; right:140px; border-top:2px solid rgba(255,100,0,0.5); border-right:2px solid rgba(255,100,0,0.5); }
+.corner-bl { bottom:100px; left:140px; border-bottom:2px solid rgba(255,100,0,0.5); border-left:2px solid rgba(255,100,0,0.5); }
+.corner-br { bottom:100px; right:140px; border-bottom:2px solid rgba(255,100,0,0.5); border-right:2px solid rgba(255,100,0,0.5); }
+
+.center-zone { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:900px; height:600px; border:1px solid rgba(255,100,0,0.10); display:flex; align-items:center; justify-content:center; }
+.center-label { font-size:13px; font-weight:700; letter-spacing:5px; color:rgba(255,100,0,0.15); text-transform:uppercase; }
+
+.side-deco { position:absolute; right:60px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; }
+.side-dot { width:4px; height:4px; border-radius:50%; background:rgba(255,100,0,0.4); animation:dotBlink 2s ease-in-out infinite; }
+.side-dot:nth-child(2){ animation-delay:0.3s; background:rgba(255,100,0,0.7); width:6px; height:6px; }
+.side-dot:nth-child(3){ animation-delay:0.6s; }
+@keyframes dotBlink { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+.bottom-bar { position:absolute; bottom:0; left:0; right:0; height:80px; background:linear-gradient(to right,rgba(255,100,0,0.15),transparent,rgba(255,100,0,0.08)); border-top:1px solid rgba(255,100,0,0.2); display:flex; align-items:center; padding:0 60px; gap:40px; }
+.bottom-tag { font-size:12px; font-weight:700; letter-spacing:4px; color:rgba(255,100,0,0.7); text-transform:uppercase; }
+.bottom-line { flex:1; height:1px; background:linear-gradient(90deg,rgba(255,100,0,0.3),transparent); }
+.bottom-handle { font-size:14px; font-weight:700; letter-spacing:3px; color:rgba(255,255,255,0.3); }
+.bottom-handle span { color:#FF6400; }
+</style>
+</head>
+<body>
+<div class="grid"></div>
+<div class="glow"></div>
+<div class="diagonal"></div>
+<div class="left-bar"></div>
+<div class="top-strip"></div>
+<div class="bg-text">PRED</div>
+<div class="logo-area">
+  <div class="logo-text">LID⚽</div>
+  <div class="logo-divider"></div>
+  <div class="logo-sub">OFFICIAL<br>@XawBoe</div>
+</div>
+<div class="type-badge">🔮 Match Prediction</div>
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+<div class="center-zone"><div class="center-label">[ webcam / content area ]</div></div>
+<div class="side-deco">
+  <div class="side-dot"></div>
+  <div class="side-dot"></div>
+  <div class="side-dot"></div>
+</div>
+<div class="bottom-bar">
+  <div class="bottom-tag">⚽ EPL Prediction</div>
+  <div class="bottom-line"></div>
+  <div class="bottom-handle"><span>@</span>XawBoe</div>
+</div>
+</body>
+</html>
