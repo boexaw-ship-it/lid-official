@@ -14,10 +14,28 @@ body {
   width: 1920px;
   height: 1080px;
   overflow: hidden;
-  background: transparent;
+  background: #080808;
   font-family: 'Barlow Condensed', sans-serif;
   user-select: none;
   transform-origin: top left;
+}
+
+/* Dark grid background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,100,0,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,100,0,0.05) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridMove 8s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes gridMove {
+  0%{transform:translate(0,0)}
+  100%{transform:translate(60px,60px)}
 }
 
 /* ══════════════════════════════
@@ -205,45 +223,82 @@ body {
 .wc-bl { bottom:8px; left:8px; border-bottom:2px solid rgba(255,100,0,0.6); border-left:2px solid rgba(255,100,0,0.6); }
 .wc-br { bottom:8px; right:8px; border-bottom:2px solid rgba(255,100,0,0.6); border-right:2px solid rgba(255,100,0,0.6); }
 
-/* Lineup photo zone — RIGHT */
+/* Lineup photo zone — RIGHT, split home/away */
 .lineup-zone {
   flex: 1;
   height: 100%;
   position: relative;
   display: flex;
+}
+
+/* Home lineup — left half */
+.lineup-home {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 2px solid rgba(255,100,0,0.3);
+  overflow: hidden;
+}
+
+/* Away lineup — right half */
+.lineup-away {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow: hidden;
 }
+
+.lineup-team-label {
+  position: absolute;
+  top: 14px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: rgba(255,100,0,0.5);
+  z-index: 2;
+}
+
 .lineup-img {
   width: 100%; height: 100%;
   object-fit: contain;
   display: none;
+  position: absolute;
+  inset: 0;
 }
+
 .lineup-placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  color: rgba(255,255,255,0.15);
+  gap: 10px;
+  color: rgba(255,255,255,0.12);
   text-align: center;
+  z-index: 1;
 }
-.lineup-placeholder .icon { font-size: 60px; }
-.lineup-placeholder .txt { font-size:13px; font-weight:700; letter-spacing:4px; text-transform:uppercase; }
+.lineup-placeholder .icon { font-size: 48px; }
+.lineup-placeholder .txt { font-size:12px; font-weight:700; letter-spacing:4px; text-transform:uppercase; }
 .lineup-upload-btn {
-  margin-top: 8px;
-  background: rgba(255,100,0,0.2);
-  border: 1px solid rgba(255,100,0,0.4);
+  margin-top: 6px;
+  background: rgba(255,100,0,0.15);
+  border: 1px solid rgba(255,100,0,0.35);
   color: #FF6400;
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px; font-weight:900; letter-spacing:3px;
+  font-size: 12px; font-weight:900; letter-spacing:3px;
   text-transform: uppercase;
-  padding: 8px 20px;
+  padding: 7px 16px;
   cursor: pointer;
   transition: all 0.2s;
 }
-.lineup-upload-btn:hover { background:rgba(255,100,0,0.35); }
+.lineup-upload-btn:hover { background:rgba(255,100,0,0.3); }
 
 /* Upload input hidden */
 #lineup-file { display:none; }
@@ -413,7 +468,8 @@ body {
 <!-- Hidden file inputs -->
 <input type="file" id="home-logo-file" accept="image/*" onchange="uploadLogo('home',this)">
 <input type="file" id="away-logo-file" accept="image/*" onchange="uploadLogo('away',this)">
-<input type="file" id="lineup-file" accept="image/*" onchange="uploadLineup(this)">
+<input type="file" id="home-lineup-file" accept="image/*" onchange="uploadLineup('home',this)">
+<input type="file" id="away-lineup-file" accept="image/*" onchange="uploadLineup('away',this)">
 
 <!-- ══ MAIN AREA ══ -->
 <div class="main-area">
@@ -427,16 +483,31 @@ body {
     <div class="wc-corner wc-br"></div>
   </div>
 
-  <!-- Lineup Zone RIGHT -->
+  <!-- Lineup Zone RIGHT — Home | Away -->
   <div class="lineup-zone" id="lineup-zone">
-    <img id="lineup-img" class="lineup-img" />
-    <div class="lineup-placeholder" id="lineup-placeholder">
-      <div class="icon">📋</div>
-      <div class="txt">Lineup / Team Photo</div>
-      <button class="lineup-upload-btn" onclick="document.getElementById('lineup-file').click()">
-        + Upload Image
-      </button>
+
+    <!-- Home Lineup LEFT -->
+    <div class="lineup-home">
+      <div class="lineup-team-label" id="home-lineup-label">MAN UTD</div>
+      <img id="home-lineup-img" class="lineup-img" />
+      <div class="lineup-placeholder" id="home-lineup-ph">
+        <div class="icon">🔴</div>
+        <div class="txt">Home Lineup</div>
+        <button class="lineup-upload-btn" onclick="document.getElementById('home-lineup-file').click()">+ Upload</button>
+      </div>
     </div>
+
+    <!-- Away Lineup RIGHT -->
+    <div class="lineup-away">
+      <div class="lineup-team-label" id="away-lineup-label">ARSENAL</div>
+      <img id="away-lineup-img" class="lineup-img" />
+      <div class="lineup-placeholder" id="away-lineup-ph">
+        <div class="icon">🔵</div>
+        <div class="txt">Away Lineup</div>
+        <button class="lineup-upload-btn" onclick="document.getElementById('away-lineup-file').click()">+ Upload</button>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -568,11 +639,11 @@ function uploadLogo(team, input) {
 }
 
 // ── LINEUP UPLOAD ──
-function uploadLineup(input) {
+function uploadLineup(team, input) {
   const file = input.files[0]; if (!file) return;
   const url = URL.createObjectURL(file);
-  const img = document.getElementById('lineup-img');
-  const ph = document.getElementById('lineup-placeholder');
+  const img = document.getElementById(team + '-lineup-img');
+  const ph  = document.getElementById(team + '-lineup-ph');
   img.src = url;
   img.style.display = 'block';
   ph.style.display = 'none';
@@ -585,6 +656,7 @@ function toggleEdit() {
 
 function updateName(team, val) {
   document.getElementById(team + '-name').textContent = val.toUpperCase();
+  document.getElementById(team + '-lineup-label').textContent = val.toUpperCase();
 }
 
 function updatePred(val) {
