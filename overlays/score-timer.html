@@ -268,7 +268,7 @@ body::before {
 
 .lineup-img {
   width: 100%; height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   display: none;
   position: absolute;
   inset: 0;
@@ -554,23 +554,74 @@ body::before {
     <input class="edit-input" id="inp-pred" value="MAN UTD WIN" oninput="updatePred(this.value)">
   </div>
   <div class="edit-row">
-    <button class="btn btn-orange" style="width:100%;margin-top:4px" onclick="toggleEdit()">Close ✕</button>
+    <div class="edit-label">⏱️ Minute</div>
+    <input class="edit-input" id="inp-min" type="number" value="0" min="0" max="120" style="width:80px" oninput="setMinute(this.value)">
+    <span style="color:rgba(255,255,255,0.4);font-size:13px;letter-spacing:2px">min</span>
+  </div>
+  <div class="edit-row" style="gap:6px;margin-top:4px">
+    <button class="btn btn-gray btn-sm" onclick="setMinute(45)">45'</button>
+    <button class="btn btn-gray btn-sm" onclick="setMinute(46)">46'</button>
+    <button class="btn btn-gray btn-sm" onclick="setMinute(90)">90'</button>
+    <button class="btn btn-gray btn-sm" onclick="setMinute(91)">90+1'</button>
+  </div>
+  <div class="edit-row">
+    <button class="btn btn-red btn-sm" style="width:48%;margin-top:4px" onclick="clearAll()">🗑 Clear All</button>
+    <button class="btn btn-orange" style="width:48%;margin-top:4px" onclick="toggleEdit()">Close ✕</button>
   </div>
 </div>
 
 <script>
-// Auto scale for phone preview
+// ── AUTO SCALE ──
 function autoScale() {
-  const scaleX = window.innerWidth / 1920;
-  const scaleY = window.innerHeight / 1080;
-  const scale = Math.min(scaleX, scaleY);
+  const scale = Math.min(window.innerWidth/1920, window.innerHeight/1080);
   document.body.style.transform = `scale(${scale})`;
 }
 autoScale();
 window.addEventListener('resize', autoScale);
 
+// ── LOCAL STORAGE SAVE ──
+function save() {
+  localStorage.setItem('lid_score', JSON.stringify({
+    home: homeGoals,
+    away: awayGoals,
+    seconds: seconds,
+    status: currentStatus,
+    homeName: document.getElementById('home-name').textContent,
+    awayName: document.getElementById('away-name').textContent,
+    pred: document.getElementById('inp-pred').value
+  }));
+}
+
+function loadSaved() {
+  const d = localStorage.getItem('lid_score');
+  if (!d) return;
+  const s = JSON.parse(d);
+  homeGoals = s.home || 0;
+  awayGoals = s.away || 0;
+  seconds   = s.seconds || 0;
+  document.getElementById('home-score').textContent = homeGoals;
+  document.getElementById('away-score').textContent = awayGoals;
+  updateTimerDisplay();
+  if (s.homeName) {
+    document.getElementById('home-name').textContent = s.homeName;
+    document.getElementById('home-lineup-label').textContent = s.homeName;
+    document.getElementById('inp-home').value = s.homeName;
+  }
+  if (s.awayName) {
+    document.getElementById('away-name').textContent = s.awayName;
+    document.getElementById('away-lineup-label').textContent = s.awayName;
+    document.getElementById('inp-away').value = s.awayName;
+  }
+  if (s.pred) {
+    document.getElementById('inp-pred').value = s.pred;
+    updatePred(s.pred);
+  }
+  if (s.status) setStatus(s.status);
+}
+
 // ── TIMER ──
 let seconds = 0, timerRunning = false, timerInterval = null;
+let currentStatus = 'PRE';
 
 function startTimer() {
   if (timerRunning) return;
@@ -579,12 +630,14 @@ function startTimer() {
   timerInterval = setInterval(() => {
     seconds++;
     updateTimerDisplay();
+    save();
   }, 1000);
 }
 
 function pauseTimer() {
   timerRunning = false;
   clearInterval(timerInterval);
+  save();
 }
 
 function resetTimer() {
@@ -592,22 +645,41 @@ function resetTimer() {
   seconds = 0;
   updateTimerDisplay();
   setStatus('PRE');
+  save();
 }
 
 function updateTimerDisplay() {
   const m = String(Math.floor(seconds / 60)).padStart(2,'0');
   const s = String(seconds % 60).padStart(2,'0');
   document.getElementById('timer-display').textContent = m + ':' + s;
+  // sync minute input
+  document.getElementById('inp-min').value = Math.floor(seconds / 60);
+}
+
+// ── SET MINUTE MANUALLY ──
+function setMinute(val) {
+  const min = parseInt(val) || 0;
+  const sec = seconds % 60;
+  seconds = (min * 60) + sec;
+  updateTimerDisplay();
+  save();
 }
 
 // ── STATUS ──
 function setStatus(s) {
+  currentStatus = s;
   const el = document.getElementById('status-badge');
   el.className = 'status-badge';
-  if (s === 'LIVE') { el.classList.add('badge-live'); el.textContent = '● LIVE'; }
-  else if (s === 'HT') { el.classList.add('badge-ht'); el.textContent = 'HT'; pauseTimer(); }
-  else if (s === 'FT') { el.classList.add('badge-ft'); el.textContent = 'FT'; pauseTimer(); }
-  else { el.classList.add('badge-pre'); el.textContent = 'PRE'; }
+  if (s === 'LIVE') {
+    el.classList.add('badge-live'); el.textContent = '● LIVE';
+  } else if (s === 'HT') {
+    el.classList.add('badge-ht'); el.textContent = 'HT'; pauseTimer();
+  } else if (s === 'FT') {
+    el.classList.add('badge-ft'); el.textContent = 'FT'; pauseTimer();
+  } else {
+    el.classList.add('badge-pre'); el.textContent = 'PRE';
+  }
+  save();
 }
 
 // ── SCORE ──
@@ -621,9 +693,9 @@ function changeScore(team, delta) {
     awayGoals = Math.max(0, awayGoals + delta);
     document.getElementById('away-score').textContent = awayGoals;
   }
+  save();
 }
 
-// Right-click to decrease
 document.getElementById('home-score').addEventListener('contextmenu', e => { e.preventDefault(); changeScore('home',-1); });
 document.getElementById('away-score').addEventListener('contextmenu', e => { e.preventDefault(); changeScore('away',-1); });
 
@@ -657,12 +729,23 @@ function toggleEdit() {
 function updateName(team, val) {
   document.getElementById(team + '-name').textContent = val.toUpperCase();
   document.getElementById(team + '-lineup-label').textContent = val.toUpperCase();
+  save();
 }
 
 function updatePred(val) {
   document.getElementById('pred-text-1').textContent = '🔮 Prediction: ' + val;
   document.getElementById('pred-text-2').textContent = '🔮 Prediction: ' + val;
+  save();
 }
+
+// ── CLEAR ALL ──
+function clearAll() {
+  localStorage.removeItem('lid_score');
+  location.reload();
+}
+
+// ── LOAD ON START ──
+loadSaved();
 </script>
 
 </body>
