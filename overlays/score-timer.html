@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LID — Watch Along Overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: transparent;
+  font-family: 'Barlow Condensed', sans-serif;
+  user-select: none;
+}
+
+/* ══════════════════════════════
+   TOP SCORE BAR
+══════════════════════════════ */
+.score-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 110px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.92), rgba(0,0,0,0.75));
+  border-bottom: 3px solid #FF6400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+/* Logo left of score bar */
+.logo-block {
+  position: absolute;
+  left: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-text {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 42px;
+  color: #FF6400;
+  letter-spacing: 3px;
+  text-shadow: 0 0 20px rgba(255,100,0,0.7);
+  line-height: 1;
+}
+.logo-divider { width:2px; height:28px; background:rgba(255,100,0,0.5); }
+.logo-sub { font-size:11px; font-weight:700; letter-spacing:3px; color:rgba(255,255,255,0.4); text-transform:uppercase; line-height:1.5; }
+
+/* Team blocks */
+.team-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 360px;
+}
+.team-block.home { justify-content: flex-end; }
+.team-block.away { justify-content: flex-start; }
+
+.team-logo-img {
+  width: 64px; height: 64px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+.team-logo-placeholder {
+  width: 64px; height: 64px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+}
+.team-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 40px;
+  color: #fff;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+/* Score center */
+.score-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 36px;
+  min-width: 220px;
+}
+.score-nums {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.score-digit {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 72px;
+  color: #fff;
+  line-height: 1;
+  text-shadow: 0 0 20px rgba(255,255,255,0.2);
+  cursor: pointer;
+  transition: color 0.15s;
+  min-width: 48px;
+  text-align: center;
+}
+.score-digit:hover { color: #FF6400; }
+.score-sep {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 60px;
+  color: rgba(255,100,0,0.8);
+  line-height: 1;
+}
+.score-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+}
+.timer-display {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+  color: rgba(255,255,255,0.9);
+  letter-spacing: 2px;
+}
+
+/* Status badge */
+.status-badge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  padding: 3px 10px;
+  text-transform: uppercase;
+}
+.badge-live { background: #e00; color: #fff; animation: badgeBlink 1.5s ease-in-out infinite; }
+.badge-ht   { background: #FF6400; color: #000; }
+.badge-ft   { background: #fff; color: #000; }
+.badge-pre  { background: rgba(255,255,255,0.15); color: #fff; }
+@keyframes badgeBlink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+/* Controls top right */
+.controls {
+  position: absolute;
+  right: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.ctrl-row { display:flex; gap:6px; }
+.btn {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-orange { background:#FF6400; color:#000; }
+.btn-orange:hover { background:#FF9500; }
+.btn-gray { background:rgba(255,255,255,0.15); color:#fff; }
+.btn-gray:hover { background:rgba(255,255,255,0.25); }
+.btn-red { background:#c00; color:#fff; }
+.btn-red:hover { background:#e00; }
+.btn-sm { font-size:11px; padding:4px 10px; }
+
+/* ══════════════════════════════
+   MAIN AREA
+══════════════════════════════ */
+.main-area {
+  position: absolute;
+  top: 110px;
+  left: 0; right: 0;
+  bottom: 60px;
+  display: flex;
+}
+
+/* Webcam zone — LEFT */
+.webcam-zone {
+  width: 640px;
+  height: 100%;
+  position: relative;
+  border-right: 2px solid rgba(255,100,0,0.3);
+  flex-shrink: 0;
+}
+.webcam-label {
+  position: absolute;
+  top: 16px; left: 16px;
+  font-size: 11px; font-weight:700; letter-spacing:4px;
+  color: rgba(255,100,0,0.3); text-transform:uppercase;
+}
+/* Corner brackets for webcam */
+.wc-corner { position:absolute; width:30px; height:30px; }
+.wc-tl { top:8px; left:8px; border-top:2px solid rgba(255,100,0,0.6); border-left:2px solid rgba(255,100,0,0.6); }
+.wc-tr { top:8px; right:8px; border-top:2px solid rgba(255,100,0,0.6); border-right:2px solid rgba(255,100,0,0.6); }
+.wc-bl { bottom:8px; left:8px; border-bottom:2px solid rgba(255,100,0,0.6); border-left:2px solid rgba(255,100,0,0.6); }
+.wc-br { bottom:8px; right:8px; border-bottom:2px solid rgba(255,100,0,0.6); border-right:2px solid rgba(255,100,0,0.6); }
+
+/* Lineup photo zone — RIGHT */
+.lineup-zone {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.lineup-img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  display: none;
+}
+.lineup-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: rgba(255,255,255,0.15);
+  text-align: center;
+}
+.lineup-placeholder .icon { font-size: 60px; }
+.lineup-placeholder .txt { font-size:13px; font-weight:700; letter-spacing:4px; text-transform:uppercase; }
+.lineup-upload-btn {
+  margin-top: 8px;
+  background: rgba(255,100,0,0.2);
+  border: 1px solid rgba(255,100,0,0.4);
+  color: #FF6400;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight:900; letter-spacing:3px;
+  text-transform: uppercase;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.lineup-upload-btn:hover { background:rgba(255,100,0,0.35); }
+
+/* Upload input hidden */
+#lineup-file { display:none; }
+#home-logo-file { display:none; }
+#away-logo-file { display:none; }
+
+/* ══════════════════════════════
+   BOTTOM TICKER
+══════════════════════════════ */
+.ticker-bar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: linear-gradient(to right, #FF6400, #c84800);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.ticker-label {
+  flex-shrink: 0;
+  background: #000;
+  color: #FF6400;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 3px;
+  padding: 0 20px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  border-right: 3px solid #FF6400;
+  white-space: nowrap;
+}
+.ticker-track {
+  flex: 1;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.ticker-inner {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  animation: ticker 30s linear infinite;
+  gap: 0;
+}
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-item {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #000;
+  padding: 0 40px;
+}
+.ticker-dot {
+  color: rgba(0,0,0,0.4);
+  font-size: 20px;
+  padding: 0 10px;
+}
+
+/* ══════════════════════════════
+   EDIT PANEL (bottom left popup)
+══════════════════════════════ */
+.edit-panel {
+  position: absolute;
+  bottom: 70px; left: 10px;
+  background: rgba(0,0,0,0.92);
+  border: 1px solid rgba(255,100,0,0.4);
+  padding: 14px 18px;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 100;
+  min-width: 280px;
+}
+.edit-panel.open { display: flex; }
+.edit-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px; color:#FF6400; letter-spacing:2px;
+  border-bottom: 1px solid rgba(255,100,0,0.3);
+  padding-bottom: 6px; margin-bottom: 4px;
+}
+.edit-row { display:flex; align-items:center; gap:8px; }
+.edit-label { font-size:12px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.5); text-transform:uppercase; min-width:80px; }
+.edit-input {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,100,0,0.3);
+  color: #fff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px; font-weight:700;
+  padding: 4px 10px;
+  width: 160px;
+  text-transform: uppercase;
+}
+.edit-input:focus { outline:none; border-color:#FF6400; }
+
+/* toggle edit btn */
+.toggle-edit {
+  position: absolute;
+  bottom: 70px; left: 10px;
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SCORE BAR ══ -->
+<div class="score-bar">
+
+  <!-- Logo -->
+  <div class="logo-block">
+    <div class="logo-text">LID⚽</div>
+    <div class="logo-divider"></div>
+    <div class="logo-sub">OFFICIAL<br>@XawBoe</div>
+  </div>
+
+  <!-- Home Team -->
+  <div class="team-block home">
+    <div class="team-name" id="home-name">MAN UTD</div>
+    <div class="team-logo-placeholder" id="home-logo-wrap" onclick="document.getElementById('home-logo-file').click()" style="cursor:pointer;" title="Click to upload logo">
+      <span id="home-logo-emoji">🔴</span>
+      <img id="home-logo-img" class="team-logo-img" style="display:none" />
+    </div>
+  </div>
+
+  <!-- Score Center -->
+  <div class="score-center">
+    <div class="score-nums">
+      <div class="score-digit" id="home-score" onclick="changeScore('home',1)" title="Click +1 | Right-click -1">0</div>
+      <div class="score-sep">—</div>
+      <div class="score-digit" id="away-score" onclick="changeScore('away',1)" title="Click +1 | Right-click -1">0</div>
+    </div>
+    <div class="score-info">
+      <div class="timer-display" id="timer-display">00:00</div>
+      <div class="status-badge badge-pre" id="status-badge">PRE</div>
+    </div>
+  </div>
+
+  <!-- Away Team -->
+  <div class="team-block away">
+    <div class="team-logo-placeholder" id="away-logo-wrap" onclick="document.getElementById('away-logo-file').click()" style="cursor:pointer;" title="Click to upload logo">
+      <span id="away-logo-emoji">🔵</span>
+      <img id="away-logo-img" class="team-logo-img" style="display:none" />
+    </div>
+    <div class="team-name" id="away-name">ARSENAL</div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="ctrl-row">
+      <button class="btn btn-orange" onclick="startTimer()">▶ START</button>
+      <button class="btn btn-gray" onclick="pauseTimer()">⏸ PAUSE</button>
+      <button class="btn btn-red btn-sm" onclick="resetTimer()">RESET</button>
+    </div>
+    <div class="ctrl-row">
+      <button class="btn btn-gray btn-sm" onclick="setStatus('LIVE')">🔴 LIVE</button>
+      <button class="btn btn-gray btn-sm" onclick="setStatus('HT')">HT</button>
+      <button class="btn btn-gray btn-sm" onclick="setStatus('FT')">FT</button>
+      <button class="btn btn-gray btn-sm" onclick="toggleEdit()">✏️ EDIT</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden file inputs -->
+<input type="file" id="home-logo-file" accept="image/*" onchange="uploadLogo('home',this)">
+<input type="file" id="away-logo-file" accept="image/*" onchange="uploadLogo('away',this)">
+<input type="file" id="lineup-file" accept="image/*" onchange="uploadLineup(this)">
+
+<!-- ══ MAIN AREA ══ -->
+<div class="main-area">
+
+  <!-- Webcam Zone LEFT -->
+  <div class="webcam-zone">
+    <div class="webcam-label">[ webcam ]</div>
+    <div class="wc-corner wc-tl"></div>
+    <div class="wc-corner wc-tr"></div>
+    <div class="wc-corner wc-bl"></div>
+    <div class="wc-corner wc-br"></div>
+  </div>
+
+  <!-- Lineup Zone RIGHT -->
+  <div class="lineup-zone" id="lineup-zone">
+    <img id="lineup-img" class="lineup-img" />
+    <div class="lineup-placeholder" id="lineup-placeholder">
+      <div class="icon">📋</div>
+      <div class="txt">Lineup / Team Photo</div>
+      <button class="lineup-upload-btn" onclick="document.getElementById('lineup-file').click()">
+        + Upload Image
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BOTTOM TICKER ══ -->
+<div class="ticker-bar">
+  <div class="ticker-label">LID⚽</div>
+  <div class="ticker-track">
+    <div class="ticker-inner" id="ticker-inner">
+      <!-- items duplicated for seamless loop -->
+      <span class="ticker-item">🔔 LID OFFICIAL Channel ကို Subscribe လုပ်ဖို့ မမေ့နဲ့!</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item" id="pred-text-1">🔮 Prediction: MAN UTD WIN</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item">📺 Watch Along with @XawBoe — LID OFFICIAL</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item">⚽ Like · Share · Subscribe — @XawBoe</span>
+      <span class="ticker-dot">◆</span>
+      <!-- duplicate -->
+      <span class="ticker-item">🔔 LID OFFICIAL Channel ကို Subscribe လုပ်ဖို့ မမေ့နဲ့!</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item" id="pred-text-2">🔮 Prediction: MAN UTD WIN</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item">📺 Watch Along with @XawBoe — LID OFFICIAL</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item">⚽ Like · Share · Subscribe — @XawBoe</span>
+      <span class="ticker-dot">◆</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ EDIT PANEL ══ -->
+<div class="edit-panel" id="edit-panel">
+  <div class="edit-title">✏️ Edit Info</div>
+  <div class="edit-row">
+    <div class="edit-label">Home</div>
+    <input class="edit-input" id="inp-home" value="MAN UTD" oninput="updateName('home',this.value)">
+  </div>
+  <div class="edit-row">
+    <div class="edit-label">Away</div>
+    <input class="edit-input" id="inp-away" value="ARSENAL" oninput="updateName('away',this.value)">
+  </div>
+  <div class="edit-row">
+    <div class="edit-label">Prediction</div>
+    <input class="edit-input" id="inp-pred" value="MAN UTD WIN" oninput="updatePred(this.value)">
+  </div>
+  <div class="edit-row">
+    <button class="btn btn-orange" style="width:100%;margin-top:4px" onclick="toggleEdit()">Close ✕</button>
+  </div>
+</div>
+
+<script>
+// ── TIMER ──
+let seconds = 0, timerRunning = false, timerInterval = null;
+
+function startTimer() {
+  if (timerRunning) return;
+  timerRunning = true;
+  setStatus('LIVE');
+  timerInterval = setInterval(() => {
+    seconds++;
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function pauseTimer() {
+  timerRunning = false;
+  clearInterval(timerInterval);
+}
+
+function resetTimer() {
+  pauseTimer();
+  seconds = 0;
+  updateTimerDisplay();
+  setStatus('PRE');
+}
+
+function updateTimerDisplay() {
+  const m = String(Math.floor(seconds / 60)).padStart(2,'0');
+  const s = String(seconds % 60).padStart(2,'0');
+  document.getElementById('timer-display').textContent = m + ':' + s;
+}
+
+// ── STATUS ──
+function setStatus(s) {
+  const el = document.getElementById('status-badge');
+  el.className = 'status-badge';
+  if (s === 'LIVE') { el.classList.add('badge-live'); el.textContent = '● LIVE'; }
+  else if (s === 'HT') { el.classList.add('badge-ht'); el.textContent = 'HT'; pauseTimer(); }
+  else if (s === 'FT') { el.classList.add('badge-ft'); el.textContent = 'FT'; pauseTimer(); }
+  else { el.classList.add('badge-pre'); el.textContent = 'PRE'; }
+}
+
+// ── SCORE ──
+let homeGoals = 0, awayGoals = 0;
+
+function changeScore(team, delta) {
+  if (team === 'home') {
+    homeGoals = Math.max(0, homeGoals + delta);
+    document.getElementById('home-score').textContent = homeGoals;
+  } else {
+    awayGoals = Math.max(0, awayGoals + delta);
+    document.getElementById('away-score').textContent = awayGoals;
+  }
+}
+
+// Right-click to decrease
+document.getElementById('home-score').addEventListener('contextmenu', e => { e.preventDefault(); changeScore('home',-1); });
+document.getElementById('away-score').addEventListener('contextmenu', e => { e.preventDefault(); changeScore('away',-1); });
+
+// ── LOGO UPLOAD ──
+function uploadLogo(team, input) {
+  const file = input.files[0]; if (!file) return;
+  const url = URL.createObjectURL(file);
+  const img = document.getElementById(team + '-logo-img');
+  const emoji = document.getElementById(team + '-logo-emoji');
+  img.src = url;
+  img.style.display = 'block';
+  emoji.style.display = 'none';
+}
+
+// ── LINEUP UPLOAD ──
+function uploadLineup(input) {
+  const file = input.files[0]; if (!file) return;
+  const url = URL.createObjectURL(file);
+  const img = document.getElementById('lineup-img');
+  const ph = document.getElementById('lineup-placeholder');
+  img.src = url;
+  img.style.display = 'block';
+  ph.style.display = 'none';
+}
+
+// ── EDIT PANEL ──
+function toggleEdit() {
+  document.getElementById('edit-panel').classList.toggle('open');
+}
+
+function updateName(team, val) {
+  document.getElementById(team + '-name').textContent = val.toUpperCase();
+}
+
+function updatePred(val) {
+  document.getElementById('pred-text-1').textContent = '🔮 Prediction: ' + val;
+  document.getElementById('pred-text-2').textContent = '🔮 Prediction: ' + val;
+}
+</script>
+
+</body>
+</html>
