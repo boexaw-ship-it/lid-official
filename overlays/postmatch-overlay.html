@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LID — Post Match Overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:100%; height:100%; }
+body {
+  width:1920px; height:1080px;
+  overflow:hidden;
+  font-family:'Barlow Condensed',sans-serif;
+  transform-origin:top left;
+  background:transparent;
+}
+
+/* ══ TOP SCORE BAR ══ */
+.score-bar {
+  position:absolute;
+  top:0; left:0; right:0; height:100px;
+  background:linear-gradient(to bottom,rgba(0,0,0,0.92),rgba(0,0,0,0.7));
+  border-bottom:3px solid #FF6400;
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* Teams */
+.team-block { display:flex; align-items:center; gap:14px; min-width:400px; }
+.team-block.home { justify-content:flex-end; }
+.team-block.away { justify-content:flex-start; }
+.team-logo {
+  width:60px; height:60px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:4px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:32px; cursor:pointer; overflow:hidden;
+  transition:border-color 0.2s;
+}
+.team-logo:hover { border-color:rgba(255,100,0,0.6); }
+.team-logo img { width:100%; height:100%; object-fit:contain; display:none; }
+.team-name {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:38px; color:#fff; letter-spacing:2px; line-height:1;
+}
+
+/* Score center */
+.score-center { display:flex; flex-direction:column; align-items:center; padding:0 40px; }
+.score-nums { display:flex; align-items:center; gap:14px; }
+.score-num {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:68px; color:#fff; line-height:1;
+  cursor:pointer; transition:color 0.15s;
+  min-width:44px; text-align:center;
+}
+.score-num:hover { color:#FF6400; }
+.score-sep { font-family:'Bebas Neue',sans-serif; font-size:50px; color:rgba(255,100,0,0.7); }
+.ft-pill {
+  background:#FF6400; color:#000;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:14px; letter-spacing:4px;
+  padding:2px 16px; margin-top:2px;
+}
+
+/* ══ STATS PANEL — LEFT ══ */
+.stats-panel {
+  position:absolute;
+  top:108px; left:20px;
+  width:340px;
+  display:flex; flex-direction:column; gap:8px;
+}
+.stats-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:18px; letter-spacing:4px; color:rgba(255,100,0,0.8);
+  border-bottom:1px solid rgba(255,100,0,0.3);
+  padding-bottom:6px; margin-bottom:2px;
+}
+.stat-row { display:flex; align-items:center; gap:6px; }
+.stat-home {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:20px; color:#fff;
+  width:36px; text-align:right;
+  cursor:pointer;
+}
+.stat-home:hover,.stat-home[contenteditable="true"] { color:#FF6400; outline:none; }
+.stat-bar-wrap { flex:1; height:5px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden; }
+.stat-bar-fill { height:100%; background:linear-gradient(90deg,#FF6400,#FF9500); border-radius:3px; }
+.stat-label { font-size:10px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.4); text-transform:uppercase; width:80px; text-align:center; flex-shrink:0; }
+.stat-away {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:20px; color:rgba(255,255,255,0.45);
+  width:36px;
+  cursor:pointer;
+}
+.stat-away:hover,.stat-away[contenteditable="true"] { color:#FF6400; outline:none; }
+
+/* ══ INFO PANEL — RIGHT ══ */
+.info-panel {
+  position:absolute;
+  top:108px; right:20px;
+  width:340px;
+  display:flex; flex-direction:column; gap:8px;
+}
+.info-card {
+  background:rgba(0,0,0,0.75);
+  border:1px solid rgba(255,100,0,0.2);
+  border-left:3px solid #FF6400;
+  padding:12px 16px;
+}
+.info-card-label { font-size:10px; font-weight:700; letter-spacing:3px; color:rgba(255,100,0,0.7); text-transform:uppercase; margin-bottom:6px; }
+.info-card-val {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:24px; color:#fff; letter-spacing:2px;
+  cursor:pointer;
+}
+.info-card-val:hover,.info-card-val[contenteditable="true"] { color:#FF6400; outline:none; }
+
+/* MOTM special */
+.motm-card {
+  background:rgba(0,0,0,0.75);
+  border:1px solid rgba(255,215,0,0.3);
+  border-left:3px solid #FFD700;
+  padding:12px 16px;
+}
+.motm-label { font-size:10px; font-weight:700; letter-spacing:3px; color:#FFD700; text-transform:uppercase; margin-bottom:6px; }
+.motm-val {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:26px; color:#FFD700; letter-spacing:2px;
+  cursor:pointer;
+}
+.motm-val:hover,.motm-val[contenteditable="true"] { opacity:0.8; outline:none; }
+
+/* Prediction result */
+.pred-card {
+  background:rgba(0,0,0,0.75);
+  border:1px solid rgba(255,100,0,0.2);
+  border-left:3px solid rgba(255,100,0,0.6);
+  padding:12px 16px;
+}
+.pred-label { font-size:10px; font-weight:700; letter-spacing:3px; color:rgba(255,100,0,0.7); text-transform:uppercase; margin-bottom:6px; }
+.pred-result { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:2px; }
+.pred-correct { color:#00e676; }
+.pred-wrong { color:#ff1744; }
+.pred-sub { font-size:11px; letter-spacing:2px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-top:4px; }
+.pred-btns { display:flex; gap:6px; margin-top:8px; }
+.pred-btn { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:900; letter-spacing:2px; padding:3px 10px; border:none; cursor:pointer; text-transform:uppercase; }
+.btn-win { background:#00c853; color:#000; }
+.btn-lose { background:#c00; color:#fff; }
+
+/* ══ EDIT BTN ══ */
+.edit-btn {
+  position:absolute; top:108px; left:50%; transform:translateX(-50%);
+  background:rgba(0,0,0,0.7);
+  border:1px solid rgba(255,100,0,0.4);
+  color:#FF6400; font-family:'Barlow Condensed',sans-serif;
+  font-size:12px; font-weight:900; letter-spacing:3px;
+  text-transform:uppercase; padding:5px 16px; cursor:pointer;
+  transition:all 0.2s;
+}
+.edit-btn:hover { background:rgba(255,100,0,0.15); }
+
+/* ══ EDIT PANEL ══ */
+.edit-panel {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  background:rgba(5,5,10,0.97); border:1px solid rgba(255,100,0,0.5);
+  padding:22px 26px; display:none; flex-direction:column; gap:9px;
+  z-index:200; min-width:380px;
+}
+.edit-panel.open { display:flex; }
+.edit-title { font-family:'Bebas Neue',sans-serif; font-size:20px; color:#FF6400; letter-spacing:3px; border-bottom:1px solid rgba(255,100,0,0.3); padding-bottom:6px; margin-bottom:2px; }
+.edit-row { display:flex; align-items:center; gap:8px; }
+.edit-label { font-size:11px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.4); text-transform:uppercase; min-width:90px; }
+.edit-input { background:rgba(255,255,255,0.06); border:1px solid rgba(255,100,0,0.3); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; padding:5px 10px; flex:1; text-transform:uppercase; }
+.edit-input:focus { outline:none; border-color:#FF6400; }
+.btn { font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:900; letter-spacing:2px; text-transform:uppercase; padding:5px 14px; border:none; cursor:pointer; }
+.btn-orange { background:#FF6400; color:#000; }
+.btn-orange:hover { background:#FF9500; }
+.btn-gray { background:rgba(255,255,255,0.12); color:#fff; }
+.btn-gray:hover { background:rgba(255,255,255,0.2); }
+</style>
+</head>
+<body>
+
+<!-- SCORE BAR -->
+<div class="score-bar">
+  <div class="team-block home">
+    <div class="team-name" id="home-name">MAN UTD</div>
+    <div class="team-logo" onclick="document.getElementById('home-logo-f').click()">
+      <span id="home-emoji">🔴</span>
+      <img id="home-logo-img"/>
+    </div>
+  </div>
+  <div class="score-center">
+    <div class="score-nums">
+      <div class="score-num" id="home-score" onclick="changeScore('home',1)" title="Click+1 | Right-click-1">2</div>
+      <div class="score-sep">—</div>
+      <div class="score-num" id="away-score" onclick="changeScore('away',1)" title="Click+1 | Right-click-1">1</div>
+    </div>
+    <div class="ft-pill">FULL TIME</div>
+  </div>
+  <div class="team-block away">
+    <div class="team-logo" onclick="document.getElementById('away-logo-f').click()">
+      <span id="away-emoji">🔵</span>
+      <img id="away-logo-img"/>
+    </div>
+    <div class="team-name" id="away-name">ARSENAL</div>
+  </div>
+</div>
+
+<!-- STATS LEFT -->
+<div class="stats-panel">
+  <div class="stats-title">Match Stats</div>
+  <div class="stat-row">
+    <div class="stat-home" onclick="makeEdit(this)" onblur="saveEdit(this)">55%</div>
+    <div class="stat-label">Possession</div>
+    <div class="stat-bar-wrap"><div class="stat-bar-fill" style="width:55%"></div></div>
+    <div class="stat-away" onclick="makeEdit(this)" onblur="saveEdit(this)">45%</div>
+  </div>
+  <div class="stat-row">
+    <div class="stat-home" onclick="makeEdit(this)" onblur="saveEdit(this)">6</div>
+    <div class="stat-label">Shots on T.</div>
+    <div class="stat-bar-wrap"><div class="stat-bar-fill" style="width:60%"></div></div>
+    <div class="stat-away" onclick="makeEdit(this)" onblur="saveEdit(this)">4</div>
+  </div>
+  <div class="stat-row">
+    <div class="stat-home" onclick="makeEdit(this)" onblur="saveEdit(this)">12</div>
+    <div class="stat-label">Total Shots</div>
+    <div class="stat-bar-wrap"><div class="stat-bar-fill" style="width:55%"></div></div>
+    <div class="stat-away" onclick="makeEdit(this)" onblur="saveEdit(this)">10</div>
+  </div>
+  <div class="stat-row">
+    <div class="stat-home" onclick="makeEdit(this)" onblur="saveEdit(this)">7</div>
+    <div class="stat-label">Corners</div>
+    <div class="stat-bar-wrap"><div class="stat-bar-fill" style="width:58%"></div></div>
+    <div class="stat-away" onclick="makeEdit(this)" onblur="saveEdit(this)">5</div>
+  </div>
+  <div class="stat-row">
+    <div class="stat-home" onclick="makeEdit(this)" onblur="saveEdit(this)">1</div>
+    <div class="stat-label">Yellow</div>
+    <div class="stat-bar-wrap"><div class="stat-bar-fill" style="width:33%"></div></div>
+    <div class="stat-away" onclick="makeEdit(this)" onblur="saveEdit(this)">2</div>
+  </div>
+  <div class="stat-row">
+    <div class="stat-home" onclick="makeEdit(this)" onblur="saveEdit(this)">88%</div>
+    <div class="stat-label">Pass Acc.</div>
+    <div class="stat-bar-wrap"><div class="stat-bar-fill" style="width:52%"></div></div>
+    <div class="stat-away" onclick="makeEdit(this)" onblur="saveEdit(this)">84%</div>
+  </div>
+</div>
+
+<!-- INFO RIGHT -->
+<div class="info-panel">
+  <div class="motm-card">
+    <div class="motm-label">⭐ Man of the Match</div>
+    <div class="motm-val" id="motm-name" onclick="makeEdit(this)" onblur="saveEdit(this)">B. FERNANDES</div>
+  </div>
+  <div class="info-card">
+    <div class="info-card-label">⚽ Goal Scorers</div>
+    <div class="info-card-val" id="scorers" onclick="makeEdit(this)" onblur="saveEdit(this)">RASHFORD 23' · HOJLUND 67'</div>
+  </div>
+  <div class="pred-card">
+    <div class="pred-label">🔮 Prediction Result</div>
+    <div class="pred-result pred-correct" id="pred-result">CORRECT! ✅</div>
+    <div class="pred-sub" id="pred-sub">Predicted: MAN UTD WIN</div>
+    <div class="pred-btns">
+      <button class="pred-btn btn-win" onclick="setPred(true)">✅ CORRECT</button>
+      <button class="pred-btn btn-lose" onclick="setPred(false)">❌ WRONG</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT BTN -->
+<button class="edit-btn" onclick="toggleEdit()">✏️ EDIT INFO</button>
+
+<!-- EDIT PANEL -->
+<div class="edit-panel" id="edit-panel">
+  <div class="edit-title">✏️ Match Info</div>
+  <div class="edit-row"><div class="edit-label">Home</div><input class="edit-input" id="inp-home" value="MAN UTD" oninput="updateTeam('home',this.value)"></div>
+  <div class="edit-row"><div class="edit-label">Away</div><input class="edit-input" id="inp-away" value="ARSENAL" oninput="updateTeam('away',this.value)"></div>
+  <div class="edit-row"><div class="edit-label">MOTM</div><input class="edit-input" id="inp-motm" value="B. FERNANDES" oninput="document.getElementById('motm-name').textContent=this.value.toUpperCase();save()"></div>
+  <div class="edit-row"><div class="edit-label">Scorers</div><input class="edit-input" id="inp-scorers" value="RASHFORD 23' · HOJLUND 67'" oninput="document.getElementById('scorers').textContent=this.value.toUpperCase();save()"></div>
+  <div class="edit-row"><div class="edit-label">Prediction</div><input class="edit-input" id="inp-pred" value="MAN UTD WIN" oninput="updatePred(this.value)"></div>
+  <div class="edit-row">
+    <div class="edit-label">Logo</div>
+    <button class="btn btn-gray" onclick="document.getElementById('home-logo-f').click()">🔴 Home</button>
+    <button class="btn btn-gray" onclick="document.getElementById('away-logo-f').click()">🔵 Away</button>
+  </div>
+  <div class="edit-row" style="margin-top:4px;gap:8px">
+    <button class="btn btn-orange" style="flex:1" onclick="toggleEdit()">Close ✕</button>
+    <button class="btn btn-gray" style="flex:1" onclick="clearAll()">🗑 Clear</button>
+  </div>
+</div>
+
+<input type="file" id="home-logo-f" accept="image/*" onchange="uploadLogo('home',this)">
+<input type="file" id="away-logo-f" accept="image/*" onchange="uploadLogo('away',this)">
+
+<script>
+function autoScale(){const s=Math.min(window.innerWidth/1920,window.innerHeight/1080);document.body.style.transform=`scale(${s})`;}
+autoScale(); window.addEventListener('resize',autoScale);
+
+let homeGoals=2, awayGoals=1;
+
+function changeScore(t,d){
+  if(t==='home'){homeGoals=Math.max(0,homeGoals+d);document.getElementById('home-score').textContent=homeGoals;}
+  else{awayGoals=Math.max(0,awayGoals+d);document.getElementById('away-score').textContent=awayGoals;}
+  save();
+}
+document.getElementById('home-score').addEventListener('contextmenu',e=>{e.preventDefault();changeScore('home',-1);});
+document.getElementById('away-score').addEventListener('contextmenu',e=>{e.preventDefault();changeScore('away',-1);});
+
+function updateTeam(t,v){
+  document.getElementById(t+'-name').textContent=v.toUpperCase();
+  save();
+}
+
+function setPred(correct){
+  const pred=document.getElementById('inp-pred').value.toUpperCase();
+  const el=document.getElementById('pred-result');
+  el.textContent=correct?'CORRECT! ✅':'WRONG ❌';
+  el.className='pred-result '+(correct?'pred-correct':'pred-wrong');
+  document.getElementById('pred-sub').textContent='Predicted: '+pred;
+  save();
+}
+
+function updatePred(v){
+  document.getElementById('pred-sub').textContent='Predicted: '+v.toUpperCase();
+  save();
+}
+
+function makeEdit(el){el.contentEditable='true';el.focus();}
+function saveEdit(el){el.contentEditable='false';save();}
+
+function uploadLogo(t,input){
+  const f=input.files[0];if(!f)return;
+  const url=URL.createObjectURL(f);
+  const img=document.getElementById(t+'-logo-img');
+  const emoji=document.getElementById(t+'-emoji');
+  img.src=url;img.style.display='block';emoji.style.display='none';
+}
+
+function toggleEdit(){document.getElementById('edit-panel').classList.toggle('open');}
+
+function save(){
+  localStorage.setItem('lid_pmov',JSON.stringify({
+    home:document.getElementById('inp-home').value,
+    away:document.getElementById('inp-away').value,
+    motm:document.getElementById('inp-motm').value,
+    scorers:document.getElementById('inp-scorers').value,
+    pred:document.getElementById('inp-pred').value,
+    homeGoals,awayGoals
+  }));
+}
+
+function loadSaved(){
+  const d=localStorage.getItem('lid_pmov');if(!d)return;
+  const s=JSON.parse(d);
+  if(s.home){document.getElementById('inp-home').value=s.home;updateTeam('home',s.home);}
+  if(s.away){document.getElementById('inp-away').value=s.away;updateTeam('away',s.away);}
+  if(s.motm){document.getElementById('inp-motm').value=s.motm;document.getElementById('motm-name').textContent=s.motm.toUpperCase();}
+  if(s.scorers){document.getElementById('inp-scorers').value=s.scorers;document.getElementById('scorers').textContent=s.scorers.toUpperCase();}
+  if(s.pred){document.getElementById('inp-pred').value=s.pred;updatePred(s.pred);}
+  if(s.homeGoals!==undefined){homeGoals=s.homeGoals;awayGoals=s.awayGoals;document.getElementById('home-score').textContent=homeGoals;document.getElementById('away-score').textContent=awayGoals;}
+}
+
+function clearAll(){localStorage.removeItem('lid_pmov');location.reload();}
+loadSaved();
+</script>
+</body>
+</html>
