@@ -3,258 +3,572 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LID — Post Match Analysis</title>
+<title>LID — Post Match BG</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 html,body { width:100%; height:100%; }
-body { width:1920px; height:1080px; overflow:hidden; font-family:'Barlow Condensed',sans-serif; transform-origin:top left; background:#0a0a0a; }
+body {
+  width:1920px; height:1080px;
+  overflow:hidden;
+  font-family:'Barlow Condensed',sans-serif;
+  transform-origin:top left;
+  background:#0d0d0d;
+}
 
-.stadium-bg { position:absolute; inset:0; background: radial-gradient(ellipse 900px 500px at 50% 110%, rgba(0,180,60,0.12) 0%, transparent 70%), radial-gradient(circle 200px at 50% 108%, rgba(0,220,80,0.15) 0%, transparent 60%), radial-gradient(circle 300px at 10% 0%, rgba(255,220,100,0.08) 0%, transparent 50%), radial-gradient(circle 300px at 90% 0%, rgba(255,220,100,0.08) 0%, transparent 50%), linear-gradient(to bottom, #0d0d0d 0%, #0a0f0a 60%, #050f05 100%); }
+/* ══ STUDIO FLOOR ══ */
+.studio-floor {
+  position:absolute;
+  bottom:0; left:0; right:0;
+  height:280px;
+  background:linear-gradient(to bottom,
+    transparent,
+    rgba(255,100,0,0.03) 40%,
+    rgba(255,100,0,0.06) 100%
+  );
+}
+.floor-line {
+  position:absolute;
+  bottom:60px; left:0; right:0;
+  height:2px;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,100,0,0.2) 20%,
+    rgba(255,100,0,0.5) 50%,
+    rgba(255,100,0,0.2) 80%,
+    transparent 100%
+  );
+}
+.floor-reflection {
+  position:absolute;
+  bottom:0; left:300px; right:300px;
+  height:60px;
+  background:linear-gradient(to bottom,
+    rgba(255,100,0,0.04),
+    transparent
+  );
+  filter:blur(8px);
+}
 
-.pitch-lines { position:absolute; bottom:0; left:0; right:0; height:380px; overflow:hidden; pointer-events:none; }
-.pitch-circle-outer { position:absolute; bottom:-220px; left:50%; transform:translateX(-50%); width:700px; height:700px; border-radius:50%; border:2px solid rgba(0,200,60,0.10); }
-.pitch-circle-inner { position:absolute; bottom:-290px; left:50%; transform:translateX(-50%); width:200px; height:200px; border-radius:50%; border:1.5px solid rgba(0,200,60,0.12); }
-.pitch-center-line { position:absolute; bottom:0; left:0; right:0; height:1.5px; background:rgba(0,200,60,0.10); }
-.pitch-penalty-left { position:absolute; bottom:0; left:0; width:280px; height:180px; border-top:1.5px solid rgba(0,200,60,0.08); border-right:1.5px solid rgba(0,200,60,0.08); }
-.pitch-penalty-right { position:absolute; bottom:0; right:0; width:280px; height:180px; border-top:1.5px solid rgba(0,200,60,0.08); border-left:1.5px solid rgba(0,200,60,0.08); }
+/* ══ STUDIO CEILING / TOP ══ */
+.studio-ceiling {
+  position:absolute;
+  top:0; left:0; right:0;
+  height:100px;
+  background:linear-gradient(to bottom,#080808,transparent);
+}
+/* ceiling lights */
+.ceiling-light {
+  position:absolute;
+  top:0;
+  width:2px;
+  background:linear-gradient(to bottom,rgba(255,220,180,0.6),transparent);
+}
+.cl-1{left:200px;height:80px;}
+.cl-2{left:500px;height:70px;}
+.cl-3{left:800px;height:90px;}
+.cl-4{left:1120px;height:90px;}
+.cl-5{left:1420px;height:70px;}
+.cl-6{left:1720px;height:80px;}
 
-.top-bar { position:absolute; top:0; left:0; right:0; height:5px; background:linear-gradient(90deg,#FF6400,#FF9500,#c84800,#FF6400); background-size:200% 100%; animation:shimmer 3s linear infinite; }
+.ceiling-spot {
+  position:absolute;
+  top:0; width:120px; height:60px;
+  border-radius:0 0 60px 60px;
+  filter:blur(12px);
+}
+.cs-1{left:140px;background:rgba(255,200,150,0.08);}
+.cs-2{left:440px;background:rgba(255,200,150,0.06);}
+.cs-3{left:740px;background:rgba(255,200,150,0.08);}
+.cs-4{left:1060px;background:rgba(255,200,150,0.08);}
+.cs-5{left:1360px;background:rgba(255,200,150,0.06);}
+.cs-6{left:1660px;background:rgba(255,200,150,0.08);}
+
+/* ══ BG GRID ══ */
+.bg-grid {
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(255,100,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,100,0,0.03) 1px, transparent 1px);
+  background-size:80px 80px;
+}
+
+/* ══ CENTER GLOW ══ */
+.center-glow {
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:900px; height:700px;
+  background:radial-gradient(ellipse,
+    rgba(255,100,0,0.05) 0%,
+    transparent 65%
+  );
+}
+
+/* ══ TOP BAR ══ */
+.top-bar {
+  position:absolute; top:0; left:0; right:0; height:6px;
+  background:linear-gradient(90deg,#FF6400,#FF9500,#c84800,#FF6400);
+  background-size:200% 100%;
+  animation:shimmer 3s linear infinite;
+  z-index:20;
+}
 @keyframes shimmer{0%{background-position:0%}100%{background-position:200%}}
 
-.header-bar { position:absolute; top:5px; left:0; right:0; height:80px; background:linear-gradient(to bottom,rgba(0,0,0,0.92),rgba(0,0,0,0.6)); border-bottom:1px solid rgba(255,100,0,0.25); display:flex; align-items:center; padding:0 48px; justify-content:space-between; }
+.bottom-bar {
+  position:absolute; bottom:0; left:0; right:0; height:6px;
+  background:linear-gradient(90deg,#c84800,#FF6400,#FF9500,#c84800);
+  background-size:200% 100%;
+  animation:shimmer 3s linear infinite reverse;
+  z-index:20;
+}
+
+/* ══ HEADER ══ */
+.header {
+  position:absolute;
+  top:6px; left:0; right:0; height:76px;
+  background:linear-gradient(to bottom,rgba(0,0,0,0.88),rgba(0,0,0,0.5));
+  border-bottom:2px solid rgba(255,100,0,0.3);
+  display:flex; align-items:center;
+  justify-content:space-between;
+  padding:0 32px;
+  z-index:20;
+}
 .logo-area { display:flex; align-items:center; gap:12px; }
-.logo-text { font-family:'Bebas Neue',sans-serif; font-size:42px; color:#FF6400; letter-spacing:4px; text-shadow:0 0 20px rgba(255,100,0,0.6); line-height:1; }
-.logo-div { width:2px; height:28px; background:rgba(255,100,0,0.4); }
+.logo-text { font-family:'Bebas Neue',sans-serif; font-size:44px; color:#FF6400; letter-spacing:4px; text-shadow:0 0 20px rgba(255,100,0,0.6); line-height:1; }
+.logo-div { width:2px; height:28px; background:rgba(255,100,0,0.5); }
 .logo-sub { font-size:11px; font-weight:700; letter-spacing:4px; color:rgba(255,255,255,0.35); text-transform:uppercase; line-height:1.6; }
-.match-title-bar { text-align:center; }
-.full-time-tag { font-size:11px; font-weight:700; letter-spacing:6px; color:rgba(255,100,0,0.7); text-transform:uppercase; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:2px; }
-.full-time-tag::before,.full-time-tag::after { content:''; display:block; width:30px; height:1px; background:rgba(255,100,0,0.4); }
-.match-teams-title { font-family:'Bebas Neue',sans-serif; font-size:36px; color:#fff; letter-spacing:4px; line-height:1; }
-.match-teams-title .vs { color:rgba(255,100,0,0.7); }
-.match-score-inline { font-family:'Bebas Neue',sans-serif; font-size:28px; color:#FF6400; letter-spacing:3px; margin-left:12px; }
-.type-badge { background:rgba(255,100,0,0.12); border:1px solid rgba(255,100,0,0.4); color:#FF6400; font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:3px; padding:7px 20px; clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px)); }
 
-.main-layout { position:absolute; top:85px; bottom:55px; left:0; right:0; display:flex; }
-.webcam-zone { width:980px; height:100%; position:relative; flex-shrink:0; border-right:2px solid rgba(255,100,0,0.3); }
-.wc-corner { position:absolute; width:32px; height:32px; z-index:2; }
-.wc-tl { top:12px; left:12px; border-top:3px solid #FF6400; border-left:3px solid #FF6400; }
-.wc-tr { top:12px; right:12px; border-top:3px solid #FF6400; border-right:3px solid #FF6400; }
-.wc-bl { bottom:12px; left:12px; border-bottom:3px solid rgba(255,100,0,0.4); border-left:3px solid rgba(255,100,0,0.4); }
-.wc-br { bottom:12px; right:12px; border-bottom:3px solid rgba(255,100,0,0.4); border-right:3px solid rgba(255,100,0,0.4); }
-.wc-label { position:absolute; bottom:20px; left:50%; transform:translateX(-50%); font-size:12px; font-weight:700; letter-spacing:5px; color:rgba(255,100,0,0.18); text-transform:uppercase; }
+.header-title {
+  text-align:center;
+}
+.header-tag {
+  font-size:11px; font-weight:700; letter-spacing:6px;
+  color:rgba(255,100,0,0.7); text-transform:uppercase;
+  display:flex; align-items:center; gap:12px;
+}
+.header-tag::before,.header-tag::after { content:''; display:block; width:24px; height:1px; background:rgba(255,100,0,0.5); }
+.header-main {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:28px; color:#fff; letter-spacing:5px;
+  margin-top:2px;
+}
+.header-main span { color:#FF6400; }
 
-.tv-panel { flex:1; height:100%; display:flex; flex-direction:column; }
-.tv-frame { flex:1; margin:16px 20px 4px 20px; border:2px solid rgba(255,255,255,0.08); border-radius:8px; background:rgba(0,0,0,0.5); position:relative; overflow:hidden; display:flex; flex-direction:column; }
-.tv-frame::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(to bottom,transparent 0px,transparent 3px,rgba(0,0,0,0.06) 3px,rgba(0,0,0,0.06) 4px); pointer-events:none; z-index:1; }
+.type-badge {
+  background:rgba(255,100,0,0.12);
+  border:1px solid rgba(255,100,0,0.45);
+  color:#FF6400;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:15px; letter-spacing:4px; padding:7px 18px;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+}
 
-.tv-header { background:linear-gradient(135deg,rgba(255,100,0,0.18),rgba(200,70,0,0.12)); border-bottom:1px solid rgba(255,100,0,0.25); padding:10px 16px; display:flex; align-items:center; justify-content:space-between; position:relative; z-index:2; }
-.tv-channel { font-family:'Bebas Neue',sans-serif; font-size:18px; color:#FF6400; letter-spacing:3px; }
-.tv-live-dot { width:8px; height:8px; border-radius:50%; background:#FF6400; animation:blink 2s ease-in-out infinite; }
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+/* ══ MAIN LAYOUT ══ */
+.main-area {
+  position:absolute;
+  top:82px; bottom:60px;
+  left:0; right:0;
+  display:flex;
+}
 
-.tv-score-block { padding:14px 16px; background:rgba(0,0,0,0.3); border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:space-between; position:relative; z-index:2; }
-.tv-team { display:flex; flex-direction:column; align-items:center; gap:6px; }
-.tv-team-logo { width:44px; height:44px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:26px; cursor:pointer; overflow:hidden; transition:border-color 0.2s; }
-.tv-team-logo:hover { border-color:rgba(255,100,0,0.5); }
-.tv-team-logo img { width:100%; height:100%; object-fit:contain; display:none; }
-.tv-team-name { font-family:'Bebas Neue',sans-serif; font-size:18px; color:#fff; letter-spacing:2px; }
-.tv-score-center { text-align:center; }
-.tv-score-nums { font-family:'Bebas Neue',sans-serif; font-size:56px; color:#fff; line-height:1; display:flex; align-items:center; gap:10px; }
-.tv-score-num { cursor:pointer; transition:color 0.15s; }
-.tv-score-num:hover { color:#FF6400; }
-.tv-score-sep { color:rgba(255,100,0,0.6); font-size:40px; }
-.tv-ft { font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:4px; background:#FF6400; color:#000; padding:2px 12px; margin-top:4px; display:inline-block; }
+/* ══ LEFT PANEL — HOME TEAM ══ */
+.side-panel {
+  width:380px;
+  height:100%;
+  flex-shrink:0;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.side-panel.home { border-right:2px solid rgba(255,100,0,0.25); }
+.side-panel.away { border-left:2px solid rgba(255,100,0,0.25); }
 
-.tv-stats { flex:1; padding:10px 16px; display:flex; flex-direction:column; gap:8px; position:relative; z-index:2; }
-.tv-stat-row { display:flex; align-items:center; gap:8px; }
-.tv-stat-label { font-size:10px; font-weight:700; letter-spacing:2px; color:rgba(255,100,0,0.55); text-transform:uppercase; width:100px; text-align:center; }
-.tv-stat-bar { flex:1; height:5px; background:rgba(255,255,255,0.07); border-radius:3px; overflow:hidden; }
-.tv-stat-fill { height:100%; background:linear-gradient(90deg,#FF6400,#FF9500); border-radius:3px; }
-.tv-stat-home { font-family:'Bebas Neue',sans-serif; font-size:18px; color:#fff; width:36px; text-align:right; cursor:pointer; }
-.tv-stat-away { font-family:'Bebas Neue',sans-serif; font-size:18px; color:rgba(255,255,255,0.4); width:36px; cursor:pointer; }
-.tv-stat-home:hover,.tv-stat-away:hover,.tv-stat-home[contenteditable="true"],.tv-stat-away[contenteditable="true"] { color:#FF6400; outline:none; }
+/* Panel background gradient */
+.side-panel.home {
+  background:linear-gradient(135deg,
+    rgba(255,100,0,0.12) 0%,
+    rgba(255,100,0,0.05) 40%,
+    rgba(0,0,0,0) 100%
+  );
+}
+.side-panel.away {
+  background:linear-gradient(225deg,
+    rgba(255,100,0,0.12) 0%,
+    rgba(255,100,0,0.05) 40%,
+    rgba(0,0,0,0) 100%
+  );
+}
 
-.tv-bottom { display:grid; grid-template-columns:1fr 1fr; border-top:1px solid rgba(255,255,255,0.06); position:relative; z-index:2; }
-.tv-motm { padding:10px 16px; border-right:1px solid rgba(255,255,255,0.06); text-align:center; }
-.tv-motm-label { font-size:9px; font-weight:700; letter-spacing:3px; color:#FFD700; text-transform:uppercase; margin-bottom:4px; }
-.tv-motm-name { font-family:'Bebas Neue',sans-serif; font-size:20px; color:#FFD700; letter-spacing:2px; cursor:pointer; }
-.tv-motm-name[contenteditable="true"] { outline:none; opacity:0.8; }
-.tv-pred { padding:10px 16px; text-align:center; }
-.tv-pred-label { font-size:9px; font-weight:700; letter-spacing:3px; color:rgba(255,100,0,0.6); text-transform:uppercase; margin-bottom:4px; }
-.tv-pred-result { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:2px; }
-.pred-correct { color:#00e676; }
-.pred-wrong { color:#ff1744; }
-.pred-btns { display:flex; gap:4px; justify-content:center; margin-top:6px; }
-.pred-btn { font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:900; letter-spacing:2px; padding:3px 8px; border:none; cursor:pointer; text-transform:uppercase; }
-.pred-btn-win { background:#00c853; color:#000; }
-.pred-btn-lose { background:#c00; color:#fff; }
+/* Diagonal accent stripe */
+.panel-stripe {
+  position:absolute;
+  top:0; bottom:0;
+  width:4px;
+  background:linear-gradient(to bottom,transparent,#FF6400,rgba(255,100,0,0.3),transparent);
+}
+.home .panel-stripe { right:0; }
+.away .panel-stripe { left:0; }
 
-.tv-controls { padding:4px 20px 8px; display:flex; gap:6px; justify-content:flex-end; }
-.btn { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:900; letter-spacing:2px; text-transform:uppercase; padding:4px 12px; border:none; cursor:pointer; }
-.btn-orange { background:#FF6400; color:#000; }
-.btn-gray { background:rgba(255,255,255,0.12); color:#fff; }
-.btn-gray:hover { background:rgba(255,255,255,0.2); }
+/* Team name at top */
+.panel-team-name {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:32px; letter-spacing:4px;
+  color:#fff;
+  text-align:center;
+  padding:16px 12px 8px;
+  text-shadow:0 2px 10px rgba(0,0,0,0.8);
+  z-index:2;
+  position:relative;
+}
 
-.ticker-bar { position:absolute; bottom:0; left:0; right:0; height:55px; background:linear-gradient(to right,rgba(255,100,0,0.18),rgba(200,70,0,0.08)); border-top:2px solid rgba(255,100,0,0.25); display:flex; align-items:center; overflow:hidden; }
-.ticker-label { flex-shrink:0; background:#FF6400; color:#000; font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:3px; padding:0 18px; height:100%; display:flex; align-items:center; }
+/* Team logo */
+.panel-logo {
+  width:80px; height:80px;
+  margin:0 auto 8px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:6px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:44px; cursor:pointer; overflow:hidden;
+  transition:border-color 0.2s;
+  position:relative; z-index:2;
+}
+.panel-logo:hover { border-color:rgba(255,100,0,0.5); }
+.panel-logo img { width:100%; height:100%; object-fit:contain; display:none; }
+
+/* Player photo area */
+.player-photo-area {
+  flex:1;
+  position:relative;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  overflow:hidden;
+}
+.player-photo {
+  width:100%; height:100%;
+  object-fit:cover;
+  object-position:top center;
+  display:none;
+  position:absolute;
+  inset:0;
+}
+.player-placeholder {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  color:rgba(255,255,255,0.1);
+  text-align:center;
+  width:100%; height:100%;
+}
+.player-placeholder .ph-icon { font-size:60px; }
+.player-placeholder .ph-txt { font-size:11px; font-weight:700; letter-spacing:4px; text-transform:uppercase; }
+.player-upload-btn {
+  background:rgba(255,100,0,0.1);
+  border:1px solid rgba(255,100,0,0.3);
+  color:#FF6400;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:12px; font-weight:900; letter-spacing:3px;
+  text-transform:uppercase; padding:6px 14px;
+  cursor:pointer; transition:all 0.2s; margin-top:4px;
+}
+.player-upload-btn:hover { background:rgba(255,100,0,0.25); }
+
+/* gradient fade at bottom of player photo */
+.player-fade {
+  position:absolute;
+  bottom:0; left:0; right:0; height:120px;
+  background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);
+  z-index:2;
+}
+
+/* Panel team label bottom */
+.panel-bottom-label {
+  position:absolute;
+  bottom:12px; left:0; right:0;
+  text-align:center;
+  z-index:3;
+}
+.panel-home-away {
+  font-size:10px; font-weight:700; letter-spacing:5px;
+  color:rgba(255,100,0,0.6); text-transform:uppercase;
+}
+
+/* ══ CENTER WEBCAM AREA ══ */
+.webcam-area {
+  flex:1;
+  height:100%;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+/* subtle center zone indicator */
+.webcam-zone-box {
+  position:absolute;
+  inset:20px;
+  border:1px solid rgba(255,100,0,0.08);
+}
+.wc-corner { position:absolute; width:28px; height:28px; }
+.wc-tl { top:-1px; left:-1px; border-top:2px solid rgba(255,100,0,0.4); border-left:2px solid rgba(255,100,0,0.4); }
+.wc-tr { top:-1px; right:-1px; border-top:2px solid rgba(255,100,0,0.4); border-right:2px solid rgba(255,100,0,0.4); }
+.wc-bl { bottom:-1px; left:-1px; border-bottom:2px solid rgba(255,100,0,0.25); border-left:2px solid rgba(255,100,0,0.25); }
+.wc-br { bottom:-1px; right:-1px; border-bottom:2px solid rgba(255,100,0,0.25); border-right:2px solid rgba(255,100,0,0.25); }
+.wc-label {
+  position:absolute; bottom:30px; left:50%;
+  transform:translateX(-50%);
+  font-size:11px; font-weight:700; letter-spacing:5px;
+  color:rgba(255,100,0,0.15); text-transform:uppercase;
+}
+
+/* ══ BOTTOM TICKER ══ */
+.ticker-bar {
+  position:absolute;
+  bottom:6px; left:0; right:0; height:54px;
+  background:linear-gradient(to right,rgba(0,0,0,0.9),rgba(15,5,0,0.85));
+  border-top:2px solid rgba(255,100,0,0.35);
+  display:flex; align-items:center; overflow:hidden;
+  z-index:20;
+}
+.ticker-label {
+  flex-shrink:0; background:#FF6400; color:#000;
+  font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:3px;
+  padding:0 18px; height:100%; display:flex; align-items:center;
+}
 .ticker-track { flex:1; overflow:hidden; height:100%; display:flex; align-items:center; }
 .ticker-inner { display:flex; align-items:center; white-space:nowrap; animation:tickerMove 30s linear infinite; }
 @keyframes tickerMove{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.ticker-item { font-size:19px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.8); padding:0 36px; }
-.ticker-dot { color:rgba(255,100,0,0.5); }
+.ticker-item { font-size:18px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.85); padding:0 36px; }
+.ticker-dot { color:rgba(255,100,0,0.6); }
 
-.edit-panel { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(5,5,10,0.97); border:1px solid rgba(255,100,0,0.5); padding:24px 28px; display:none; flex-direction:column; gap:10px; z-index:200; min-width:400px; }
-.edit-panel.open { display:flex; }
-.edit-title { font-family:'Bebas Neue',sans-serif; font-size:22px; color:#FF6400; letter-spacing:3px; border-bottom:1px solid rgba(255,100,0,0.3); padding-bottom:8px; margin-bottom:4px; }
-.edit-row { display:flex; align-items:center; gap:10px; }
-.edit-label { font-size:11px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.4); text-transform:uppercase; min-width:90px; }
-.edit-input { background:rgba(255,255,255,0.06); border:1px solid rgba(255,100,0,0.3); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; padding:5px 10px; flex:1; text-transform:uppercase; }
-.edit-input:focus { outline:none; border-color:#FF6400; }
+/* hidden file inputs */
+input[type="file"] { display:none; }
 </style>
 </head>
 <body>
-<div class="stadium-bg"></div>
-<div class="pitch-lines">
-  <div class="pitch-circle-outer"></div>
-  <div class="pitch-circle-inner"></div>
-  <div class="pitch-center-line"></div>
-  <div class="pitch-penalty-left"></div>
-  <div class="pitch-penalty-right"></div>
-</div>
-<div class="top-bar"></div>
 
-<div class="header-bar">
+<!-- STUDIO BG -->
+<div class="bg-grid"></div>
+<div class="center-glow"></div>
+<div class="studio-ceiling"></div>
+<div class="ceiling-light cl-1"></div>
+<div class="ceiling-light cl-2"></div>
+<div class="ceiling-light cl-3"></div>
+<div class="ceiling-light cl-4"></div>
+<div class="ceiling-light cl-5"></div>
+<div class="ceiling-light cl-6"></div>
+<div class="ceiling-spot cs-1"></div>
+<div class="ceiling-spot cs-2"></div>
+<div class="ceiling-spot cs-3"></div>
+<div class="ceiling-spot cs-4"></div>
+<div class="ceiling-spot cs-5"></div>
+<div class="ceiling-spot cs-6"></div>
+<div class="studio-floor"></div>
+<div class="floor-line"></div>
+<div class="floor-reflection"></div>
+
+<div class="top-bar"></div>
+<div class="bottom-bar"></div>
+
+<!-- HEADER -->
+<div class="header">
   <div class="logo-area">
     <div class="logo-text">LID⚽</div>
     <div class="logo-div"></div>
     <div class="logo-sub">OFFICIAL<br>@XawBoe</div>
   </div>
-  <div class="match-title-bar">
-    <div class="full-time-tag">Full Time</div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <div class="match-teams-title"><span id="hdr-home">MAN UTD</span><span class="vs"> VS </span><span id="hdr-away">ARSENAL</span></div>
-      <div class="match-score-inline" id="hdr-score">2 — 1</div>
+  <div class="header-title">
+    <div class="header-tag">Full Time · Post Match Analysis</div>
+    <div class="header-main" id="hdr-title">
+      <span id="hdr-home">HOME TEAM</span>
+      <span style="color:rgba(255,100,0,0.6)"> VS </span>
+      <span id="hdr-away">AWAY TEAM</span>
     </div>
   </div>
-  <div class="type-badge">📊 Post-Match</div>
+  <div class="type-badge">📊 Analysis</div>
 </div>
 
-<div class="main-layout">
-  <div class="webcam-zone">
-    <div class="wc-corner wc-tl"></div><div class="wc-corner wc-tr"></div>
-    <div class="wc-corner wc-bl"></div><div class="wc-corner wc-br"></div>
-    <div class="wc-label">[ webcam ]</div>
+<!-- MAIN AREA -->
+<div class="main-area">
+
+  <!-- HOME PANEL -->
+  <div class="side-panel home" id="home-panel">
+    <div class="panel-stripe"></div>
+
+    <!-- Logo -->
+    <div class="panel-logo" onclick="document.getElementById('home-logo-f').click()">
+      <span id="home-logo-emoji">🔴</span>
+      <img id="home-logo-img"/>
+    </div>
+
+    <!-- Team Name -->
+    <div class="panel-team-name" id="home-team-name">HOME TEAM</div>
+
+    <!-- Player Photo -->
+    <div class="player-photo-area">
+      <img class="player-photo" id="home-player-img"/>
+      <div class="player-placeholder" id="home-player-ph">
+        <div class="ph-icon">👤</div>
+        <div class="ph-txt">Player Photo</div>
+        <button class="player-upload-btn" onclick="document.getElementById('home-player-f').click()">+ Upload</button>
+      </div>
+      <div class="player-fade"></div>
+    </div>
+
+    <div class="panel-bottom-label">
+      <div class="panel-home-away">Home</div>
+    </div>
   </div>
 
-  <div class="tv-panel">
-    <div class="tv-frame">
-      <div class="tv-header">
-        <div class="tv-channel">📺 MATCH REVIEW</div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="font-size:11px;letter-spacing:3px;color:rgba(255,255,255,0.3)">FT</div>
-          <div class="tv-live-dot"></div>
-        </div>
-      </div>
-      <div class="tv-score-block">
-        <div class="tv-team">
-          <div class="tv-team-logo" onclick="document.getElementById('home-logo-f').click()"><span id="home-emoji">🔴</span><img id="home-logo-img"/></div>
-          <div class="tv-team-name" id="tv-home-name">MAN UTD</div>
-        </div>
-        <div class="tv-score-center">
-          <div class="tv-score-nums">
-            <div class="tv-score-num" id="home-score" onclick="changeScore('home',1)">2</div>
-            <div class="tv-score-sep">—</div>
-            <div class="tv-score-num" id="away-score" onclick="changeScore('away',1)">1</div>
-          </div>
-          <div class="tv-ft">FULL TIME</div>
-        </div>
-        <div class="tv-team">
-          <div class="tv-team-logo" onclick="document.getElementById('away-logo-f').click()"><span id="away-emoji">🔵</span><img id="away-logo-img"/></div>
-          <div class="tv-team-name" id="tv-away-name">ARSENAL</div>
-        </div>
-      </div>
-      <div class="tv-stats">
-        <div class="tv-stat-row"><div class="tv-stat-home" onclick="makeEdit(this)" onblur="saveEdit(this)">55%</div><div class="tv-stat-label">Possession</div><div class="tv-stat-bar"><div class="tv-stat-fill" style="width:55%"></div></div><div class="tv-stat-away" onclick="makeEdit(this)" onblur="saveEdit(this)">45%</div></div>
-        <div class="tv-stat-row"><div class="tv-stat-home" onclick="makeEdit(this)" onblur="saveEdit(this)">6</div><div class="tv-stat-label">Shots on Target</div><div class="tv-stat-bar"><div class="tv-stat-fill" style="width:60%"></div></div><div class="tv-stat-away" onclick="makeEdit(this)" onblur="saveEdit(this)">4</div></div>
-        <div class="tv-stat-row"><div class="tv-stat-home" onclick="makeEdit(this)" onblur="saveEdit(this)">7</div><div class="tv-stat-label">Corners</div><div class="tv-stat-bar"><div class="tv-stat-fill" style="width:58%"></div></div><div class="tv-stat-away" onclick="makeEdit(this)" onblur="saveEdit(this)">5</div></div>
-        <div class="tv-stat-row"><div class="tv-stat-home" onclick="makeEdit(this)" onblur="saveEdit(this)">12</div><div class="tv-stat-label">Total Shots</div><div class="tv-stat-bar"><div class="tv-stat-fill" style="width:55%"></div></div><div class="tv-stat-away" onclick="makeEdit(this)" onblur="saveEdit(this)">10</div></div>
-        <div class="tv-stat-row"><div class="tv-stat-home" onclick="makeEdit(this)" onblur="saveEdit(this)">1</div><div class="tv-stat-label">Yellow Cards</div><div class="tv-stat-bar"><div class="tv-stat-fill" style="width:33%"></div></div><div class="tv-stat-away" onclick="makeEdit(this)" onblur="saveEdit(this)">2</div></div>
-      </div>
-      <div class="tv-bottom">
-        <div class="tv-motm">
-          <div class="tv-motm-label">⭐ Man of the Match</div>
-          <div class="tv-motm-name" id="motm-name" onclick="makeEdit(this)" onblur="saveEdit(this)">B. FERNANDES</div>
-        </div>
-        <div class="tv-pred">
-          <div class="tv-pred-label">🔮 Prediction</div>
-          <div class="tv-pred-result pred-correct" id="pred-result">CORRECT! ✅</div>
-          <div class="pred-btns">
-            <button class="pred-btn pred-btn-win" onclick="setPred(true)">WIN</button>
-            <button class="pred-btn pred-btn-lose" onclick="setPred(false)">WRONG</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="tv-controls">
-      <button class="btn btn-gray" onclick="toggleEdit()">✏️ Edit</button>
-      <button class="btn btn-gray" onclick="clearAll()">🗑</button>
+  <!-- CENTER WEBCAM -->
+  <div class="webcam-area">
+    <div class="webcam-zone-box">
+      <div class="wc-corner wc-tl"></div>
+      <div class="wc-corner wc-tr"></div>
+      <div class="wc-corner wc-bl"></div>
+      <div class="wc-corner wc-br"></div>
+      <div class="wc-label">[ webcam ]</div>
     </div>
   </div>
+
+  <!-- AWAY PANEL -->
+  <div class="side-panel away" id="away-panel">
+    <div class="panel-stripe"></div>
+
+    <!-- Logo -->
+    <div class="panel-logo" onclick="document.getElementById('away-logo-f').click()">
+      <span id="away-logo-emoji">🔵</span>
+      <img id="away-logo-img"/>
+    </div>
+
+    <!-- Team Name -->
+    <div class="panel-team-name" id="away-team-name">AWAY TEAM</div>
+
+    <!-- Player Photo -->
+    <div class="player-photo-area">
+      <img class="player-photo" id="away-player-img"/>
+      <div class="player-placeholder" id="away-player-ph">
+        <div class="ph-icon">👤</div>
+        <div class="ph-txt">Player Photo</div>
+        <button class="player-upload-btn" onclick="document.getElementById('away-player-f').click()">+ Upload</button>
+      </div>
+      <div class="player-fade"></div>
+    </div>
+
+    <div class="panel-bottom-label">
+      <div class="panel-home-away">Away</div>
+    </div>
+  </div>
+
 </div>
 
+<!-- TICKER -->
 <div class="ticker-bar">
   <div class="ticker-label">LID⚽</div>
   <div class="ticker-track">
     <div class="ticker-inner">
-      <span class="ticker-item">📊 Full Time Analysis — LID OFFICIAL</span><span class="ticker-dot">◆</span>
-      <span class="ticker-item" id="tk-pred1">🔮 Prediction: MAN UTD WIN · ✅ CORRECT</span><span class="ticker-dot">◆</span>
-      <span class="ticker-item">🔔 Subscribe လုပ်ဖို့ မမေ့နဲ့! — @XawBoe</span><span class="ticker-dot">◆</span>
-      <span class="ticker-item">⚽ Like · Share · @XawBoe</span><span class="ticker-dot">◆</span>
-      <span class="ticker-item">📊 Full Time Analysis — LID OFFICIAL</span><span class="ticker-dot">◆</span>
-      <span class="ticker-item" id="tk-pred2">🔮 Prediction: MAN UTD WIN · ✅ CORRECT</span><span class="ticker-dot">◆</span>
-      <span class="ticker-item">🔔 Subscribe လုပ်ဖို့ မမေ့နဲ့! — @XawBoe</span><span class="ticker-dot">◆</span>
-      <span class="ticker-item">⚽ Like · Share · @XawBoe</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item">📊 Post-Match Analysis — LID OFFICIAL</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item" id="tk-match">⚽ HOME TEAM vs AWAY TEAM — Full Time</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item">🔔 LID OFFICIAL Channel ကို Subscribe လုပ်ဖို့ မမေ့နဲ့!</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item">⚽ Like · Share · @XawBoe</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item">📊 Post-Match Analysis — LID OFFICIAL</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item" id="tk-match2">⚽ HOME TEAM vs AWAY TEAM — Full Time</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item">🔔 LID OFFICIAL Channel ကို Subscribe လုပ်ဖို့ မမေ့နဲ့!</span>
+      <span class="ticker-dot">◆</span>
+      <span class="ticker-item">⚽ Like · Share · @XawBoe</span>
+      <span class="ticker-dot">◆</span>
     </div>
   </div>
 </div>
 
-<div class="edit-panel" id="edit-panel">
-  <div class="edit-title">✏️ Match Info</div>
-  <div class="edit-row"><div class="edit-label">Home</div><input class="edit-input" id="inp-home" value="MAN UTD" oninput="updateTeam('home',this.value)"></div>
-  <div class="edit-row"><div class="edit-label">Away</div><input class="edit-input" id="inp-away" value="ARSENAL" oninput="updateTeam('away',this.value)"></div>
-  <div class="edit-row"><div class="edit-label">MOTM</div><input class="edit-input" id="inp-motm" value="B. FERNANDES" oninput="document.getElementById('motm-name').textContent=this.value.toUpperCase();save()"></div>
-  <div class="edit-row"><div class="edit-label">Prediction</div><input class="edit-input" id="inp-pred" value="MAN UTD WIN" oninput="updatePredTicker(this.value)"></div>
-  <div class="edit-row">
-    <div class="edit-label">Logo</div>
-    <button class="btn btn-gray" onclick="document.getElementById('home-logo-f').click()">🔴 Home</button>
-    <button class="btn btn-gray" onclick="document.getElementById('away-logo-f').click()">🔵 Away</button>
-  </div>
-  <div class="edit-row" style="margin-top:6px">
-    <button class="btn btn-orange" style="flex:1" onclick="toggleEdit()">Close ✕</button>
-  </div>
-</div>
-
-<input type="file" id="home-logo-f" accept="image/*" onchange="uploadLogo('home',this)">
-<input type="file" id="away-logo-f" accept="image/*" onchange="uploadLogo('away',this)">
+<!-- File Inputs -->
+<input type="file" id="home-logo-f" accept="image/*" onchange="uploadImg('home-logo',this)">
+<input type="file" id="away-logo-f" accept="image/*" onchange="uploadImg('away-logo',this)">
+<input type="file" id="home-player-f" accept="image/*" onchange="uploadImg('home-player',this)">
+<input type="file" id="away-player-f" accept="image/*" onchange="uploadImg('away-player',this)">
 
 <script>
+// Auto scale
 function autoScale(){const s=Math.min(window.innerWidth/1920,window.innerHeight/1080);document.body.style.transform=`scale(${s})`;}
-autoScale();window.addEventListener('resize',autoScale);
-let homeGoals=2,awayGoals=1;
-function changeScore(t,d){if(t==='home'){homeGoals=Math.max(0,homeGoals+d);document.getElementById('home-score').textContent=homeGoals;}else{awayGoals=Math.max(0,awayGoals+d);document.getElementById('away-score').textContent=awayGoals;}document.getElementById('hdr-score').textContent=homeGoals+' — '+awayGoals;save();}
-document.getElementById('home-score').addEventListener('contextmenu',e=>{e.preventDefault();changeScore('home',-1);});
-document.getElementById('away-score').addEventListener('contextmenu',e=>{e.preventDefault();changeScore('away',-1);});
-function updateTeam(t,v){const u=v.toUpperCase();document.getElementById('tv-'+t+'-name').textContent=u;document.getElementById('hdr-'+t).textContent=u;save();}
-function setPred(correct){const pred=document.getElementById('inp-pred').value.toUpperCase();const el=document.getElementById('pred-result');el.textContent=correct?'CORRECT! ✅':'WRONG ❌';el.className='tv-pred-result '+(correct?'pred-correct':'pred-wrong');updatePredTicker(pred,correct);save();}
-function updatePredTicker(pred,correct){const icon=correct===false?'❌':'✅';const txt=`🔮 Prediction: ${pred.toUpperCase()} · ${icon}`;document.getElementById('tk-pred1').textContent=txt;document.getElementById('tk-pred2').textContent=txt;}
-function makeEdit(el){el.contentEditable='true';el.focus();}
-function saveEdit(el){el.contentEditable='false';save();}
-function uploadLogo(t,input){const f=input.files[0];if(!f)return;const url=URL.createObjectURL(f);const img=document.getElementById(t+'-logo-img');const emoji=document.getElementById(t+'-emoji');img.src=url;img.style.display='block';emoji.style.display='none';}
-function toggleEdit(){document.getElementById('edit-panel').classList.toggle('open');}
-function save(){localStorage.setItem('lid_pm2',JSON.stringify({home:document.getElementById('inp-home').value,away:document.getElementById('inp-away').value,motm:document.getElementById('inp-motm').value,pred:document.getElementById('inp-pred').value,homeGoals,awayGoals}));}
-function loadSaved(){const d=localStorage.getItem('lid_pm2');if(!d)return;const s=JSON.parse(d);if(s.home){document.getElementById('inp-home').value=s.home;updateTeam('home',s.home);}if(s.away){document.getElementById('inp-away').value=s.away;updateTeam('away',s.away);}if(s.motm){document.getElementById('inp-motm').value=s.motm;document.getElementById('motm-name').textContent=s.motm.toUpperCase();}if(s.pred){document.getElementById('inp-pred').value=s.pred;updatePredTicker(s.pred);}if(s.homeGoals!==undefined){homeGoals=s.homeGoals;awayGoals=s.awayGoals;document.getElementById('home-score').textContent=homeGoals;document.getElementById('away-score').textContent=awayGoals;document.getElementById('hdr-score').textContent=homeGoals+' — '+awayGoals;}}
-function clearAll(){localStorage.removeItem('lid_pm2');location.reload();}
+autoScale(); window.addEventListener('resize',autoScale);
+
+// Upload images
+function uploadImg(type, input){
+  const f=input.files[0]; if(!f) return;
+  const url=URL.createObjectURL(f);
+  if(type==='home-logo'){
+    const img=document.getElementById('home-logo-img');
+    img.src=url; img.style.display='block';
+    document.getElementById('home-logo-emoji').style.display='none';
+  } else if(type==='away-logo'){
+    const img=document.getElementById('away-logo-img');
+    img.src=url; img.style.display='block';
+    document.getElementById('away-logo-emoji').style.display='none';
+  } else if(type==='home-player'){
+    const img=document.getElementById('home-player-img');
+    img.src=url; img.style.display='block';
+    document.getElementById('home-player-ph').style.display='none';
+  } else if(type==='away-player'){
+    const img=document.getElementById('away-player-img');
+    img.src=url; img.style.display='block';
+    document.getElementById('away-player-ph').style.display='none';
+  }
+  save();
+}
+
+// Update team names
+function updateNames(home, away){
+  const h=home.toUpperCase(), a=away.toUpperCase();
+  document.getElementById('home-team-name').textContent=h;
+  document.getElementById('away-team-name').textContent=a;
+  document.getElementById('hdr-home').textContent=h;
+  document.getElementById('hdr-away').textContent=a;
+  const matchTxt=`⚽ ${h} vs ${a} — Full Time`;
+  document.getElementById('tk-match').textContent=matchTxt;
+  document.getElementById('tk-match2').textContent=matchTxt;
+}
+
+// LocalStorage
+function save(){
+  localStorage.setItem('lid_pmbg',JSON.stringify({
+    home: document.getElementById('home-team-name').textContent,
+    away: document.getElementById('away-team-name').textContent
+  }));
+}
+
+function loadSaved(){
+  const d=localStorage.getItem('lid_pmbg'); if(!d) return;
+  const s=JSON.parse(d);
+  if(s.home && s.away) updateNames(s.home, s.away);
+}
+
+// Double click team name to edit
+['home-team-name','away-team-name'].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener('dblclick',()=>{
+    el.contentEditable='true'; el.focus();
+    el.style.outline='1px solid rgba(255,100,0,0.5)';
+  });
+  el.addEventListener('blur',()=>{
+    el.contentEditable='false';
+    el.style.outline='none';
+    const h=document.getElementById('home-team-name').textContent;
+    const a=document.getElementById('away-team-name').textContent;
+    updateNames(h,a);
+    save();
+  });
+});
+
 loadSaved();
 </script>
 </body>
