@@ -16,396 +16,430 @@ body {
   background:transparent;
 }
 
-/* ══ LEFT PANEL — Results ══ */
+/* ══ TOP BAR — Score ══ */
+.top-bar {
+  position:absolute;
+  top:0; left:0; right:0;
+  height:90px;
+  background:linear-gradient(to bottom, rgba(0,0,0,0.92), rgba(0,0,0,0.7));
+  border-bottom:3px solid #FF6400;
+  display:flex; align-items:center;
+  justify-content:center;
+  gap:0;
+}
+
+/* Logo */
+.logo-blk {
+  position:absolute; left:32px;
+  display:flex; align-items:center; gap:10px;
+}
+.logo-txt { font-family:'Bebas Neue',sans-serif; font-size:38px; color:#FF6400; letter-spacing:3px; text-shadow:0 0 16px rgba(255,100,0,0.6); line-height:1; }
+.logo-div { width:2px; height:24px; background:rgba(255,100,0,0.4); }
+.logo-sub { font-size:10px; font-weight:700; letter-spacing:3px; color:rgba(255,255,255,0.35); text-transform:uppercase; line-height:1.6; }
+
+/* Teams */
+.team-blk { display:flex; align-items:center; gap:12px; min-width:340px; }
+.team-blk.home { justify-content:flex-end; }
+.team-blk.away { justify-content:flex-start; }
+.tlogo {
+  width:52px; height:52px;
+  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);
+  border-radius:4px; display:flex; align-items:center; justify-content:center;
+  font-size:28px; cursor:pointer; overflow:hidden; flex-shrink:0;
+}
+.tlogo:hover { border-color:rgba(255,100,0,0.5); }
+.tlogo img { width:100%; height:100%; object-fit:contain; display:none; }
+.tname { font-family:'Bebas Neue',sans-serif; font-size:36px; color:#fff; letter-spacing:2px; }
+
+/* VS center */
+.vs-blk { display:flex; flex-direction:column; align-items:center; padding:0 32px; }
+.vs-txt { font-family:'Bebas Neue',sans-serif; font-size:28px; color:rgba(255,100,0,0.6); letter-spacing:4px; }
+.match-t { font-size:11px; font-weight:700; letter-spacing:3px; color:rgba(255,255,255,0.3); margin-top:1px; }
+
+/* Badge right */
+.type-badge {
+  position:absolute; right:32px;
+  background:rgba(255,100,0,0.15); border:1px solid rgba(255,100,0,0.45);
+  color:#FF6400; font-family:'Bebas Neue',sans-serif;
+  font-size:15px; letter-spacing:4px; padding:7px 18px;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+}
+
+/* ══ LEFT PANEL — Results List ══ */
 .left-panel {
   position:absolute;
-  left:0; top:0; bottom:0;
-  width:360px;
-  background:linear-gradient(to right, rgba(0,0,0,0.92), rgba(0,0,0,0.85));
-  border-right:3px solid #FF6400;
+  left:0; top:90px; bottom:0;
+  width:340px;
+  background:linear-gradient(to right, rgba(0,0,0,0.88), rgba(0,0,0,0.75));
+  border-right:2px solid rgba(255,100,0,0.3);
   display:flex; flex-direction:column;
 }
 
-.panel-header {
-  padding:16px 18px 12px;
-  border-bottom:1px solid rgba(255,100,0,0.2);
-  background:rgba(255,100,0,0.08);
+.lp-header {
+  padding:12px 16px 8px;
+  border-bottom:1px solid rgba(255,100,0,0.18);
+  background:rgba(255,100,0,0.07);
 }
-.panel-title {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:20px; letter-spacing:4px; color:#FF6400;
-}
-.panel-sub {
-  font-size:10px; font-weight:700; letter-spacing:3px;
-  color:rgba(255,255,255,0.35); text-transform:uppercase; margin-top:2px;
-}
+.lp-title { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:4px; color:#FF6400; }
+.lp-sub { font-size:10px; font-weight:700; letter-spacing:3px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-top:1px; }
 
-.results-list {
-  flex:1; overflow-y:auto; padding:4px 0;
-}
+.results-list { flex:1; overflow-y:auto; padding:4px 0; }
 .results-list::-webkit-scrollbar { width:2px; }
 .results-list::-webkit-scrollbar-thumb { background:rgba(255,100,0,0.3); }
 
-.result-row {
-  padding:8px 18px;
+.rrow {
+  padding:7px 16px;
   border-bottom:1px solid rgba(255,255,255,0.04);
   cursor:pointer; transition:all 0.15s;
-  display:flex; align-items:center; gap:10px;
+  display:flex; align-items:center; gap:8px;
 }
-.result-row:hover { background:rgba(255,100,0,0.07); }
-.result-row.active {
-  background:rgba(255,100,0,0.13);
-  border-left:3px solid #FF6400;
-  padding-left:15px;
-}
-.result-idx {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:14px; color:rgba(255,100,0,0.4); width:16px; flex-shrink:0;
-}
-.result-info { flex:1; min-width:0; }
-.result-teams {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:14px; color:#fff; letter-spacing:1px;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-.result-pred {
-  font-size:10px; letter-spacing:2px;
-  color:rgba(255,255,255,0.3); text-transform:uppercase; margin-top:1px;
-}
-.result-status {
+.rrow:hover { background:rgba(255,100,0,0.07); }
+.rrow.active { background:rgba(255,100,0,0.12); border-left:3px solid #FF6400; padding-left:13px; }
+
+.ridx { font-family:'Bebas Neue',sans-serif; font-size:13px; color:rgba(255,100,0,0.4); width:14px; flex-shrink:0; }
+.rinfo { flex:1; min-width:0; }
+.rteams { font-family:'Bebas Neue',sans-serif; font-size:13px; color:#fff; letter-spacing:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.rpred { font-size:9px; letter-spacing:2px; color:rgba(255,255,255,0.28); text-transform:uppercase; margin-top:1px; }
+.rst {
   font-size:9px; font-weight:900; letter-spacing:1px;
-  padding:2px 6px; text-transform:uppercase; flex-shrink:0;
-  border-radius:2px;
+  padding:2px 6px; border-radius:2px; flex-shrink:0;
 }
-.st-correct { background:rgba(0,200,100,0.15); color:#00e676; border:1px solid rgba(0,200,100,0.25); }
-.st-wrong   { background:rgba(200,0,0,0.15); color:#ff4444; border:1px solid rgba(200,0,0,0.25); }
-.st-pending { background:rgba(255,100,0,0.1); color:#FF6400; border:1px solid rgba(255,100,0,0.2); }
+.st-c { background:rgba(0,200,100,0.13); color:#00e676; border:1px solid rgba(0,200,100,0.22); }
+.st-w { background:rgba(200,0,0,0.13); color:#ff4444; border:1px solid rgba(200,0,0,0.22); }
+.st-p { background:rgba(255,100,0,0.1); color:#FF6400; border:1px solid rgba(255,100,0,0.2); }
 
 /* Summary */
-.summary-bar {
-  padding:10px 18px;
-  border-top:1px solid rgba(255,100,0,0.2);
-  background:rgba(0,0,0,0.5);
-  display:flex; gap:0;
+.lp-summary {
+  padding:8px 16px;
+  border-top:1px solid rgba(255,100,0,0.18);
+  background:rgba(0,0,0,0.4);
+  display:flex;
 }
-.sum-item { flex:1; text-align:center; }
-.sum-num {
-  font-family:'Bebas Neue',sans-serif; font-size:28px; line-height:1;
-}
-.sum-num.w { color:#00e676; }
-.sum-num.l { color:#ff4444; }
-.sum-num.p { color:#FF6400; }
-.sum-lbl { font-size:9px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.25); text-transform:uppercase; }
+.si { flex:1; text-align:center; }
+.sn { font-family:'Bebas Neue',sans-serif; font-size:26px; line-height:1; }
+.sn.w { color:#00e676; }
+.sn.l { color:#ff4444; }
+.sn.p { color:#FF6400; }
+.sl { font-size:9px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.22); text-transform:uppercase; }
 
 /* ══ RIGHT PANEL — Match Card ══ */
 .right-panel {
   position:absolute;
-  right:0; top:0; bottom:0;
-  width:420px;
-  background:linear-gradient(to left, rgba(0,0,0,0.92), rgba(0,0,0,0.85));
-  border-left:3px solid #FF6400;
+  right:0; top:90px; bottom:0;
+  width:400px;
+  background:linear-gradient(to left, rgba(0,0,0,0.88), rgba(0,0,0,0.75));
+  border-left:2px solid rgba(255,100,0,0.3);
   display:flex; flex-direction:column;
 }
 
-/* Nav */
-.card-nav {
-  padding:10px 16px;
-  border-bottom:1px solid rgba(255,100,0,0.2);
-  background:rgba(255,100,0,0.08);
+/* Card nav */
+.rp-nav {
+  padding:9px 14px;
+  border-bottom:1px solid rgba(255,100,0,0.18);
+  background:rgba(255,100,0,0.07);
   display:flex; align-items:center; justify-content:space-between;
 }
-.card-nav-left {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:16px; letter-spacing:3px; color:#FF6400;
-}
-.card-counter {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:18px; color:#fff; letter-spacing:2px;
-}
+.rp-nav-title { font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:3px; color:#FF6400; }
+.rp-counter { font-family:'Bebas Neue',sans-serif; font-size:18px; color:#fff; letter-spacing:2px; }
 .nav-btns { display:flex; gap:4px; }
 .nbtn {
-  font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:2px;
-  padding:4px 12px; border:none; cursor:pointer; transition:all 0.15s;
+  font-family:'Bebas Neue',sans-serif; font-size:12px; letter-spacing:2px;
+  padding:4px 10px; border:none; cursor:pointer; transition:all 0.15s;
 }
-.nbtn-prev { background:rgba(255,255,255,0.1); color:#fff; }
-.nbtn-prev:hover { background:rgba(255,255,255,0.18); }
-.nbtn-next { background:#FF6400; color:#000; }
-.nbtn-next:hover { background:#FF9500; }
+.nb-p { background:rgba(255,255,255,0.1); color:#fff; }
+.nb-p:hover { background:rgba(255,255,255,0.18); }
+.nb-n { background:#FF6400; color:#000; }
+.nb-n:hover { background:#FF9500; }
 
 /* League */
-.match-league {
-  padding:8px 16px;
-  font-size:10px; font-weight:700; letter-spacing:4px;
-  color:rgba(255,100,0,0.65); text-transform:uppercase;
+.rp-league {
+  padding:7px 14px;
+  font-size:9px; font-weight:700; letter-spacing:4px;
+  color:rgba(255,100,0,0.6); text-transform:uppercase;
   border-bottom:1px solid rgba(255,255,255,0.05);
   display:flex; align-items:center; gap:8px;
 }
-.match-league::before { content:''; display:block; width:16px; height:1px; background:rgba(255,100,0,0.4); }
+.rp-league::before { content:''; display:block; width:14px; height:1px; background:rgba(255,100,0,0.4); }
 
-/* Teams */
-.teams-section {
-  padding:12px 16px;
+/* Teams in card */
+.rp-teams {
+  padding:10px 14px;
   border-bottom:1px solid rgba(255,255,255,0.06);
 }
-.teams-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
-.team-blk { display:flex; align-items:center; gap:8px; }
-.team-blk.away { flex-direction:row-reverse; }
-.tlogo {
-  width:40px; height:40px;
+.rp-teams-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.rt-blk { display:flex; align-items:center; gap:7px; }
+.rt-blk.away { flex-direction:row-reverse; }
+.rtlogo {
+  width:36px; height:36px;
   background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
   border-radius:3px; display:flex; align-items:center; justify-content:center;
-  font-size:22px; cursor:pointer; overflow:hidden; flex-shrink:0;
-  transition:border-color 0.15s;
+  font-size:20px; cursor:pointer; overflow:hidden; flex-shrink:0;
 }
-.tlogo:hover { border-color:rgba(255,100,0,0.4); }
-.tlogo img { width:100%; height:100%; object-fit:contain; display:none; }
-.tname {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:22px; color:#fff; letter-spacing:1px; line-height:1;
-}
-.vs-col { text-align:center; }
-.vs-txt { font-family:'Bebas Neue',sans-serif; font-size:16px; color:rgba(255,100,0,0.5); }
-.match-t { font-size:10px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.25); margin-top:1px; }
+.rtlogo:hover { border-color:rgba(255,100,0,0.4); }
+.rtlogo img { width:100%; height:100%; object-fit:contain; display:none; }
+.rtname { font-family:'Bebas Neue',sans-serif; font-size:20px; color:#fff; letter-spacing:1px; line-height:1; }
+.rvs { text-align:center; }
+.rvs-txt { font-family:'Bebas Neue',sans-serif; font-size:14px; color:rgba(255,100,0,0.5); }
+.rmatch-t { font-size:9px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.22); margin-top:1px; }
 
 /* Form */
-.form-section {
-  padding:10px 16px;
+.rp-form {
+  padding:8px 14px;
   border-bottom:1px solid rgba(255,255,255,0.06);
-  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  display:grid; grid-template-columns:1fr 1fr; gap:8px;
 }
-.form-blk {}
-.form-lbl {
-  font-size:9px; font-weight:700; letter-spacing:3px;
-  color:rgba(255,100,0,0.55); text-transform:uppercase; margin-bottom:5px;
-}
-.form-dots { display:flex; gap:4px; }
-.fdot {
-  width:26px; height:26px; border-radius:3px;
+.fblk {}
+.flbl { font-size:8px; font-weight:700; letter-spacing:3px; color:rgba(255,100,0,0.55); text-transform:uppercase; margin-bottom:4px; }
+.fdots { display:flex; gap:3px; }
+.fd {
+  width:22px; height:22px; border-radius:3px;
   display:flex; align-items:center; justify-content:center;
-  font-family:'Bebas Neue',sans-serif; font-size:14px;
+  font-family:'Bebas Neue',sans-serif; font-size:12px;
   cursor:pointer; transition:all 0.15s;
 }
-.fdot:hover { transform:scale(1.1); }
-.fdot.W { background:rgba(0,200,100,0.18); color:#00e676; border:1px solid rgba(0,200,100,0.25); }
-.fdot.D { background:rgba(255,200,0,0.13); color:#ffd700; border:1px solid rgba(255,200,0,0.25); }
-.fdot.L { background:rgba(200,0,0,0.18); color:#ff4444; border:1px solid rgba(200,0,0,0.25); }
+.fd:hover { transform:scale(1.12); }
+.fd.W { background:rgba(0,200,100,0.18); color:#00e676; border:1px solid rgba(0,200,100,0.25); }
+.fd.D { background:rgba(255,200,0,0.13); color:#ffd700; border:1px solid rgba(255,200,0,0.25); }
+.fd.L { background:rgba(200,0,0,0.18); color:#ff4444; border:1px solid rgba(200,0,0,0.25); }
 
-/* Prediction */
-.pred-section {
-  padding:10px 16px;
+/* Prediction options */
+.rp-pred {
+  padding:8px 14px;
   border-bottom:1px solid rgba(255,255,255,0.06);
 }
-.pred-lbl {
-  font-size:9px; font-weight:700; letter-spacing:3px;
-  color:rgba(255,100,0,0.55); text-transform:uppercase; margin-bottom:7px;
-}
-.pred-opts { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; }
+.plbl { font-size:8px; font-weight:700; letter-spacing:3px; color:rgba(255,100,0,0.55); text-transform:uppercase; margin-bottom:6px; }
+.popts { display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px; }
 .popt {
-  padding:8px 6px; text-align:center;
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.07);
-  border-radius:2px; cursor:pointer; transition:all 0.15s;
-  position:relative;
+  padding:8px 5px; text-align:center;
+  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);
+  border-radius:2px; cursor:pointer; transition:all 0.15s; position:relative;
 }
 .popt:hover { background:rgba(255,100,0,0.07); border-color:rgba(255,100,0,0.25); }
 .popt.sel { background:rgba(255,100,0,0.14); border-color:#FF6400; border-top-width:2px; }
-.popt-lbl { font-size:8px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.25); text-transform:uppercase; margin-bottom:3px; }
-.popt-val { font-family:'Bebas Neue',sans-serif; font-size:16px; color:#fff; letter-spacing:1px; line-height:1; }
-.popt.sel .popt-val { color:#FF6400; }
-.popt-odds { font-size:10px; color:rgba(255,255,255,0.25); margin-top:2px; }
-.pchk { position:absolute; top:3px; right:5px; font-size:10px; opacity:0; }
-.popt.sel .pchk { opacity:1; }
+.pol { font-size:7px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.25); text-transform:uppercase; margin-bottom:3px; }
+.pov { font-family:'Bebas Neue',sans-serif; font-size:15px; color:#fff; letter-spacing:1px; line-height:1; }
+.popt.sel .pov { color:#FF6400; }
+.poo { font-size:9px; color:rgba(255,255,255,0.22); margin-top:2px; }
+.pck { position:absolute; top:3px; right:4px; font-size:9px; opacity:0; }
+.popt.sel .pck { opacity:1; }
 
 /* Notes */
-.notes-section {
-  flex:1; padding:8px 16px;
+.rp-notes {
+  flex:1; padding:7px 14px;
   border-bottom:1px solid rgba(255,255,255,0.05);
   overflow:hidden;
 }
-.notes-lbl { font-size:9px; font-weight:700; letter-spacing:3px; color:rgba(255,100,0,0.55); text-transform:uppercase; margin-bottom:4px; }
-.notes-txt {
-  font-size:12px; color:rgba(255,255,255,0.45); line-height:1.5;
-  cursor:pointer; min-height:28px;
+.ntxt-lbl { font-size:8px; font-weight:700; letter-spacing:3px; color:rgba(255,100,0,0.55); text-transform:uppercase; margin-bottom:3px; }
+.ntxt {
+  font-size:11px; color:rgba(255,255,255,0.4); line-height:1.5;
+  cursor:pointer; min-height:24px;
 }
-.notes-txt:hover { color:rgba(255,255,255,0.7); }
-.notes-txt[contenteditable="true"] { outline:1px solid rgba(255,100,0,0.3); padding:2px; color:#fff; }
+.ntxt:hover { color:rgba(255,255,255,0.65); }
+.ntxt[contenteditable="true"] { outline:1px solid rgba(255,100,0,0.3); padding:2px; color:#fff; }
 
 /* Confidence */
-.conf-row {
-  padding:8px 16px;
-  display:flex; align-items:center; gap:10px;
+.rp-conf {
+  padding:7px 14px;
+  display:flex; align-items:center; gap:8px;
   border-bottom:1px solid rgba(255,255,255,0.05);
 }
-.conf-lbl { font-size:9px; font-weight:700; letter-spacing:3px; color:rgba(255,100,0,0.55); text-transform:uppercase; white-space:nowrap; }
-.conf-track { flex:1; height:5px; background:rgba(255,255,255,0.07); border-radius:3px; overflow:hidden; }
-.conf-fill { height:100%; background:linear-gradient(90deg,#FF6400,#FF9500); border-radius:3px; transition:width 0.3s; }
-.conf-pct { font-family:'Bebas Neue',sans-serif; font-size:18px; color:#FF6400; min-width:38px; text-align:right; cursor:pointer; }
+.clbl { font-size:8px; font-weight:700; letter-spacing:3px; color:rgba(255,100,0,0.55); text-transform:uppercase; white-space:nowrap; }
+.ctrack { flex:1; height:5px; background:rgba(255,255,255,0.07); border-radius:3px; overflow:hidden; }
+.cfill { height:100%; background:linear-gradient(90deg,#FF6400,#FF9500); border-radius:3px; transition:width 0.3s; }
+.cpct { font-family:'Bebas Neue',sans-serif; font-size:16px; color:#FF6400; min-width:34px; text-align:right; cursor:pointer; }
 
-/* Edit btn */
-.edit-row-btns {
-  padding:8px 16px;
-  display:flex; gap:6px;
+/* Action btns */
+.rp-btns {
+  padding:7px 14px;
+  display:flex; gap:5px;
 }
-.ebtn {
-  font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:900;
-  letter-spacing:2px; text-transform:uppercase; padding:5px 12px;
+.abtn {
+  font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:900;
+  letter-spacing:2px; text-transform:uppercase; padding:5px 10px;
   border:none; cursor:pointer; transition:all 0.15s; flex:1;
 }
-.ebtn-edit { background:rgba(255,100,0,0.15); color:#FF6400; border:1px solid rgba(255,100,0,0.3); }
-.ebtn-edit:hover { background:rgba(255,100,0,0.25); }
-.ebtn-result-ok { background:rgba(0,200,100,0.15); color:#00e676; border:1px solid rgba(0,200,100,0.25); }
-.ebtn-result-ok:hover { background:rgba(0,200,100,0.25); }
-.ebtn-result-no { background:rgba(200,0,0,0.15); color:#ff4444; border:1px solid rgba(200,0,0,0.25); }
-.ebtn-result-no:hover { background:rgba(200,0,0,0.25); }
+.ab-edit { background:rgba(255,100,0,0.14); color:#FF6400; border:1px solid rgba(255,100,0,0.3); }
+.ab-edit:hover { background:rgba(255,100,0,0.24); }
+.ab-ok { background:rgba(0,200,100,0.14); color:#00e676; border:1px solid rgba(0,200,100,0.24); }
+.ab-ok:hover { background:rgba(0,200,100,0.24); }
+.ab-no { background:rgba(200,0,0,0.14); color:#ff4444; border:1px solid rgba(200,0,0,0.24); }
+.ab-no:hover { background:rgba(200,0,0,0.24); }
 
 /* ══ EDIT PANEL ══ */
-.edit-panel {
+.ep {
   position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
   background:rgba(5,5,10,0.97); border:1px solid rgba(255,100,0,0.5);
   padding:18px 22px; display:none; flex-direction:column; gap:7px;
-  z-index:200; min-width:380px;
+  z-index:200; min-width:360px;
 }
-.edit-panel.open { display:flex; }
-.etitle { font-family:'Bebas Neue',sans-serif; font-size:18px; color:#FF6400; letter-spacing:3px; border-bottom:1px solid rgba(255,100,0,0.3); padding-bottom:5px; margin-bottom:2px; }
-.erow { display:flex; align-items:center; gap:8px; }
-.elbl { font-size:10px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.35); text-transform:uppercase; min-width:76px; }
-.einput { background:rgba(255,255,255,0.06); border:1px solid rgba(255,100,0,0.3); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; padding:4px 9px; flex:1; text-transform:uppercase; }
-.einput:focus { outline:none; border-color:#FF6400; }
-.xbtn { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:900; letter-spacing:2px; text-transform:uppercase; padding:5px 13px; border:none; cursor:pointer; }
-.xbtn-o { background:#FF6400; color:#000; }
-.xbtn-g { background:rgba(255,255,255,0.1); color:#fff; }
+.ep.open { display:flex; }
+.etl { font-family:'Bebas Neue',sans-serif; font-size:18px; color:#FF6400; letter-spacing:3px; border-bottom:1px solid rgba(255,100,0,0.3); padding-bottom:5px; margin-bottom:2px; }
+.er { display:flex; align-items:center; gap:7px; }
+.el { font-size:10px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.35); text-transform:uppercase; min-width:70px; }
+.ei { background:rgba(255,255,255,0.06); border:1px solid rgba(255,100,0,0.3); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; padding:4px 8px; flex:1; text-transform:uppercase; }
+.ei:focus { outline:none; border-color:#FF6400; }
+.xb { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:900; letter-spacing:2px; text-transform:uppercase; padding:5px 12px; border:none; cursor:pointer; }
+.xo { background:#FF6400; color:#000; }
+.xg { background:rgba(255,255,255,0.1); color:#fff; }
 
 input[type="file"] { display:none; }
 </style>
 </head>
 <body>
 
+<!-- ══ TOP BAR ══ -->
+<div class="top-bar">
+  <div class="logo-blk">
+    <div class="logo-txt">LID⚽</div>
+    <div class="logo-div"></div>
+    <div class="logo-sub">OFFICIAL<br>@XawBoe</div>
+  </div>
+  <div class="team-blk home">
+    <div class="tname" id="h-name">MAN UTD</div>
+    <div class="tlogo" onclick="document.getElementById('hlogof').click()">
+      <span id="h-emoji">🔴</span><img id="h-logo"/>
+    </div>
+  </div>
+  <div class="vs-blk">
+    <div class="vs-txt">VS</div>
+    <div class="match-t" id="top-time">SUN 16:30</div>
+  </div>
+  <div class="team-blk away">
+    <div class="tlogo" onclick="document.getElementById('alogof').click()">
+      <span id="a-emoji">🔵</span><img id="a-logo"/>
+    </div>
+    <div class="tname" id="a-name">ARSENAL</div>
+  </div>
+  <div class="type-badge">🔮 PREDICTION</div>
+</div>
+
 <!-- ══ LEFT PANEL ══ -->
 <div class="left-panel">
-  <div class="panel-header">
-    <div class="panel-title">📋 Results</div>
-    <div class="panel-sub" id="done-count">0 / 8 ပွဲ</div>
+  <div class="lp-header">
+    <div class="lp-title">📋 All Predictions</div>
+    <div class="lp-sub" id="done-count">0 / 8 ပွဲ</div>
   </div>
-  <div class="results-list" id="results-list"></div>
-  <div class="summary-bar">
-    <div class="sum-item"><div class="sum-num w" id="sw">0</div><div class="sum-lbl">✅ Correct</div></div>
-    <div class="sum-item"><div class="sum-num l" id="sl">0</div><div class="sum-lbl">❌ Wrong</div></div>
-    <div class="sum-item"><div class="sum-num p" id="sp">8</div><div class="sum-lbl">⏳ Pending</div></div>
+  <div class="results-list" id="rlist"></div>
+  <div class="lp-summary">
+    <div class="si"><div class="sn w" id="sw">0</div><div class="sl">✅ Correct</div></div>
+    <div class="si"><div class="sn l" id="sl">0</div><div class="sl">❌ Wrong</div></div>
+    <div class="si"><div class="sn p" id="sp">8</div><div class="sl">⏳ Pending</div></div>
   </div>
 </div>
 
 <!-- ══ RIGHT PANEL ══ -->
 <div class="right-panel">
-  <div class="card-nav">
-    <div class="card-nav-left">🔮 Prediction</div>
-    <div class="card-counter" id="card-counter">1 / 8</div>
+  <div class="rp-nav">
+    <div class="rp-nav-title">🔮 Match</div>
+    <div class="rp-counter" id="rcounter">1 / 8</div>
     <div class="nav-btns">
-      <button class="nbtn nbtn-prev" onclick="prevMatch()">◀</button>
-      <button class="nbtn nbtn-next" onclick="nextMatch()">▶ NEXT</button>
+      <button class="nbtn nb-p" onclick="prev()">◀</button>
+      <button class="nbtn nb-n" onclick="next()">▶ NEXT</button>
     </div>
   </div>
+  <div class="rp-league" id="rleague">Premier League · GW32</div>
 
-  <div class="match-league" id="match-league">Premier League · GW32</div>
-
-  <div class="teams-section">
-    <div class="teams-row">
-      <div class="team-blk home">
-        <div class="tlogo" onclick="document.getElementById('hlogof').click()">
-          <span id="h-emoji">🔴</span><img id="h-logo"/>
+  <div class="rp-teams">
+    <div class="rp-teams-row">
+      <div class="rt-blk home">
+        <div class="rtlogo" onclick="document.getElementById('hlogof2').click()">
+          <span id="rh-emoji">🔴</span><img id="rh-logo"/>
         </div>
-        <div class="tname" id="h-name">MAN UTD</div>
+        <div class="rtname" id="rh-name">MAN UTD</div>
       </div>
-      <div class="vs-col">
-        <div class="vs-txt">VS</div>
-        <div class="match-t" id="match-time">SUN 16:30</div>
+      <div class="rvs">
+        <div class="rvs-txt">VS</div>
+        <div class="rmatch-t" id="rtime">SUN 16:30</div>
       </div>
-      <div class="team-blk away">
-        <div class="tlogo" onclick="document.getElementById('alogof').click()">
-          <span id="a-emoji">🔵</span><img id="a-logo"/>
+      <div class="rt-blk away">
+        <div class="rtlogo" onclick="document.getElementById('alogof2').click()">
+          <span id="ra-emoji">🔵</span><img id="ra-logo"/>
         </div>
-        <div class="tname" id="a-name">ARSENAL</div>
+        <div class="rtname" id="ra-name">ARSENAL</div>
       </div>
     </div>
   </div>
 
-  <div class="form-section">
-    <div class="form-blk">
-      <div class="form-lbl" id="hflbl">MAN UTD · Last 3</div>
-      <div class="form-dots" id="hfdots"></div>
+  <div class="rp-form">
+    <div class="fblk">
+      <div class="flbl" id="hflbl">MAN UTD · Last 3</div>
+      <div class="fdots" id="hfd"></div>
     </div>
-    <div class="form-blk">
-      <div class="form-lbl" id="aflbl">ARSENAL · Last 3</div>
-      <div class="form-dots" id="afdots"></div>
-    </div>
-  </div>
-
-  <div class="pred-section">
-    <div class="pred-lbl">My Prediction</div>
-    <div class="pred-opts">
-      <div class="popt sel" id="po-home" onclick="selPred('home')">
-        <div class="popt-lbl">Home Win</div>
-        <div class="popt-val" id="pv-home">MAN UTD</div>
-        <div class="popt-odds" id="od-home">2.10</div>
-        <div class="pchk">✅</div>
-      </div>
-      <div class="popt" id="po-draw" onclick="selPred('draw')">
-        <div class="popt-lbl">Draw</div>
-        <div class="popt-val">DRAW</div>
-        <div class="popt-odds" id="od-draw">3.40</div>
-        <div class="pchk">✅</div>
-      </div>
-      <div class="popt" id="po-away" onclick="selPred('away')">
-        <div class="popt-lbl">Away Win</div>
-        <div class="popt-val" id="pv-away">ARSENAL</div>
-        <div class="popt-odds" id="od-away">3.20</div>
-        <div class="pchk">✅</div>
-      </div>
+    <div class="fblk">
+      <div class="flbl" id="aflbl">ARSENAL · Last 3</div>
+      <div class="fdots" id="afd"></div>
     </div>
   </div>
 
-  <div class="notes-section">
-    <div class="notes-lbl">Analysis</div>
-    <div class="notes-txt" id="notes" onclick="startEdit(this)" onblur="endEdit(this)">Click to add notes...</div>
+  <div class="rp-pred">
+    <div class="plbl">My Prediction</div>
+    <div class="popts">
+      <div class="popt sel" id="po-home" onclick="selP('home')">
+        <div class="pol">Home Win</div>
+        <div class="pov" id="pv-h">MAN UTD</div>
+        <div class="poo" id="po-ho">2.10</div>
+        <div class="pck">✅</div>
+      </div>
+      <div class="popt" id="po-draw" onclick="selP('draw')">
+        <div class="pol">Draw</div>
+        <div class="pov">DRAW</div>
+        <div class="poo" id="po-do">3.40</div>
+        <div class="pck">✅</div>
+      </div>
+      <div class="popt" id="po-away" onclick="selP('away')">
+        <div class="pol">Away Win</div>
+        <div class="pov" id="pv-a">ARSENAL</div>
+        <div class="poo" id="po-ao">3.20</div>
+        <div class="pck">✅</div>
+      </div>
+    </div>
   </div>
 
-  <div class="conf-row">
-    <div class="conf-lbl">Confidence</div>
-    <div class="conf-track"><div class="conf-fill" id="cbar" style="width:70%"></div></div>
-    <div class="conf-pct" id="cpct">70%</div>
+  <div class="rp-notes">
+    <div class="ntxt-lbl">Analysis</div>
+    <div class="ntxt" id="ntxt" onclick="startN(this)" onblur="endN(this)">Click to add notes...</div>
   </div>
 
-  <div class="edit-row-btns">
-    <button class="ebtn ebtn-edit" onclick="openEdit()">✏️ Edit</button>
-    <button class="ebtn ebtn-result-ok" onclick="setResult('correct')">✅ Correct</button>
-    <button class="ebtn ebtn-result-no" onclick="setResult('wrong')">❌ Wrong</button>
+  <div class="rp-conf">
+    <div class="clbl">Confidence</div>
+    <div class="ctrack"><div class="cfill" id="cfill" style="width:70%"></div></div>
+    <div class="cpct" id="cpct">70%</div>
+  </div>
+
+  <div class="rp-btns">
+    <button class="abtn ab-edit" onclick="openEp()">✏️ Edit</button>
+    <button class="abtn ab-ok" onclick="setRes('correct')">✅ Correct</button>
+    <button class="abtn ab-no" onclick="setRes('wrong')">❌ Wrong</button>
   </div>
 </div>
 
 <!-- EDIT PANEL -->
-<div class="edit-panel" id="ep">
-  <div class="etitle">✏️ Match Info</div>
-  <div class="erow"><div class="elbl">League</div><input class="einput" id="ei-lg" value="Premier League · GW32"></div>
-  <div class="erow"><div class="elbl">Home</div><input class="einput" id="ei-h" value="MAN UTD"></div>
-  <div class="erow"><div class="elbl">Away</div><input class="einput" id="ei-a" value="ARSENAL"></div>
-  <div class="erow"><div class="elbl">Time</div><input class="einput" id="ei-t" value="SUN 16:30"></div>
-  <div class="erow"><div class="elbl">H Odds</div><input class="einput" id="ei-ho" value="2.10" style="max-width:80px"></div>
-  <div class="erow"><div class="elbl">D Odds</div><input class="einput" id="ei-do" value="3.40" style="max-width:80px"></div>
-  <div class="erow"><div class="elbl">A Odds</div><input class="einput" id="ei-ao" value="3.20" style="max-width:80px"></div>
-  <div class="erow"><div class="elbl">Conf%</div><input class="einput" id="ei-cf" type="number" value="70" min="0" max="100" style="max-width:70px"><span style="color:rgba(255,255,255,0.3);font-size:12px">%</span></div>
-  <div class="erow">
-    <div class="elbl">Logos</div>
-    <button class="xbtn xbtn-g" onclick="document.getElementById('hlogof').click()">🔴 Home</button>
-    <button class="xbtn xbtn-g" onclick="document.getElementById('alogof').click()">🔵 Away</button>
+<div class="ep" id="ep">
+  <div class="etl">✏️ Match Info</div>
+  <div class="er"><div class="el">League</div><input class="ei" id="ei-lg" value="Premier League · GW32"></div>
+  <div class="er"><div class="el">Home</div><input class="ei" id="ei-h" value="MAN UTD"></div>
+  <div class="er"><div class="el">Away</div><input class="ei" id="ei-a" value="ARSENAL"></div>
+  <div class="er"><div class="el">Time</div><input class="ei" id="ei-t" value="SUN 16:30"></div>
+  <div class="er"><div class="el">H Odds</div><input class="ei" id="ei-ho" value="2.10" style="max-width:70px"></div>
+  <div class="er"><div class="el">D Odds</div><input class="ei" id="ei-do" value="3.40" style="max-width:70px"></div>
+  <div class="er"><div class="el">A Odds</div><input class="ei" id="ei-ao" value="3.20" style="max-width:70px"></div>
+  <div class="er"><div class="el">Conf%</div><input class="ei" id="ei-cf" type="number" value="70" min="0" max="100" style="max-width:60px"></div>
+  <div class="er">
+    <div class="el">Logos</div>
+    <button class="xb xg" onclick="document.getElementById('hlogof').click()">🔴 Home</button>
+    <button class="xb xg" onclick="document.getElementById('alogof').click()">🔵 Away</button>
   </div>
-  <div class="erow" style="margin-top:6px;gap:6px">
-    <button class="xbtn xbtn-o" style="flex:1" onclick="saveEdit()">💾 Save</button>
-    <button class="xbtn xbtn-g" onclick="clearMatch()">🗑 Clear</button>
-    <button class="xbtn xbtn-g" onclick="closeEdit()">✕</button>
+  <div class="er" style="margin-top:5px;gap:5px">
+    <button class="xb xo" style="flex:1" onclick="saveEp()">💾 Save</button>
+    <button class="xb xg" onclick="clearM()">🗑</button>
+    <button class="xb xg" onclick="closeEp()">✕</button>
   </div>
 </div>
 
-<input type="file" id="hlogof" accept="image/*" onchange="upLogo('home',this)">
-<input type="file" id="alogof" accept="image/*" onchange="upLogo('away',this)">
+<input type="file" id="hlogof" accept="image/*" onchange="upLogo('top-h',this)">
+<input type="file" id="alogof" accept="image/*" onchange="upLogo('top-a',this)">
+<input type="file" id="hlogof2" accept="image/*" onchange="upLogo('card-h',this)">
+<input type="file" id="alogof2" accept="image/*" onchange="upLogo('card-a',this)">
 
 <script>
 function autoScale(){const s=Math.min(window.innerWidth/1920,window.innerHeight/1080);document.body.style.transform=`scale(${s})`;}
@@ -414,131 +448,108 @@ autoScale(); window.addEventListener('resize',autoScale);
 const TOTAL=8;
 let cur=0;
 
-function defMatch(i){
-  return {
-    lg:'Premier League · GW'+(32+i),
-    home:'HOME '+(i+1), away:'AWAY '+(i+1),
-    time:'TBA',
-    hform:['W','W','W'], aform:['W','L','W'],
-    pred:'home',
-    ho:'2.00',do:'3.40',ao:'3.20',
-    conf:70, notes:'',
-    result:'pending'
-  };
-}
+function defM(i){return{lg:'Premier League · GW'+(32+i),home:'HOME '+(i+1),away:'AWAY '+(i+1),time:'TBA',hf:['W','W','W'],af:['W','L','W'],pred:'home',ho:'2.00',do:'3.40',ao:'3.20',conf:70,notes:'',res:'pending'};}
 
-let matches = (()=>{
-  const s=localStorage.getItem('lid_pred8');
-  if(s) return JSON.parse(s);
-  return Array.from({length:TOTAL},(_,i)=>defMatch(i));
-})();
+let ms=(()=>{const s=localStorage.getItem('lid_pred8');if(s)return JSON.parse(s);return Array.from({length:TOTAL},(_,i)=>defM(i));})();
 
-function save(){ localStorage.setItem('lid_pred8',JSON.stringify(matches)); }
+function save(){localStorage.setItem('lid_pred8',JSON.stringify(ms));}
 
-// ── RENDER ──
 function render(){
-  const m=matches[cur];
-  document.getElementById('card-counter').textContent=(cur+1)+' / '+TOTAL;
-  document.getElementById('match-league').textContent=m.lg;
+  const m=ms[cur];
+  document.getElementById('rcounter').textContent=(cur+1)+' / '+TOTAL;
+  // top bar
   document.getElementById('h-name').textContent=m.home;
   document.getElementById('a-name').textContent=m.away;
-  document.getElementById('match-time').textContent=m.time;
-  document.getElementById('pv-home').textContent=m.home;
-  document.getElementById('pv-away').textContent=m.away;
-  document.getElementById('od-home').textContent=m.ho;
-  document.getElementById('od-draw').textContent=m.do;
-  document.getElementById('od-away').textContent=m.ao;
+  document.getElementById('top-time').textContent=m.time;
+  // card
+  document.getElementById('rleague').textContent=m.lg;
+  document.getElementById('rh-name').textContent=m.home;
+  document.getElementById('ra-name').textContent=m.away;
+  document.getElementById('rtime').textContent=m.time;
+  document.getElementById('pv-h').textContent=m.home;
+  document.getElementById('pv-a').textContent=m.away;
+  document.getElementById('po-ho').textContent=m.ho;
+  document.getElementById('po-do').textContent=m.do;
+  document.getElementById('po-ao').textContent=m.ao;
   document.getElementById('hflbl').textContent=m.home+' · Last 3';
   document.getElementById('aflbl').textContent=m.away+' · Last 3';
-  document.getElementById('notes').textContent=m.notes||'Click to add notes...';
+  document.getElementById('ntxt').textContent=m.notes||'Click to add notes...';
   setConf(m.conf,false);
-  selPredUI(m.pred);
-  renderForm('hfdots',m.hform);
-  renderForm('afdots',m.aform);
-  // logos reset
-  ['h','a'].forEach(t=>{
-    document.getElementById(t+'-logo').style.display='none';
-    document.getElementById(t+'-emoji').style.display='block';
+  selPUI(m.pred);
+  renderForm('hfd',m.hf);
+  renderForm('afd',m.af);
+  // reset logos
+  ['h','a','rh','ra'].forEach(t=>{
+    const img=document.getElementById(t+'-logo');
+    const em=document.getElementById(t+'-emoji');
+    if(img){img.style.display='none';}
+    if(em){em.style.display='block';}
   });
   renderList();
-  updateSummary();
+  updateSum();
 }
 
 function renderForm(id,arr){
-  const c=document.getElementById(id);
-  c.innerHTML='';
+  const c=document.getElementById(id); c.innerHTML='';
   arr.forEach((v,i)=>{
     const d=document.createElement('div');
-    d.className='fdot '+v; d.textContent=v;
-    d.onclick=()=>{
-      const nx={W:'D',D:'L',L:'W'}; d.className='fdot '+nx[d.textContent]; d.textContent=nx[d.textContent];
-      if(id==='hfdots') matches[cur].hform[i]=d.textContent;
-      else matches[cur].aform[i]=d.textContent;
-      save(); renderList();
-    };
+    d.className='fd '+v; d.textContent=v;
+    d.onclick=()=>{const nx={W:'D',D:'L',L:'W'};d.textContent=nx[d.textContent];d.className='fd '+d.textContent;
+      if(id==='hfd')ms[cur].hf[i]=d.textContent; else ms[cur].af[i]=d.textContent; save();};
     c.appendChild(d);
   });
 }
 
 function renderList(){
-  const list=document.getElementById('results-list');
-  list.innerHTML='';
-  const done=matches.filter(m=>m.result!=='pending').length;
+  const list=document.getElementById('rlist'); list.innerHTML='';
+  const done=ms.filter(m=>m.res!=='pending').length;
   document.getElementById('done-count').textContent=done+' / '+TOTAL+' ပွဲ';
-  matches.forEach((m,i)=>{
+  ms.forEach((m,i)=>{
     const pn={home:m.home,draw:'DRAW',away:m.away};
-    const sc=m.result==='correct'?'st-correct':m.result==='wrong'?'st-wrong':'st-pending';
-    const st=m.result==='correct'?'✅':m.result==='wrong'?'❌':'⏳';
-    const row=document.createElement('div');
-    row.className='result-row'+(i===cur?' active':'');
-    row.innerHTML=`<div class="result-idx">${i+1}</div><div class="result-info"><div class="result-teams">${m.home} vs ${m.away}</div><div class="result-pred">→ ${pn[m.pred]||'-'}</div></div><div class="result-status ${sc}">${st}</div>`;
-    row.onclick=()=>{ cur=i; render(); };
-    list.appendChild(row);
+    const sc=m.res==='correct'?'st-c':m.res==='wrong'?'st-w':'st-p';
+    const st=m.res==='correct'?'✅':m.res==='wrong'?'❌':'⏳';
+    const r=document.createElement('div');
+    r.className='rrow'+(i===cur?' active':'');
+    r.innerHTML=`<div class="ridx">${i+1}</div><div class="rinfo"><div class="rteams">${m.home} vs ${m.away}</div><div class="rpred">→ ${pn[m.pred]||'-'}</div></div><div class="rst ${sc}">${st}</div>`;
+    r.onclick=()=>{cur=i;render();};
+    list.appendChild(r);
   });
 }
 
-function updateSummary(){
-  document.getElementById('sw').textContent=matches.filter(m=>m.result==='correct').length;
-  document.getElementById('sl').textContent=matches.filter(m=>m.result==='wrong').length;
-  document.getElementById('sp').textContent=matches.filter(m=>m.result==='pending').length;
+function updateSum(){
+  document.getElementById('sw').textContent=ms.filter(m=>m.res==='correct').length;
+  document.getElementById('sl').textContent=ms.filter(m=>m.res==='wrong').length;
+  document.getElementById('sp').textContent=ms.filter(m=>m.res==='pending').length;
 }
 
-// ── PRED ──
-function selPred(t){ matches[cur].pred=t; selPredUI(t); save(); renderList(); }
-function selPredUI(t){['home','draw','away'].forEach(o=>document.getElementById('po-'+o).classList.toggle('sel',o===t));}
+function selP(t){ms[cur].pred=t;selPUI(t);save();renderList();}
+function selPUI(t){['home','draw','away'].forEach(o=>document.getElementById('po-'+o).classList.toggle('sel',o===t));}
+function next(){if(cur<TOTAL-1){cur++;render();}}
+function prev(){if(cur>0){cur--;render();}}
 
-// ── NAV ──
-function nextMatch(){ if(cur<TOTAL-1){cur++;render();} }
-function prevMatch(){ if(cur>0){cur--;render();} }
-
-// ── CONF ──
 function setConf(v,doSave=true){
   const p=Math.min(100,Math.max(0,parseInt(v)||0));
   document.getElementById('cpct').textContent=p+'%';
-  document.getElementById('cbar').style.width=p+'%';
-  if(doSave){matches[cur].conf=p;save();}
+  document.getElementById('cfill').style.width=p+'%';
+  if(doSave){ms[cur].conf=p;save();}
 }
 
-// ── NOTES ──
-function startEdit(el){el.contentEditable='true';el.focus();if(el.textContent==='Click to add notes...')el.textContent='';}
-function endEdit(el){el.contentEditable='false';matches[cur].notes=el.textContent;save();}
+function startN(el){el.contentEditable='true';el.focus();if(el.textContent==='Click to add notes...')el.textContent='';}
+function endN(el){el.contentEditable='false';ms[cur].notes=el.textContent;save();}
 
-// ── RESULT ──
-function setResult(r){matches[cur].result=r;save();renderList();updateSummary();}
+function setRes(r){ms[cur].res=r;save();renderList();updateSum();}
 
-// ── LOGO ──
-function upLogo(t,input){
+function upLogo(type,input){
   const f=input.files[0];if(!f)return;
   const url=URL.createObjectURL(f);
-  const id=t==='home'?'h':'a';
-  document.getElementById(id+'-logo').src=url;
-  document.getElementById(id+'-logo').style.display='block';
-  document.getElementById(id+'-emoji').style.display='none';
+  if(type==='top-h'){document.getElementById('h-logo').src=url;document.getElementById('h-logo').style.display='block';document.getElementById('h-emoji').style.display='none';}
+  else if(type==='top-a'){document.getElementById('a-logo').src=url;document.getElementById('a-logo').style.display='block';document.getElementById('a-emoji').style.display='none';}
+  else if(type==='card-h'){document.getElementById('rh-logo').src=url;document.getElementById('rh-logo').style.display='block';document.getElementById('rh-emoji').style.display='none';}
+  else if(type==='card-a'){document.getElementById('ra-logo').src=url;document.getElementById('ra-logo').style.display='block';document.getElementById('ra-emoji').style.display='none';}
 }
 
-// ── EDIT ──
-function openEdit(){
-  const m=matches[cur];
+function openEp(){
+  const m=ms[cur];
   document.getElementById('ei-lg').value=m.lg;
   document.getElementById('ei-h').value=m.home;
   document.getElementById('ei-a').value=m.away;
@@ -550,8 +561,8 @@ function openEdit(){
   document.getElementById('ep').classList.add('open');
 }
 
-function saveEdit(){
-  const m=matches[cur];
+function saveEp(){
+  const m=ms[cur];
   m.lg=document.getElementById('ei-lg').value;
   m.home=document.getElementById('ei-h').value.toUpperCase();
   m.away=document.getElementById('ei-a').value.toUpperCase();
@@ -560,11 +571,11 @@ function saveEdit(){
   m.do=document.getElementById('ei-do').value;
   m.ao=document.getElementById('ei-ao').value;
   m.conf=parseInt(document.getElementById('ei-cf').value)||70;
-  save(); render(); closeEdit();
+  save(); render(); closeEp();
 }
 
-function clearMatch(){ matches[cur]=defMatch(cur); save(); render(); closeEdit(); }
-function closeEdit(){ document.getElementById('ep').classList.remove('open'); }
+function clearM(){ms[cur]=defM(cur);save();render();closeEp();}
+function closeEp(){document.getElementById('ep').classList.remove('open');}
 
 render();
 </script>
