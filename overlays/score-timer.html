@@ -300,10 +300,59 @@ body::before {
 }
 .lineup-upload-btn:hover { background:rgba(255,100,0,0.3); }
 
-/* Upload input hidden */
-#lineup-file { display:none; }
-#home-logo-file { display:none; }
-#away-logo-file { display:none; }
+/* Lineup player names list */
+.lineup-players {
+  position:absolute;
+  inset:0;
+  display:none;
+  flex-direction:column;
+  z-index:3;
+  padding:40px 8px 8px;
+  overflow:hidden;
+}
+.lineup-players.show { display:flex; }
+.player-row {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:3px 6px;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  flex-shrink:0;
+}
+.player-no {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:15px;
+  color:rgba(255,100,0,0.7);
+  min-width:22px;
+  text-align:center;
+}
+.player-name {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:1px;
+  color:rgba(255,255,255,0.85);
+  text-transform:uppercase;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.player-row.captain .player-name::after {
+  content:' (C)';
+  color:#FFD700;
+  font-size:11px;
+}
+
+/* JSON load indicator */
+.json-status {
+  position:absolute;
+  top:8px; right:8px;
+  font-size:9px; font-weight:700; letter-spacing:2px;
+  color:rgba(255,100,0,0.5); text-transform:uppercase;
+  z-index:20;
+}
+.json-status.loaded { color:rgba(0,200,100,0.6); }
+.json-status.error  { color:rgba(255,80,80,0.6); }
 
 /* ══════════════════════════════
    BOTTOM TICKER
@@ -465,6 +514,9 @@ body::before {
   </div>
 </div>
 
+<!-- JSON Status -->
+<div class="json-status" id="json-status">⏳ loading</div>
+
 <!-- Hidden file inputs -->
 <input type="file" id="home-logo-file" accept="image/*" onchange="uploadLogo('home',this)">
 <input type="file" id="away-logo-file" accept="image/*" onchange="uploadLogo('away',this)">
@@ -488,23 +540,27 @@ body::before {
 
     <!-- Home Lineup LEFT -->
     <div class="lineup-home">
-      <div class="lineup-team-label" id="home-lineup-label">MAN UTD</div>
+      <div class="lineup-team-label" id="home-lineup-label">HOME</div>
       <img id="home-lineup-img" class="lineup-img" />
+      <!-- Player names list -->
+      <div class="lineup-players" id="home-players-list"></div>
       <div class="lineup-placeholder" id="home-lineup-ph">
         <div class="icon">🔴</div>
         <div class="txt">Home Lineup</div>
-        <button class="lineup-upload-btn" onclick="document.getElementById('home-lineup-file').click()">+ Upload</button>
+        <button class="lineup-upload-btn" onclick="document.getElementById('home-lineup-file').click()">+ Photo</button>
       </div>
     </div>
 
     <!-- Away Lineup RIGHT -->
     <div class="lineup-away">
-      <div class="lineup-team-label" id="away-lineup-label">ARSENAL</div>
+      <div class="lineup-team-label" id="away-lineup-label">AWAY</div>
       <img id="away-lineup-img" class="lineup-img" />
+      <!-- Player names list -->
+      <div class="lineup-players" id="away-players-list"></div>
       <div class="lineup-placeholder" id="away-lineup-ph">
         <div class="icon">🔵</div>
         <div class="txt">Away Lineup</div>
-        <button class="lineup-upload-btn" onclick="document.getElementById('away-lineup-file').click()">+ Upload</button>
+        <button class="lineup-upload-btn" onclick="document.getElementById('away-lineup-file').click()">+ Photo</button>
       </div>
     </div>
 
@@ -744,8 +800,110 @@ function clearAll() {
   location.reload();
 }
 
+// ── JSON FETCH — watchalong.json ──
+const JSON_URL = 'https://boexaw-ship-it.github.io/lid-official/data/watchalong.json';
+
+async function loadJSON() {
+  const statusEl = document.getElementById('json-status');
+  statusEl.textContent = '⏳ loading';
+  statusEl.className = 'json-status';
+  try {
+    const res = await fetch(JSON_URL + '?t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const m = data.featured || (data.matches && data.matches[0]);
+    if (!m) throw new Error('No match data');
+
+    // ── Team names + crests ──
+    const homeName = m.home || '';
+    const awayName = m.away || '';
+    const homeCrest = m.home_crest || '';
+    const awayCrest = m.away_crest || '';
+
+    // Update names
+    document.getElementById('home-name').textContent = homeName;
+    document.getElementById('away-name').textContent = awayName;
+    document.getElementById('home-lineup-label').textContent = homeName;
+    document.getElementById('away-lineup-label').textContent = awayName;
+    document.getElementById('inp-home').value = homeName;
+    document.getElementById('inp-away').value = awayName;
+
+    // Update crests
+    setCrest('home', homeCrest);
+    setCrest('away', awayCrest);
+
+    // ── Prediction from JSON ──
+    if (data.prediction) {
+      document.getElementById('inp-pred').value = data.prediction;
+      updatePred(data.prediction);
+    }
+
+    // ── Lineups ──
+    if (data.home_lineup && data.home_lineup.length > 0) {
+      renderLineup('home', data.home_lineup);
+    }
+    if (data.away_lineup && data.away_lineup.length > 0) {
+      renderLineup('away', data.away_lineup);
+    }
+
+    // Save to localStorage
+    const s = JSON.parse(localStorage.getItem('lid_score') || '{}');
+    if (!s.homeName) {
+      s.homeName = homeName;
+      s.awayName = awayName;
+      localStorage.setItem('lid_score', JSON.stringify(s));
+    }
+
+    statusEl.textContent = '✅ loaded';
+    statusEl.className = 'json-status loaded';
+    console.log('✅ watchalong.json loaded:', homeName, 'vs', awayName);
+
+  } catch(e) {
+    statusEl.textContent = '❌ ' + e.message;
+    statusEl.className = 'json-status error';
+    console.warn('JSON load failed:', e.message);
+  }
+}
+
+// ── Set team crest ──
+function setCrest(team, url) {
+  if (!url || !url.startsWith('http')) return;
+  const img   = document.getElementById(team + '-logo-img');
+  const emoji = document.getElementById(team + '-logo-emoji');
+  if (!img || !emoji) return;
+  img.src = url;
+  img.style.display = 'block';
+  emoji.style.display = 'none';
+  img.onerror = () => { img.style.display='none'; emoji.style.display='block'; };
+}
+
+// ── Render player names list ──
+function renderLineup(team, players) {
+  const listEl = document.getElementById(team + '-players-list');
+  const phEl   = document.getElementById(team + '-lineup-ph');
+  if (!listEl) return;
+
+  listEl.innerHTML = '';
+  players.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'player-row' + (i === 0 ? ' captain' : '');
+    row.innerHTML = `
+      <div class="player-no">${p.no || (i+1)}</div>
+      <div class="player-name">${p.name || ''}</div>`;
+    listEl.appendChild(row);
+  });
+
+  listEl.classList.add('show');
+  // Hide placeholder only if no photo uploaded
+  const img = document.getElementById(team + '-lineup-img');
+  if (!img || img.style.display === 'none' || !img.src) {
+    if (phEl) phEl.style.display = 'none';
+  }
+}
+
 // ── LOAD ON START ──
 loadSaved();
+loadJSON();
 </script>
 
 </body>
