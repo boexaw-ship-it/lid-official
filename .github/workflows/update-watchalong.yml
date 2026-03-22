@@ -3,8 +3,32 @@ name: Update Watch Along Data
 on:
   workflow_dispatch:
     inputs:
+      date:
+        description: 'Match date (e.g. 2025-03-22)'
+        required: true
+        default: ''
+      competition:
+        description: 'Competition: PL = Premier League, CL = Champions League, ALL = Both'
+        required: true
+        default: 'PL'
       match_id:
-        description: 'Match ID from football-data.org (optional)'
+        description: 'Featured match ID from football-data.org (optional — leave blank for first match)'
+        required: false
+        default: ''
+      home_lineup:
+        description: |
+          Home lineup JSON (optional):
+          [{"no":1,"name":"De Gea"},{"no":5,"name":"Maguire"},...]
+        required: false
+        default: '[]'
+      away_lineup:
+        description: |
+          Away lineup JSON (optional):
+          [{"no":1,"name":"Raya"},{"no":4,"name":"White"},...]
+        required: false
+        default: '[]'
+      prediction:
+        description: 'Your prediction (e.g. MAN UTD WIN)'
         required: false
         default: ''
 
@@ -16,100 +40,187 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Fetch Today Matches
+      - name: Fetch PL Matches on date
+        if: ${{ github.event.inputs.competition == 'PL' || github.event.inputs.competition == 'ALL' }}
         run: |
-          TODAY=$(date -u +"%Y-%m-%d")
           curl -s \
-            "https://api.football-data.org/v4/competitions/PL/matches?dateFrom=${TODAY}&dateTo=${TODAY}" \
+            "https://api.football-data.org/v4/competitions/PL/matches?dateFrom=${{ github.event.inputs.date }}&dateTo=${{ github.event.inputs.date }}" \
             -H "X-Auth-Token: ${{ secrets.FOOTBALL_API_KEY }}" \
-            -o data/today_raw.json
+            -o data/wa_pl_raw.json
+          echo "✅ PL fetched"
 
-      - name: Fetch Specific Match (if ID provided)
+      - name: Fetch CL Matches on date
+        if: ${{ github.event.inputs.competition == 'CL' || github.event.inputs.competition == 'ALL' }}
+        run: |
+          curl -s \
+            "https://api.football-data.org/v4/competitions/CL/matches?dateFrom=${{ github.event.inputs.date }}&dateTo=${{ github.event.inputs.date }}" \
+            -H "X-Auth-Token: ${{ secrets.FOOTBALL_API_KEY }}" \
+            -o data/wa_cl_raw.json
+          echo "✅ CL fetched"
+
+      - name: Fetch Featured Match detail
         if: ${{ github.event.inputs.match_id != '' }}
         run: |
           curl -s \
             "https://api.football-data.org/v4/matches/${{ github.event.inputs.match_id }}" \
             -H "X-Auth-Token: ${{ secrets.FOOTBALL_API_KEY }}" \
-            -o data/match_raw.json
+            -o data/wa_match_raw.json
+          echo "✅ Featured match fetched"
 
       - name: Build watchalong.json
         run: |
-          TODAY=$(date -u +"%Y-%m-%d")
+          python3 << 'PYEOF'
+          import json, os
+          from datetime import datetime, timezone, timedelta
 
-          # Process today matches
-          TODAY_DATA=$(cat data/today_raw.json | python3 -c "
-          import json,sys
-          d=json.load(sys.stdin)
-          out=[]
-          for m in d.get('matches',[]):
-            sc=m.get('score',{})
-            ft=sc.get('fullTime',{})
-            ht=sc.get('halfTime',{})
-            out.append({
-              'id': m['id'],
-              'home': m['homeTeam']['shortName'],
-              'away': m['awayTeam']['shortName'],
-              'home_crest': m['homeTeam'].get('crest',''),
-              'away_crest': m['awayTeam'].get('crest',''),
-              'date': m['utcDate'],
-              'status': m['status'],
-              'home_score': ft.get('home'),
-              'away_score': ft.get('away'),
-              'ht_home': ht.get('home'),
-              'ht_away': ht.get('away'),
-              'venue': m.get('venue',''),
-              'referee': m.get('referees',[{}])[0].get('name','') if m.get('referees') else ''
-            })
-          print(json.dumps(out))
-          ")
+          DATE      = "${{ github.event.inputs.date }}"
+          COMP      = "${{ github.event.inputs.competition }}"
+          MATCH_ID  = "${{ github.event.inputs.match_id }}"
+          PRED      = "${{ github.event.inputs.prediction }}"
 
-          # Process specific match if exists
-          MATCH_DATA="null"
-          if [ -f data/match_raw.json ]; then
-            MATCH_DATA=$(cat data/match_raw.json | python3 -c "
-          import json,sys
-          m=json.load(sys.stdin)
-          sc=m.get('score',{})
-          ft=sc.get('fullTime',{})
-          ht=sc.get('halfTime',{})
-          out={
-            'id': m['id'],
-            'home': m['homeTeam']['shortName'],
-            'away': m['awayTeam']['shortName'],
-            'home_full': m['homeTeam']['name'],
-            'away_full': m['awayTeam']['name'],
-            'home_crest': m['homeTeam'].get('crest',''),
-            'away_crest': m['awayTeam'].get('crest',''),
-            'date': m['utcDate'],
-            'status': m['status'],
-            'home_score': ft.get('home'),
-            'away_score': ft.get('away'),
-            'ht_home': ht.get('home'),
-            'ht_away': ht.get('away'),
-            'venue': m.get('venue',''),
-            'matchday': m.get('matchday',0)
+          MMT = timezone(timedelta(hours=6, minutes=30))
+
+          def to_mmt(utc_str):
+            try:
+              dt = datetime.fromisoformat(utc_str.replace('Z','+00:00'))
+              mmt = dt.astimezone(MMT)
+              days = {0:'Mon',1:'Tue',2:'Wed',3:'Thu',4:'Fri',5:'Sat',6:'Sun'}
+              return {
+                "display": mmt.strftime(f"{days[mmt.weekday()]} %d %b · %H:%M MMT"),
+                "date":    mmt.strftime('%Y-%m-%d'),
+                "time":    mmt.strftime('%H:%M'),
+                "weekday": days[mmt.weekday()]
+              }
+            except:
+              return {"display":utc_str,"date":"","time":"","weekday":""}
+
+          def process_file(filepath, comp_name):
+            if not os.path.exists(filepath): return []
+            with open(filepath) as f:
+              data = json.load(f)
+            out = []
+            for m in data.get('matches',[]):
+              h  = m['homeTeam']
+              a  = m['awayTeam']
+              dt = to_mmt(m.get('utcDate',''))
+              sc = m.get('score',{})
+              ft = sc.get('fullTime',{})
+              ht = sc.get('halfTime',{})
+              out.append({
+                "id":           m['id'],
+                "competition":  comp_name,
+                "home":         h.get('shortName', h.get('name','')),
+                "home_full":    h.get('name',''),
+                "home_crest":   h.get('crest',''),
+                "home_id":      h.get('id',0),
+                "away":         a.get('shortName', a.get('name','')),
+                "away_full":    a.get('name',''),
+                "away_crest":   a.get('crest',''),
+                "away_id":      a.get('id',0),
+                "date_utc":     m.get('utcDate',''),
+                "date_mmt":     dt['display'],
+                "match_time":   dt['time'],
+                "weekday":      dt['weekday'],
+                "status":       m.get('status','SCHEDULED'),
+                "home_score":   ft.get('home'),
+                "away_score":   ft.get('away'),
+                "ht_home":      ht.get('home'),
+                "ht_away":      ht.get('away'),
+                "venue":        m.get('venue',''),
+                "matchday":     m.get('matchday',0)
+              })
+            return out
+
+          # All matches
+          all_matches = []
+          if COMP in ('PL','ALL'):
+            all_matches += process_file('data/wa_pl_raw.json','Premier League')
+          if COMP in ('CL','ALL'):
+            all_matches += process_file('data/wa_cl_raw.json','Champions League')
+          all_matches.sort(key=lambda x: x['date_utc'])
+
+          # Featured match
+          featured = None
+          if MATCH_ID and os.path.exists('data/wa_match_raw.json'):
+            with open('data/wa_match_raw.json') as f:
+              m = json.load(f)
+            h  = m['homeTeam']
+            a  = m['awayTeam']
+            dt = to_mmt(m.get('utcDate',''))
+            sc = m.get('score',{})
+            ft = sc.get('fullTime',{})
+            ht = sc.get('halfTime',{})
+            featured = {
+              "id":           m['id'],
+              "competition":  m.get('competition',{}).get('name',''),
+              "home":         h.get('shortName', h.get('name','')),
+              "home_full":    h.get('name',''),
+              "home_crest":   h.get('crest',''),
+              "home_id":      h.get('id',0),
+              "away":         a.get('shortName', a.get('name','')),
+              "away_full":    a.get('name',''),
+              "away_crest":   a.get('crest',''),
+              "away_id":      a.get('id',0),
+              "date_utc":     m.get('utcDate',''),
+              "date_mmt":     dt['display'],
+              "match_time":   dt['time'],
+              "status":       m.get('status','SCHEDULED'),
+              "home_score":   ft.get('home'),
+              "away_score":   ft.get('away'),
+              "ht_home":      ht.get('home'),
+              "ht_away":      ht.get('away'),
+              "venue":        m.get('venue',''),
+              "matchday":     m.get('matchday',0)
+            }
+          elif all_matches:
+            featured = all_matches[0]
+
+          # Lineups from manual input
+          home_lu_raw = '${{ github.event.inputs.home_lineup }}'
+          away_lu_raw = '${{ github.event.inputs.away_lineup }}'
+          try:
+            home_lineup = json.loads(home_lu_raw) if home_lu_raw.strip() not in ['','[]'] else []
+          except:
+            home_lineup = []
+          try:
+            away_lineup = json.loads(away_lu_raw) if away_lu_raw.strip() not in ['','[]'] else []
+          except:
+            away_lineup = []
+
+          # Output
+          out = {
+            "updated":      datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "updated_mmt":  datetime.now(MMT).strftime("%d %b %Y · %H:%M MMT"),
+            "date":         DATE,
+            "competition":  COMP,
+            "total":        len(all_matches),
+            "matches":      all_matches,
+            "featured":     featured,
+            "home_lineup":  home_lineup,
+            "away_lineup":  away_lineup,
+            "prediction":   PRED
           }
-          print(json.dumps(out))
-          ")
-          fi
 
-          cat > data/watchalong.json << EOF
-          {
-            "updated": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
-            "date": "${TODAY}",
-            "today_matches": ${TODAY_DATA},
-            "featured_match": ${MATCH_DATA}
-          }
-          EOF
+          with open('data/watchalong.json','w') as f:
+            json.dump(out, f, indent=2, ensure_ascii=False)
+
+          print(f"✅ watchalong.json built")
+          print(f"   Date:     {DATE}")
+          print(f"   Matches:  {len(all_matches)}")
+          if featured:
+            print(f"   Featured: {featured['home']} vs {featured['away']} — {featured['date_mmt']}")
+          print(f"   Home XI:  {len(home_lineup)} players")
+          print(f"   Away XI:  {len(away_lineup)} players")
+          PYEOF
 
       - name: Cleanup
         run: |
-          rm -f data/today_raw.json data/match_raw.json
+          rm -f data/wa_pl_raw.json data/wa_cl_raw.json data/wa_match_raw.json
 
       - name: Commit and Push
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
           git add data/watchalong.json
-          git diff --staged --quiet || git commit -m "Update watch along data - $(date -u +"%Y-%m-%d")"
+          git diff --staged --quiet || git commit -m "Watch Along: ${{ github.event.inputs.competition }} ${{ github.event.inputs.date }}"
           git push
