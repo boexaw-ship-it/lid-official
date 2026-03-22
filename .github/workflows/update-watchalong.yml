@@ -1,0 +1,115 @@
+name: Update Watch Along Data
+
+on:
+  workflow_dispatch:
+    inputs:
+      match_id:
+        description: 'Match ID from football-data.org (optional)'
+        required: false
+        default: ''
+
+jobs:
+  update-watchalong:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Fetch Today Matches
+        run: |
+          TODAY=$(date -u +"%Y-%m-%d")
+          curl -s \
+            "https://api.football-data.org/v4/competitions/PL/matches?dateFrom=${TODAY}&dateTo=${TODAY}" \
+            -H "X-Auth-Token: ${{ secrets.FOOTBALL_API_KEY }}" \
+            -o data/today_raw.json
+
+      - name: Fetch Specific Match (if ID provided)
+        if: ${{ github.event.inputs.match_id != '' }}
+        run: |
+          curl -s \
+            "https://api.football-data.org/v4/matches/${{ github.event.inputs.match_id }}" \
+            -H "X-Auth-Token: ${{ secrets.FOOTBALL_API_KEY }}" \
+            -o data/match_raw.json
+
+      - name: Build watchalong.json
+        run: |
+          TODAY=$(date -u +"%Y-%m-%d")
+
+          # Process today matches
+          TODAY_DATA=$(cat data/today_raw.json | python3 -c "
+          import json,sys
+          d=json.load(sys.stdin)
+          out=[]
+          for m in d.get('matches',[]):
+            sc=m.get('score',{})
+            ft=sc.get('fullTime',{})
+            ht=sc.get('halfTime',{})
+            out.append({
+              'id': m['id'],
+              'home': m['homeTeam']['shortName'],
+              'away': m['awayTeam']['shortName'],
+              'home_crest': m['homeTeam'].get('crest',''),
+              'away_crest': m['awayTeam'].get('crest',''),
+              'date': m['utcDate'],
+              'status': m['status'],
+              'home_score': ft.get('home'),
+              'away_score': ft.get('away'),
+              'ht_home': ht.get('home'),
+              'ht_away': ht.get('away'),
+              'venue': m.get('venue',''),
+              'referee': m.get('referees',[{}])[0].get('name','') if m.get('referees') else ''
+            })
+          print(json.dumps(out))
+          ")
+
+          # Process specific match if exists
+          MATCH_DATA="null"
+          if [ -f data/match_raw.json ]; then
+            MATCH_DATA=$(cat data/match_raw.json | python3 -c "
+          import json,sys
+          m=json.load(sys.stdin)
+          sc=m.get('score',{})
+          ft=sc.get('fullTime',{})
+          ht=sc.get('halfTime',{})
+          out={
+            'id': m['id'],
+            'home': m['homeTeam']['shortName'],
+            'away': m['awayTeam']['shortName'],
+            'home_full': m['homeTeam']['name'],
+            'away_full': m['awayTeam']['name'],
+            'home_crest': m['homeTeam'].get('crest',''),
+            'away_crest': m['awayTeam'].get('crest',''),
+            'date': m['utcDate'],
+            'status': m['status'],
+            'home_score': ft.get('home'),
+            'away_score': ft.get('away'),
+            'ht_home': ht.get('home'),
+            'ht_away': ht.get('away'),
+            'venue': m.get('venue',''),
+            'matchday': m.get('matchday',0)
+          }
+          print(json.dumps(out))
+          ")
+          fi
+
+          cat > data/watchalong.json << EOF
+          {
+            "updated": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+            "date": "${TODAY}",
+            "today_matches": ${TODAY_DATA},
+            "featured_match": ${MATCH_DATA}
+          }
+          EOF
+
+      - name: Cleanup
+        run: |
+          rm -f data/today_raw.json data/match_raw.json
+
+      - name: Commit and Push
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add data/watchalong.json
+          git diff --staged --quiet || git commit -m "Update watch along data - $(date -u +"%Y-%m-%d")"
+          git push

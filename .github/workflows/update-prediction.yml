@@ -1,0 +1,111 @@
+name: Update Prediction Data
+
+on:
+  workflow_dispatch:
+    inputs:
+      gameweek:
+        description: 'Gameweek number (e.g. 32)'
+        required: true
+        default: '32'
+
+jobs:
+  update-prediction:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Fetch EPL Upcoming Fixtures
+        run: |
+          curl -s \
+            "https://api.football-data.org/v4/competitions/PL/matches?status=SCHEDULED&limit=10" \
+            -H "X-Auth-Token: ${{ secrets.FOOTBALL_API_KEY }}" \
+            -o data/fixtures_raw.json
+
+      - name: Fetch EPL Match Results
+        run: |
+          curl -s \
+            "https://api.football-data.org/v4/competitions/PL/matches?status=FINISHED&limit=10" \
+            -H "X-Auth-Token: ${{ secrets.FOOTBALL_API_KEY }}" \
+            -o data/results_raw.json
+
+      - name: Fetch EPL Standings
+        run: |
+          curl -s \
+            "https://api.football-data.org/v4/competitions/PL/standings" \
+            -H "X-Auth-Token: ${{ secrets.FOOTBALL_API_KEY }}" \
+            -o data/standings_raw.json
+
+      - name: Build prediction.json
+        run: |
+          cat > data/prediction.json << 'EOF'
+          {
+            "updated": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+            "gameweek": ${{ github.event.inputs.gameweek }},
+            "fixtures": $(cat data/fixtures_raw.json | python3 -c "
+          import json,sys
+          d=json.load(sys.stdin)
+          out=[]
+          for m in d.get('matches',[]):
+            out.append({
+              'id': m['id'],
+              'home': m['homeTeam']['shortName'],
+              'away': m['awayTeam']['shortName'],
+              'home_crest': m['homeTeam'].get('crest',''),
+              'away_crest': m['awayTeam'].get('crest',''),
+              'date': m['utcDate'],
+              'status': m['status'],
+              'matchday': m.get('matchday',0)
+            })
+          print(json.dumps(out))
+          "),
+            "results": $(cat data/results_raw.json | python3 -c "
+          import json,sys
+          d=json.load(sys.stdin)
+          out=[]
+          for m in d.get('matches',[]):
+            sc=m.get('score',{}).get('fullTime',{})
+            out.append({
+              'id': m['id'],
+              'home': m['homeTeam']['shortName'],
+              'away': m['awayTeam']['shortName'],
+              'home_score': sc.get('home'),
+              'away_score': sc.get('away'),
+              'date': m['utcDate'],
+              'matchday': m.get('matchday',0)
+            })
+          print(json.dumps(out))
+          "),
+            "standings": $(cat data/standings_raw.json | python3 -c "
+          import json,sys
+          d=json.load(sys.stdin)
+          out=[]
+          table=d.get('standings',[{}])[0].get('table',[])
+          for t in table[:6]:
+            out.append({
+              'pos': t['position'],
+              'team': t['team']['shortName'],
+              'played': t['playedGames'],
+              'won': t['won'],
+              'draw': t['draw'],
+              'lost': t['lost'],
+              'points': t['points'],
+              'gd': t['goalDifference']
+            })
+          print(json.dumps(out))
+          ")
+          }
+          EOF
+
+      - name: Cleanup temp files
+        run: |
+          rm -f data/fixtures_raw.json data/results_raw.json data/standings_raw.json
+
+      - name: Commit and Push
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add data/prediction.json
+          git diff --staged --quiet || git commit -m "Update prediction data - GW${{ github.event.inputs.gameweek }}"
+          git push
