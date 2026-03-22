@@ -123,9 +123,9 @@ body {
 /* ══ FOOTBALL SVG GEOMETRIC ══ */
 .football-geo {
   position:absolute;
-  right:320px; top:50%;
-  transform:translate(50%,-50%);
-  width:300px; height:300px;
+  right:80px; top:50%;
+  transform:translateY(-50%);
+  width:280px; height:280px;
 }
 
 /* Pentagon patches */
@@ -191,7 +191,7 @@ body {
 
 /* Ball rotation animation */
 .football-geo { animation:ballFloat 6s ease-in-out infinite; }
-@keyframes ballFloat{0%,100%{transform:translate(50%,-50%) rotate(0deg)}50%{transform:translate(50%,-52%) rotate(180deg)}}
+@keyframes ballFloat{0%,100%{transform:translateY(-50%) rotate(0deg)}50%{transform:translateY(-52%) rotate(180deg)}}
 
 /* ══ GEOMETRIC LINES ══ */
 
