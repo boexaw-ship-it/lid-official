@@ -4,9 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       gameweek:
-        description: 'Gameweek number (e.g. 32)'
+        description: 'EPL Gameweek number (e.g. 32)'
         required: true
         default: '32'
+      extra_matches:
+        description: |
+          Extra matches (UCL/manual) — JSON array format:
+          [{"competition":"UCL","home":"REAL MADRID","away":"MAN CITY","date":"2025-04-08T19:00:00Z","gw":"QF"}]
+        required: false
+        default: '[]'
 
 jobs:
   update-prediction:
@@ -21,86 +27,243 @@ jobs:
           curl -s \
             "https://api.football-data.org/v4/competitions/PL/matches?status=SCHEDULED&limit=10" \
             -H "X-Auth-Token: ${{ secrets.FOOTBALL_API_KEY }}" \
-            -o data/fixtures_raw.json
+            -o data/epl_fixtures_raw.json
 
-      - name: Fetch EPL Match Results
+      - name: Fetch EPL Match Results (Last 5)
         run: |
           curl -s \
-            "https://api.football-data.org/v4/competitions/PL/matches?status=FINISHED&limit=10" \
+            "https://api.football-data.org/v4/competitions/PL/matches?status=FINISHED&limit=5" \
             -H "X-Auth-Token: ${{ secrets.FOOTBALL_API_KEY }}" \
-            -o data/results_raw.json
+            -o data/epl_results_raw.json
 
       - name: Fetch EPL Standings
         run: |
           curl -s \
             "https://api.football-data.org/v4/competitions/PL/standings" \
             -H "X-Auth-Token: ${{ secrets.FOOTBALL_API_KEY }}" \
-            -o data/standings_raw.json
+            -o data/epl_standings_raw.json
+
+      - name: Fetch UCL Upcoming Fixtures
+        run: |
+          curl -s \
+            "https://api.football-data.org/v4/competitions/CL/matches?status=SCHEDULED&limit=8" \
+            -H "X-Auth-Token: ${{ secrets.FOOTBALL_API_KEY }}" \
+            -o data/ucl_fixtures_raw.json
+
+      - name: Fetch Team Last 3 Results
+        run: |
+          # Fetch recent results for form data
+          curl -s \
+            "https://api.football-data.org/v4/competitions/PL/matches?status=FINISHED&limit=30" \
+            -H "X-Auth-Token: ${{ secrets.FOOTBALL_API_KEY }}" \
+            -o data/recent_results_raw.json
 
       - name: Build prediction.json
         run: |
-          cat > data/prediction.json << 'EOF'
-          {
-            "updated": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
-            "gameweek": ${{ github.event.inputs.gameweek }},
-            "fixtures": $(cat data/fixtures_raw.json | python3 -c "
-          import json,sys
-          d=json.load(sys.stdin)
-          out=[]
-          for m in d.get('matches',[]):
-            out.append({
-              'id': m['id'],
-              'home': m['homeTeam']['shortName'],
-              'away': m['awayTeam']['shortName'],
-              'home_crest': m['homeTeam'].get('crest',''),
-              'away_crest': m['awayTeam'].get('crest',''),
-              'date': m['utcDate'],
-              'status': m['status'],
-              'matchday': m.get('matchday',0)
+          python3 << 'PYEOF'
+          import json
+          from datetime import datetime, timezone
+
+          GW = int("${{ github.event.inputs.gameweek }}")
+
+          # ── Load raw data ──
+          with open('data/epl_fixtures_raw.json') as f:
+            epl_fix = json.load(f)
+          with open('data/epl_results_raw.json') as f:
+            epl_res = json.load(f)
+          with open('data/epl_standings_raw.json') as f:
+            epl_std = json.load(f)
+          with open('data/ucl_fixtures_raw.json') as f:
+            ucl_fix = json.load(f)
+          with open('data/recent_results_raw.json') as f:
+            recent = json.load(f)
+
+          # ── Team form helper (last 3 results) ──
+          # Build form per team from recent results
+          team_results = {}
+          for m in recent.get('matches', []):
+            sc = m.get('score', {}).get('fullTime', {})
+            hs = sc.get('home')
+            as_ = sc.get('away')
+            if hs is None or as_ is None:
+              continue
+            hid = m['homeTeam']['id']
+            aid = m['awayTeam']['id']
+            # home result
+            if hid not in team_results:
+              team_results[hid] = []
+            if hs > as_:
+              team_results[hid].append('W')
+            elif hs == as_:
+              team_results[hid].append('D')
+            else:
+              team_results[hid].append('L')
+            # away result
+            if aid not in team_results:
+              team_results[aid] = []
+            if as_ > hs:
+              team_results[aid].append('W')
+            elif as_ == hs:
+              team_results[aid].append('D')
+            else:
+              team_results[aid].append('L')
+
+          def get_form(team_id):
+            results = team_results.get(team_id, [])
+            return results[-3:] if len(results) >= 3 else (results + ['?'] * 3)[:3]
+
+          def fmt_date(utc_str):
+            try:
+              dt = datetime.fromisoformat(utc_str.replace('Z', '+00:00'))
+              return dt.strftime('%a %d %b · %H:%M')
+            except:
+              return utc_str
+
+          # ── EPL Fixtures (upcoming GW) ──
+          epl_matches = []
+          mid = 1
+          for m in epl_fix.get('matches', []):
+            if len(epl_matches) >= 8:
+              break
+            h = m['homeTeam']
+            a = m['awayTeam']
+            epl_matches.append({
+              "id":           mid,
+              "competition":  "Premier League",
+              "gw":           m.get('matchday', GW),
+              "home":         h.get('shortName', h.get('name', '')),
+              "home_full":    h.get('name', ''),
+              "home_crest":   h.get('crest', ''),
+              "home_id":      h.get('id', 0),
+              "away":         a.get('shortName', a.get('name', '')),
+              "away_full":    a.get('name', ''),
+              "away_crest":   a.get('crest', ''),
+              "away_id":      a.get('id', 0),
+              "date":         m.get('utcDate', ''),
+              "date_fmt":     fmt_date(m.get('utcDate', '')),
+              "status":       m.get('status', 'SCHEDULED'),
+              "home_form":    get_form(h.get('id', 0)),
+              "away_form":    get_form(a.get('id', 0)),
+              "venue":        m.get('venue', '')
             })
-          print(json.dumps(out))
-          "),
-            "results": $(cat data/results_raw.json | python3 -c "
-          import json,sys
-          d=json.load(sys.stdin)
-          out=[]
-          for m in d.get('matches',[]):
-            sc=m.get('score',{}).get('fullTime',{})
-            out.append({
-              'id': m['id'],
-              'home': m['homeTeam']['shortName'],
-              'away': m['awayTeam']['shortName'],
-              'home_score': sc.get('home'),
-              'away_score': sc.get('away'),
-              'date': m['utcDate'],
-              'matchday': m.get('matchday',0)
+            mid += 1
+
+          # ── UCL Fixtures ──
+          ucl_matches = []
+          for m in ucl_fix.get('matches', []):
+            if len(ucl_matches) >= 4:
+              break
+            h = m['homeTeam']
+            a = m['awayTeam']
+            ucl_matches.append({
+              "id":           mid,
+              "competition":  "Champions League",
+              "gw":           m.get('stage', 'UCL'),
+              "home":         h.get('shortName', h.get('name', '')),
+              "home_full":    h.get('name', ''),
+              "home_crest":   h.get('crest', ''),
+              "home_id":      h.get('id', 0),
+              "away":         a.get('shortName', a.get('name', '')),
+              "away_full":    a.get('name', ''),
+              "away_crest":   a.get('crest', ''),
+              "away_id":      a.get('id', 0),
+              "date":         m.get('utcDate', ''),
+              "date_fmt":     fmt_date(m.get('utcDate', '')),
+              "status":       m.get('status', 'SCHEDULED'),
+              "home_form":    get_form(h.get('id', 0)),
+              "away_form":    get_form(a.get('id', 0)),
+              "venue":        m.get('venue', '')
             })
-          print(json.dumps(out))
-          "),
-            "standings": $(cat data/standings_raw.json | python3 -c "
-          import json,sys
-          d=json.load(sys.stdin)
-          out=[]
-          table=d.get('standings',[{}])[0].get('table',[])
+            mid += 1
+
+          # ── Extra/Manual matches ──
+          extra_raw = '${{ github.event.inputs.extra_matches }}'
+          try:
+            extra_list = json.loads(extra_raw) if extra_raw.strip() not in ['', '[]'] else []
+          except:
+            extra_list = []
+
+          extra_matches = []
+          for m in extra_list:
+            extra_matches.append({
+              "id":           mid,
+              "competition":  m.get('competition', 'Other'),
+              "gw":           m.get('gw', '-'),
+              "home":         m.get('home', '').upper(),
+              "home_full":    m.get('home', '').upper(),
+              "home_crest":   m.get('home_crest', ''),
+              "home_id":      0,
+              "away":         m.get('away', '').upper(),
+              "away_full":    m.get('away', '').upper(),
+              "away_crest":   m.get('away_crest', ''),
+              "away_id":      0,
+              "date":         m.get('date', ''),
+              "date_fmt":     fmt_date(m.get('date', '')),
+              "status":       "SCHEDULED",
+              "home_form":    m.get('home_form', ['?','?','?']),
+              "away_form":    m.get('away_form', ['?','?','?']),
+              "venue":        m.get('venue', '')
+            })
+            mid += 1
+
+          # ── EPL Standings (top 6) ──
+          standings = []
+          table = epl_std.get('standings', [{}])[0].get('table', [])
           for t in table[:6]:
-            out.append({
-              'pos': t['position'],
-              'team': t['team']['shortName'],
-              'played': t['playedGames'],
-              'won': t['won'],
-              'draw': t['draw'],
-              'lost': t['lost'],
-              'points': t['points'],
-              'gd': t['goalDifference']
+            standings.append({
+              "pos":    t['position'],
+              "team":   t['team']['shortName'],
+              "crest":  t['team'].get('crest', ''),
+              "played": t['playedGames'],
+              "won":    t['won'],
+              "draw":   t['draw'],
+              "lost":   t['lost'],
+              "pts":    t['points'],
+              "gd":     t['goalDifference']
             })
-          print(json.dumps(out))
-          ")
+
+          # ── Recent Results ──
+          results = []
+          for m in epl_res.get('matches', [])[-5:]:
+            sc = m.get('score', {}).get('fullTime', {})
+            results.append({
+              "home":       m['homeTeam'].get('shortName', ''),
+              "away":       m['awayTeam'].get('shortName', ''),
+              "home_score": sc.get('home'),
+              "away_score": sc.get('away'),
+              "date_fmt":   fmt_date(m.get('utcDate', ''))
+            })
+
+          # ── All matches (EPL + UCL + Extra) ──
+          all_matches = epl_matches + ucl_matches + extra_matches
+
+          # ── Final output ──
+          out = {
+            "updated":    datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "gameweek":   GW,
+            "total":      len(all_matches),
+            "matches":    all_matches,
+            "standings":  standings,
+            "results":    results
           }
-          EOF
+
+          with open('data/prediction.json', 'w') as f:
+            json.dump(out, f, indent=2, ensure_ascii=False)
+
+          print(f"✅ Prediction data built")
+          print(f"   EPL matches: {len(epl_matches)}")
+          print(f"   UCL matches: {len(ucl_matches)}")
+          print(f"   Extra:       {len(extra_matches)}")
+          print(f"   Total:       {len(all_matches)}")
+          for m in all_matches[:4]:
+            print(f"   [{m['competition']}] {m['home']} vs {m['away']} — {m['date_fmt']}")
+          PYEOF
 
       - name: Cleanup temp files
         run: |
-          rm -f data/fixtures_raw.json data/results_raw.json data/standings_raw.json
+          rm -f data/epl_fixtures_raw.json data/epl_results_raw.json
+          rm -f data/epl_standings_raw.json data/ucl_fixtures_raw.json
+          rm -f data/recent_results_raw.json
 
       - name: Commit and Push
         run: |
