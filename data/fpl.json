@@ -1,0 +1,25 @@
+{
+  "updated": "2025-03-22T00:00:00Z",
+  "gameweek": 32,
+  "team_name": "LID FC",
+  "manager": "Zaw Boe",
+  "overall_rank": 125430,
+  "total_points": 1842,
+  "team_value": 102.4,
+  "bank": 1.5,
+  "gw_points": 68,
+  "gw_rank": 85000,
+  "transfers_made": 1,
+  "captain": {
+    "name": "Salah",
+    "team": "LIV",
+    "points": 18
+  },
+  "vice_captain": {
+    "name": "Haaland",
+    "team": "MCI"
+  },
+  "transfer_in": "Isak",
+  "transfer_out": "Watkins",
+  "differential": "Isak"
+}

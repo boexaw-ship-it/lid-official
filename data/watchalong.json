@@ -1,0 +1,33 @@
+{
+  "updated": "2025-03-22T00:00:00Z",
+  "date": "2025-03-22",
+  "today_matches": [
+    {
+      "id": 1001,
+      "home": "MAN UTD",
+      "away": "ARSENAL",
+      "date": "2025-03-22T14:00:00Z",
+      "status": "IN_PLAY",
+      "home_score": 1,
+      "away_score": 0,
+      "ht_home": 1,
+      "ht_away": 0,
+      "venue": "Old Trafford"
+    }
+  ],
+  "featured_match": {
+    "id": 1001,
+    "home": "MAN UTD",
+    "away": "ARSENAL",
+    "home_full": "Manchester United FC",
+    "away_full": "Arsenal FC",
+    "date": "2025-03-22T14:00:00Z",
+    "status": "IN_PLAY",
+    "home_score": 1,
+    "away_score": 0,
+    "ht_home": 1,
+    "ht_away": 0,
+    "venue": "Old Trafford",
+    "matchday": 32
+  }
+}

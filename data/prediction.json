@@ -1,0 +1,45 @@
+{
+  "updated": "2025-03-22T00:00:00Z",
+  "gameweek": 32,
+  "fixtures": [
+    {
+      "id": 1001,
+      "home": "MAN UTD",
+      "away": "ARSENAL",
+      "home_crest": "",
+      "away_crest": "",
+      "date": "2025-03-23T14:00:00Z",
+      "status": "SCHEDULED",
+      "matchday": 32
+    },
+    {
+      "id": 1002,
+      "home": "LIVERPOOL",
+      "away": "MAN CITY",
+      "home_crest": "",
+      "away_crest": "",
+      "date": "2025-03-23T16:30:00Z",
+      "status": "SCHEDULED",
+      "matchday": 32
+    }
+  ],
+  "results": [
+    {
+      "id": 990,
+      "home": "CHELSEA",
+      "away": "TOTTENHAM",
+      "home_score": 2,
+      "away_score": 1,
+      "date": "2025-03-16T14:00:00Z",
+      "matchday": 31
+    }
+  ],
+  "standings": [
+    {"pos": 1, "team": "LIVERPOOL", "played": 31, "won": 22, "draw": 6, "lost": 3, "points": 72, "gd": 45},
+    {"pos": 2, "team": "ARSENAL",   "played": 31, "won": 20, "draw": 7, "lost": 4, "points": 67, "gd": 38},
+    {"pos": 3, "team": "MAN CITY",  "played": 31, "won": 19, "draw": 5, "lost": 7, "points": 62, "gd": 28},
+    {"pos": 4, "team": "CHELSEA",   "played": 31, "won": 17, "draw": 6, "lost": 8, "points": 57, "gd": 18},
+    {"pos": 5, "team": "NEWCASTLE", "played": 31, "won": 16, "draw": 5, "lost": 10,"points": 53, "gd": 15},
+    {"pos": 6, "team": "MAN UTD",   "played": 31, "won": 14, "draw": 7, "lost": 10,"points": 49, "gd": 8}
+  ]
+}
