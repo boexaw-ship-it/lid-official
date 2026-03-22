@@ -16,262 +16,204 @@ body {
   background:transparent;
 }
 
-/* ══ TOP BAR — Score ══ */
+/* ══ TOP BAR ══ */
 .top-bar {
   position:absolute;
-  top:0; left:0; right:0;
-  height:90px;
-  background:linear-gradient(to bottom, rgba(0,0,0,0.92), rgba(0,0,0,0.7));
+  top:0; left:0; right:0; height:90px;
+  background:linear-gradient(to bottom,rgba(0,0,0,0.92),rgba(0,0,0,0.7));
   border-bottom:3px solid #FF6400;
-  display:flex; align-items:center;
-  justify-content:center;
-  gap:0;
+  display:flex; align-items:center; justify-content:center;
 }
-
-/* Logo */
-.logo-blk {
-  position:absolute; left:32px;
-  display:flex; align-items:center; gap:10px;
-}
+.logo-blk { position:absolute; left:32px; display:flex; align-items:center; gap:10px; }
 .logo-txt { font-family:'Bebas Neue',sans-serif; font-size:38px; color:#FF6400; letter-spacing:3px; text-shadow:0 0 16px rgba(255,100,0,0.6); line-height:1; }
 .logo-div { width:2px; height:24px; background:rgba(255,100,0,0.4); }
 .logo-sub { font-size:10px; font-weight:700; letter-spacing:3px; color:rgba(255,255,255,0.35); text-transform:uppercase; line-height:1.6; }
 
-/* Teams */
-.team-blk { display:flex; align-items:center; gap:12px; min-width:340px; }
-.team-blk.home { justify-content:flex-end; }
-.team-blk.away { justify-content:flex-start; }
-.tlogo {
-  width:52px; height:52px;
+/* Current match top center */
+.top-match {
+  display:flex; align-items:center; gap:20px;
+}
+.top-team { display:flex; align-items:center; gap:8px; }
+.top-team.away { flex-direction:row-reverse; }
+.top-tlogo {
+  width:48px; height:48px;
   background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);
   border-radius:4px; display:flex; align-items:center; justify-content:center;
-  font-size:28px; cursor:pointer; overflow:hidden; flex-shrink:0;
+  font-size:26px; overflow:hidden;
 }
-.tlogo:hover { border-color:rgba(255,100,0,0.5); }
-.tlogo img { width:100%; height:100%; object-fit:contain; display:none; }
-.tname { font-family:'Bebas Neue',sans-serif; font-size:36px; color:#fff; letter-spacing:2px; }
+.top-tlogo img { width:100%; height:100%; object-fit:contain; display:none; }
+.top-tname { font-family:'Bebas Neue',sans-serif; font-size:32px; color:#fff; letter-spacing:2px; }
+.top-vs { text-align:center; }
+.top-vs-txt { font-family:'Bebas Neue',sans-serif; font-size:22px; color:rgba(255,100,0,0.6); letter-spacing:4px; }
+.top-time { font-size:11px; font-weight:700; letter-spacing:3px; color:rgba(255,255,255,0.3); margin-top:1px; }
 
-/* VS center */
-.vs-blk { display:flex; flex-direction:column; align-items:center; padding:0 32px; }
-.vs-txt { font-family:'Bebas Neue',sans-serif; font-size:28px; color:rgba(255,100,0,0.6); letter-spacing:4px; }
-.match-t { font-size:11px; font-weight:700; letter-spacing:3px; color:rgba(255,255,255,0.3); margin-top:1px; }
-
-/* Badge right */
 .type-badge {
   position:absolute; right:32px;
   background:rgba(255,100,0,0.15); border:1px solid rgba(255,100,0,0.45);
   color:#FF6400; font-family:'Bebas Neue',sans-serif;
-  font-size:15px; letter-spacing:4px; padding:7px 18px;
+  font-size:14px; letter-spacing:4px; padding:7px 18px;
   clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
 }
 
-/* ══ LEFT PANEL — Results List ══ */
+/* ══ LEFT PANEL ══ */
 .left-panel {
   position:absolute;
-  left:0; top:90px; bottom:0;
-  width:340px;
-  background:linear-gradient(to right, rgba(0,0,0,0.88), rgba(0,0,0,0.75));
+  left:0; top:90px; bottom:0; width:340px;
+  background:linear-gradient(to right,rgba(0,0,0,0.88),rgba(0,0,0,0.75));
   border-right:2px solid rgba(255,100,0,0.3);
   display:flex; flex-direction:column;
 }
 
-.lp-header {
-  padding:12px 16px 8px;
-  border-bottom:1px solid rgba(255,100,0,0.18);
-  background:rgba(255,100,0,0.07);
+/* Day/Filter tabs */
+.filter-tabs {
+  padding:8px 10px;
+  border-bottom:1px solid rgba(255,100,0,0.2);
+  background:rgba(255,100,0,0.06);
+  display:flex; gap:5px; flex-wrap:wrap;
 }
-.lp-title { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:4px; color:#FF6400; }
-.lp-sub { font-size:10px; font-weight:700; letter-spacing:3px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-top:1px; }
+.ftab {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:13px; letter-spacing:2px;
+  padding:4px 10px; cursor:pointer;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  color:rgba(255,255,255,0.5);
+  transition:all 0.15s; border-radius:2px;
+  white-space:nowrap;
+}
+.ftab:hover { background:rgba(255,100,0,0.1); color:#FF6400; border-color:rgba(255,100,0,0.3); }
+.ftab.active { background:rgba(255,100,0,0.2); color:#FF6400; border-color:#FF6400; }
+.ftab.ucl { }
+.ftab.ucl.active { background:rgba(100,150,255,0.2); color:#6496ff; border-color:#6496ff; }
 
-.results-list { flex:1; overflow-y:auto; padding:4px 0; }
+/* Results list */
+.lp-header {
+  padding:8px 16px 6px;
+  border-bottom:1px solid rgba(255,100,0,0.15);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.lp-title { font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:3px; color:#FF6400; }
+.lp-count { font-size:10px; font-weight:700; letter-spacing:3px; color:rgba(255,255,255,0.3); text-transform:uppercase; }
+
+.results-list { flex:1; overflow-y:auto; padding:3px 0; }
 .results-list::-webkit-scrollbar { width:2px; }
 .results-list::-webkit-scrollbar-thumb { background:rgba(255,100,0,0.3); }
 
 .rrow {
-  padding:7px 16px;
+  padding:7px 14px;
   border-bottom:1px solid rgba(255,255,255,0.04);
   cursor:pointer; transition:all 0.15s;
   display:flex; align-items:center; gap:8px;
 }
 .rrow:hover { background:rgba(255,100,0,0.07); }
-.rrow.active { background:rgba(255,100,0,0.12); border-left:3px solid #FF6400; padding-left:13px; }
+.rrow.active { background:rgba(255,100,0,0.13); border-left:3px solid #FF6400; padding-left:11px; }
+.rrow.ucl-row.active { border-left-color:#6496ff; background:rgba(100,150,255,0.1); }
 
-.ridx { font-family:'Bebas Neue',sans-serif; font-size:13px; color:rgba(255,100,0,0.4); width:14px; flex-shrink:0; }
+.ridx { font-family:'Bebas Neue',sans-serif; font-size:12px; color:rgba(255,100,0,0.4); width:14px; flex-shrink:0; }
 .rinfo { flex:1; min-width:0; }
 .rteams { font-family:'Bebas Neue',sans-serif; font-size:13px; color:#fff; letter-spacing:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .rpred { font-size:9px; letter-spacing:2px; color:rgba(255,255,255,0.28); text-transform:uppercase; margin-top:1px; }
-.rst {
-  font-size:9px; font-weight:900; letter-spacing:1px;
-  padding:2px 6px; border-radius:2px; flex-shrink:0;
-}
+.rtime { font-size:9px; color:rgba(255,100,0,0.5); letter-spacing:1px; }
+.rst { font-size:9px; font-weight:900; padding:2px 5px; border-radius:2px; flex-shrink:0; }
 .st-c { background:rgba(0,200,100,0.13); color:#00e676; border:1px solid rgba(0,200,100,0.22); }
 .st-w { background:rgba(200,0,0,0.13); color:#ff4444; border:1px solid rgba(200,0,0,0.22); }
 .st-p { background:rgba(255,100,0,0.1); color:#FF6400; border:1px solid rgba(255,100,0,0.2); }
 
 /* Summary */
 .lp-summary {
-  padding:8px 16px;
-  border-top:1px solid rgba(255,100,0,0.18);
-  background:rgba(0,0,0,0.4);
-  display:flex;
+  padding:8px 14px; border-top:1px solid rgba(255,100,0,0.18);
+  background:rgba(0,0,0,0.4); display:flex;
 }
 .si { flex:1; text-align:center; }
-.sn { font-family:'Bebas Neue',sans-serif; font-size:26px; line-height:1; }
-.sn.w { color:#00e676; }
-.sn.l { color:#ff4444; }
-.sn.p { color:#FF6400; }
-.sl { font-size:9px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.22); text-transform:uppercase; }
+.sn { font-family:'Bebas Neue',sans-serif; font-size:24px; line-height:1; }
+.sn.w { color:#00e676; } .sn.l { color:#ff4444; } .sn.p { color:#FF6400; }
+.sl { font-size:8px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.22); text-transform:uppercase; }
 
-/* ══ RIGHT PANEL — Match Card ══ */
+/* ══ RIGHT PANEL ══ */
 .right-panel {
   position:absolute;
-  right:0; top:90px; bottom:0;
-  width:400px;
-  background:linear-gradient(to left, rgba(0,0,0,0.88), rgba(0,0,0,0.75));
+  right:0; top:90px; bottom:0; width:400px;
+  background:linear-gradient(to left,rgba(0,0,0,0.88),rgba(0,0,0,0.75));
   border-left:2px solid rgba(255,100,0,0.3);
   display:flex; flex-direction:column;
 }
 
-/* Card nav */
 .rp-nav {
   padding:9px 14px;
   border-bottom:1px solid rgba(255,100,0,0.18);
   background:rgba(255,100,0,0.07);
   display:flex; align-items:center; justify-content:space-between;
 }
-.rp-nav-title { font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:3px; color:#FF6400; }
-.rp-counter { font-family:'Bebas Neue',sans-serif; font-size:18px; color:#fff; letter-spacing:2px; }
+.rp-nav-title { font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:3px; color:#FF6400; }
+.rp-counter { font-family:'Bebas Neue',sans-serif; font-size:16px; color:#fff; letter-spacing:2px; }
 .nav-btns { display:flex; gap:4px; }
-.nbtn {
-  font-family:'Bebas Neue',sans-serif; font-size:12px; letter-spacing:2px;
-  padding:4px 10px; border:none; cursor:pointer; transition:all 0.15s;
-}
+.nbtn { font-family:'Bebas Neue',sans-serif; font-size:12px; letter-spacing:2px; padding:4px 10px; border:none; cursor:pointer; transition:all 0.15s; }
 .nb-p { background:rgba(255,255,255,0.1); color:#fff; }
 .nb-p:hover { background:rgba(255,255,255,0.18); }
 .nb-n { background:#FF6400; color:#000; }
 .nb-n:hover { background:#FF9500; }
 
-/* League */
-.rp-league {
-  padding:7px 14px;
-  font-size:9px; font-weight:700; letter-spacing:4px;
-  color:rgba(255,100,0,0.6); text-transform:uppercase;
-  border-bottom:1px solid rgba(255,255,255,0.05);
-  display:flex; align-items:center; gap:8px;
-}
-.rp-league::before { content:''; display:block; width:14px; height:1px; background:rgba(255,100,0,0.4); }
+.rp-league { padding:6px 14px; font-size:9px; font-weight:700; letter-spacing:4px; color:rgba(255,100,0,0.65); text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:8px; }
+.rp-league::before { content:''; display:block; width:12px; height:1px; background:rgba(255,100,0,0.4); }
+.rp-league.ucl-league { color:rgba(100,150,255,0.7); }
+.rp-league.ucl-league::before { background:rgba(100,150,255,0.4); }
 
-/* Teams in card */
-.rp-teams {
-  padding:10px 14px;
-  border-bottom:1px solid rgba(255,255,255,0.06);
-}
+.rp-teams { padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.06); }
 .rp-teams-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
 .rt-blk { display:flex; align-items:center; gap:7px; }
 .rt-blk.away { flex-direction:row-reverse; }
-.rtlogo {
-  width:36px; height:36px;
-  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
-  border-radius:3px; display:flex; align-items:center; justify-content:center;
-  font-size:20px; cursor:pointer; overflow:hidden; flex-shrink:0;
-}
-.rtlogo:hover { border-color:rgba(255,100,0,0.4); }
+.rtlogo { width:36px; height:36px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:20px; overflow:hidden; flex-shrink:0; }
 .rtlogo img { width:100%; height:100%; object-fit:contain; display:none; }
 .rtname { font-family:'Bebas Neue',sans-serif; font-size:20px; color:#fff; letter-spacing:1px; line-height:1; }
 .rvs { text-align:center; }
 .rvs-txt { font-family:'Bebas Neue',sans-serif; font-size:14px; color:rgba(255,100,0,0.5); }
 .rmatch-t { font-size:9px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.22); margin-top:1px; }
 
-/* Form */
-.rp-form {
-  padding:8px 14px;
-  border-bottom:1px solid rgba(255,255,255,0.06);
-  display:grid; grid-template-columns:1fr 1fr; gap:8px;
-}
+.rp-form { padding:8px 14px; border-bottom:1px solid rgba(255,255,255,0.06); display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 .fblk {}
 .flbl { font-size:8px; font-weight:700; letter-spacing:3px; color:rgba(255,100,0,0.55); text-transform:uppercase; margin-bottom:4px; }
 .fdots { display:flex; gap:3px; }
-.fd {
-  width:22px; height:22px; border-radius:3px;
-  display:flex; align-items:center; justify-content:center;
-  font-family:'Bebas Neue',sans-serif; font-size:12px;
-  cursor:pointer; transition:all 0.15s;
-}
+.fd { width:22px; height:22px; border-radius:3px; display:flex; align-items:center; justify-content:center; font-family:'Bebas Neue',sans-serif; font-size:12px; cursor:pointer; transition:all 0.15s; }
 .fd:hover { transform:scale(1.12); }
 .fd.W { background:rgba(0,200,100,0.18); color:#00e676; border:1px solid rgba(0,200,100,0.25); }
 .fd.D { background:rgba(255,200,0,0.13); color:#ffd700; border:1px solid rgba(255,200,0,0.25); }
 .fd.L { background:rgba(200,0,0,0.18); color:#ff4444; border:1px solid rgba(200,0,0,0.25); }
+.fd.\? { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.3); border:1px solid rgba(255,255,255,0.1); }
 
-/* Prediction options */
-.rp-pred {
-  padding:8px 14px;
-  border-bottom:1px solid rgba(255,255,255,0.06);
-}
+.rp-pred { padding:8px 14px; border-bottom:1px solid rgba(255,255,255,0.06); }
 .plbl { font-size:8px; font-weight:700; letter-spacing:3px; color:rgba(255,100,0,0.55); text-transform:uppercase; margin-bottom:6px; }
 .popts { display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px; }
-.popt {
-  padding:8px 5px; text-align:center;
-  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);
-  border-radius:2px; cursor:pointer; transition:all 0.15s; position:relative;
-}
+.popt { padding:7px 5px; text-align:center; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:2px; cursor:pointer; transition:all 0.15s; position:relative; }
 .popt:hover { background:rgba(255,100,0,0.07); border-color:rgba(255,100,0,0.25); }
 .popt.sel { background:rgba(255,100,0,0.14); border-color:#FF6400; border-top-width:2px; }
 .pol { font-size:7px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.25); text-transform:uppercase; margin-bottom:3px; }
-.pov { font-family:'Bebas Neue',sans-serif; font-size:15px; color:#fff; letter-spacing:1px; line-height:1; }
+.pov { font-family:'Bebas Neue',sans-serif; font-size:14px; color:#fff; letter-spacing:1px; line-height:1; }
 .popt.sel .pov { color:#FF6400; }
 .poo { font-size:9px; color:rgba(255,255,255,0.22); margin-top:2px; }
 .pck { position:absolute; top:3px; right:4px; font-size:9px; opacity:0; }
 .popt.sel .pck { opacity:1; }
 
-/* Notes */
-.rp-notes {
-  flex:1; padding:7px 14px;
-  border-bottom:1px solid rgba(255,255,255,0.05);
-  overflow:hidden;
-}
+.rp-notes { flex:1; padding:7px 14px; border-bottom:1px solid rgba(255,255,255,0.05); overflow:hidden; }
 .ntxt-lbl { font-size:8px; font-weight:700; letter-spacing:3px; color:rgba(255,100,0,0.55); text-transform:uppercase; margin-bottom:3px; }
-.ntxt {
-  font-size:11px; color:rgba(255,255,255,0.4); line-height:1.5;
-  cursor:pointer; min-height:24px;
-}
+.ntxt { font-size:11px; color:rgba(255,255,255,0.4); line-height:1.5; cursor:pointer; min-height:24px; }
 .ntxt:hover { color:rgba(255,255,255,0.65); }
 .ntxt[contenteditable="true"] { outline:1px solid rgba(255,100,0,0.3); padding:2px; color:#fff; }
 
-/* Confidence */
-.rp-conf {
-  padding:7px 14px;
-  display:flex; align-items:center; gap:8px;
-  border-bottom:1px solid rgba(255,255,255,0.05);
-}
+.rp-conf { padding:7px 14px; display:flex; align-items:center; gap:8px; border-bottom:1px solid rgba(255,255,255,0.05); }
 .clbl { font-size:8px; font-weight:700; letter-spacing:3px; color:rgba(255,100,0,0.55); text-transform:uppercase; white-space:nowrap; }
 .ctrack { flex:1; height:5px; background:rgba(255,255,255,0.07); border-radius:3px; overflow:hidden; }
 .cfill { height:100%; background:linear-gradient(90deg,#FF6400,#FF9500); border-radius:3px; transition:width 0.3s; }
 .cpct { font-family:'Bebas Neue',sans-serif; font-size:16px; color:#FF6400; min-width:34px; text-align:right; cursor:pointer; }
 
-/* Action btns */
-.rp-btns {
-  padding:7px 14px;
-  display:flex; gap:5px;
-}
-.abtn {
-  font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:900;
-  letter-spacing:2px; text-transform:uppercase; padding:5px 10px;
-  border:none; cursor:pointer; transition:all 0.15s; flex:1;
-}
+.rp-btns { padding:7px 14px; display:flex; gap:4px; }
+.abtn { font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:900; letter-spacing:2px; text-transform:uppercase; padding:5px 8px; border:none; cursor:pointer; transition:all 0.15s; flex:1; }
 .ab-edit { background:rgba(255,100,0,0.14); color:#FF6400; border:1px solid rgba(255,100,0,0.3); }
-.ab-edit:hover { background:rgba(255,100,0,0.24); }
-.ab-ok { background:rgba(0,200,100,0.14); color:#00e676; border:1px solid rgba(0,200,100,0.24); }
-.ab-ok:hover { background:rgba(0,200,100,0.24); }
-.ab-no { background:rgba(200,0,0,0.14); color:#ff4444; border:1px solid rgba(200,0,0,0.24); }
-.ab-no:hover { background:rgba(200,0,0,0.24); }
+.ab-ok   { background:rgba(0,200,100,0.14); color:#00e676; border:1px solid rgba(0,200,100,0.24); }
+.ab-no   { background:rgba(200,0,0,0.14);   color:#ff4444; border:1px solid rgba(200,0,0,0.24); }
+.ab-rl   { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.1); }
 
 /* ══ EDIT PANEL ══ */
-.ep {
-  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-  background:rgba(5,5,10,0.97); border:1px solid rgba(255,100,0,0.5);
-  padding:18px 22px; display:none; flex-direction:column; gap:7px;
-  z-index:200; min-width:360px;
-}
+.ep { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(5,5,10,0.97); border:1px solid rgba(255,100,0,0.5); padding:16px 20px; display:none; flex-direction:column; gap:7px; z-index:200; min-width:340px; }
 .ep.open { display:flex; }
 .etl { font-family:'Bebas Neue',sans-serif; font-size:18px; color:#FF6400; letter-spacing:3px; border-bottom:1px solid rgba(255,100,0,0.3); padding-bottom:5px; margin-bottom:2px; }
 .er { display:flex; align-items:center; gap:7px; }
@@ -294,310 +236,317 @@ input[type="file"] { display:none; }
     <div class="logo-div"></div>
     <div class="logo-sub">OFFICIAL<br>@XawBoe</div>
   </div>
-  <div class="team-blk home">
-    <div class="tname" id="h-name">MAN UTD</div>
-    <div class="tlogo" onclick="document.getElementById('hlogof').click()">
-      <span id="h-emoji">🔴</span><img id="h-logo"/>
+  <div class="top-match">
+    <div class="top-team home">
+      <div class="top-tlogo" id="th-logo-box"><span id="th-emoji">⚽</span><img id="th-logo"/></div>
+      <div class="top-tname" id="th-name">-</div>
     </div>
-  </div>
-  <div class="vs-blk">
-    <div class="vs-txt">VS</div>
-    <div class="match-t" id="top-time">SUN 16:30</div>
-  </div>
-  <div class="team-blk away">
-    <div class="tlogo" onclick="document.getElementById('alogof').click()">
-      <span id="a-emoji">🔵</span><img id="a-logo"/>
+    <div class="top-vs">
+      <div class="top-vs-txt">VS</div>
+      <div class="top-time" id="th-time">-</div>
     </div>
-    <div class="tname" id="a-name">ARSENAL</div>
+    <div class="top-team away">
+      <div class="top-tlogo" id="ta-logo-box"><span id="ta-emoji">⚽</span><img id="ta-logo"/></div>
+      <div class="top-tname" id="ta-name">-</div>
+    </div>
   </div>
   <div class="type-badge">🔮 PREDICTION</div>
 </div>
 
 <!-- ══ LEFT PANEL ══ -->
 <div class="left-panel">
+  <div class="filter-tabs" id="filter-tabs">
+    <div class="ftab active" data-filter="ALL" onclick="setFilter('ALL',this)">ALL</div>
+  </div>
   <div class="lp-header">
-    <div class="lp-title">📋 All Predictions</div>
-    <div class="lp-sub" id="done-count">0 / 8 ပွဲ</div>
+    <div class="lp-title" id="lp-title">📋 Matches</div>
+    <div class="lp-count" id="lp-count">-</div>
   </div>
   <div class="results-list" id="rlist"></div>
   <div class="lp-summary">
-    <div class="si"><div class="sn w" id="sw">0</div><div class="sl">✅ Correct</div></div>
-    <div class="si"><div class="sn l" id="sl">0</div><div class="sl">❌ Wrong</div></div>
-    <div class="si"><div class="sn p" id="sp">8</div><div class="sl">⏳ Pending</div></div>
+    <div class="si"><div class="sn w" id="sw">0</div><div class="sl">✅</div></div>
+    <div class="si"><div class="sn l" id="sl">0</div><div class="sl">❌</div></div>
+    <div class="si"><div class="sn p" id="sp">0</div><div class="sl">⏳</div></div>
   </div>
 </div>
 
 <!-- ══ RIGHT PANEL ══ -->
 <div class="right-panel">
   <div class="rp-nav">
-    <div class="rp-nav-title">🔮 Match</div>
-    <div class="rp-counter" id="rcounter">1 / 8</div>
+    <div class="rp-nav-title" id="rp-comp">🔮 Match</div>
+    <div class="rp-counter" id="rcounter">- / -</div>
     <div class="nav-btns">
       <button class="nbtn nb-p" onclick="prev()">◀</button>
-      <button class="nbtn nb-n" onclick="next()">▶ NEXT</button>
+      <button class="nbtn nb-n" onclick="next()">NEXT ▶</button>
     </div>
   </div>
-  <div class="rp-league" id="rleague">Premier League · GW32</div>
-
+  <div class="rp-league" id="rleague">-</div>
   <div class="rp-teams">
     <div class="rp-teams-row">
       <div class="rt-blk home">
-        <div class="rtlogo" onclick="document.getElementById('hlogof2').click()">
-          <span id="rh-emoji">🔴</span><img id="rh-logo"/>
-        </div>
-        <div class="rtname" id="rh-name">MAN UTD</div>
+        <div class="rtlogo" id="rh-logo-box"><span id="rh-emoji">⚽</span><img id="rh-logo"/></div>
+        <div class="rtname" id="rh-name">-</div>
       </div>
-      <div class="rvs">
-        <div class="rvs-txt">VS</div>
-        <div class="rmatch-t" id="rtime">SUN 16:30</div>
-      </div>
+      <div class="rvs"><div class="rvs-txt">VS</div><div class="rmatch-t" id="rtime">-</div></div>
       <div class="rt-blk away">
-        <div class="rtlogo" onclick="document.getElementById('alogof2').click()">
-          <span id="ra-emoji">🔵</span><img id="ra-logo"/>
-        </div>
-        <div class="rtname" id="ra-name">ARSENAL</div>
+        <div class="rtlogo" id="ra-logo-box"><span id="ra-emoji">⚽</span><img id="ra-logo"/></div>
+        <div class="rtname" id="ra-name">-</div>
       </div>
     </div>
   </div>
-
   <div class="rp-form">
-    <div class="fblk">
-      <div class="flbl" id="hflbl">MAN UTD · Last 3</div>
-      <div class="fdots" id="hfd"></div>
-    </div>
-    <div class="fblk">
-      <div class="flbl" id="aflbl">ARSENAL · Last 3</div>
-      <div class="fdots" id="afd"></div>
-    </div>
+    <div class="fblk"><div class="flbl" id="hflbl">Home · Last 3</div><div class="fdots" id="hfd"></div></div>
+    <div class="fblk"><div class="flbl" id="aflbl">Away · Last 3</div><div class="fdots" id="afd"></div></div>
   </div>
-
   <div class="rp-pred">
     <div class="plbl">My Prediction</div>
     <div class="popts">
       <div class="popt sel" id="po-home" onclick="selP('home')">
-        <div class="pol">Home Win</div>
-        <div class="pov" id="pv-h">MAN UTD</div>
-        <div class="poo" id="po-ho">2.10</div>
-        <div class="pck">✅</div>
+        <div class="pol">Home Win</div><div class="pov" id="pv-h">-</div>
+        <div class="poo" id="po-ho">-</div><div class="pck">✅</div>
       </div>
       <div class="popt" id="po-draw" onclick="selP('draw')">
-        <div class="pol">Draw</div>
-        <div class="pov">DRAW</div>
-        <div class="poo" id="po-do">3.40</div>
-        <div class="pck">✅</div>
+        <div class="pol">Draw</div><div class="pov">DRAW</div>
+        <div class="poo" id="po-do">-</div><div class="pck">✅</div>
       </div>
       <div class="popt" id="po-away" onclick="selP('away')">
-        <div class="pol">Away Win</div>
-        <div class="pov" id="pv-a">ARSENAL</div>
-        <div class="poo" id="po-ao">3.20</div>
-        <div class="pck">✅</div>
+        <div class="pol">Away Win</div><div class="pov" id="pv-a">-</div>
+        <div class="poo" id="po-ao">-</div><div class="pck">✅</div>
       </div>
     </div>
   </div>
-
   <div class="rp-notes">
     <div class="ntxt-lbl">Analysis</div>
     <div class="ntxt" id="ntxt" onclick="startN(this)" onblur="endN(this)">Click to add notes...</div>
   </div>
-
   <div class="rp-conf">
     <div class="clbl">Confidence</div>
     <div class="ctrack"><div class="cfill" id="cfill" style="width:70%"></div></div>
     <div class="cpct" id="cpct">70%</div>
   </div>
-
   <div class="rp-btns">
-    <button class="abtn ab-edit" onclick="openEp()">✏️ Edit</button>
-    <button class="abtn ab-ok" onclick="setRes('correct')">✅ Correct</button>
-    <button class="abtn ab-no" onclick="setRes('wrong')">❌ Wrong</button>
-    <button class="abtn ab-edit" onclick="reloadJSON()" title="Reload JSON">🔄</button>
+    <button class="abtn ab-edit" onclick="openEp()">✏️</button>
+    <button class="abtn ab-ok"   onclick="setRes('correct')">✅ Correct</button>
+    <button class="abtn ab-no"   onclick="setRes('wrong')">❌ Wrong</button>
+    <button class="abtn ab-rl"   onclick="reloadJSON()" title="Reload">🔄</button>
   </div>
 </div>
 
 <!-- EDIT PANEL -->
 <div class="ep" id="ep">
-  <div class="etl">✏️ Match Info</div>
-  <div class="er"><div class="el">League</div><input class="ei" id="ei-lg" value="Premier League · GW32"></div>
-  <div class="er"><div class="el">Home</div><input class="ei" id="ei-h" value="MAN UTD"></div>
-  <div class="er"><div class="el">Away</div><input class="ei" id="ei-a" value="ARSENAL"></div>
-  <div class="er"><div class="el">Time</div><input class="ei" id="ei-t" value="SUN 16:30"></div>
-  <div class="er"><div class="el">H Odds</div><input class="ei" id="ei-ho" value="2.10" style="max-width:70px"></div>
-  <div class="er"><div class="el">D Odds</div><input class="ei" id="ei-do" value="3.40" style="max-width:70px"></div>
-  <div class="er"><div class="el">A Odds</div><input class="ei" id="ei-ao" value="3.20" style="max-width:70px"></div>
+  <div class="etl">✏️ Edit Match</div>
+  <div class="er"><div class="el">Home Odds</div><input class="ei" id="ei-ho" value="-"></div>
+  <div class="er"><div class="el">Draw Odds</div><input class="ei" id="ei-do" value="-"></div>
+  <div class="er"><div class="el">Away Odds</div><input class="ei" id="ei-ao" value="-"></div>
   <div class="er"><div class="el">Conf%</div><input class="ei" id="ei-cf" type="number" value="70" min="0" max="100" style="max-width:60px"></div>
-  <div class="er">
-    <div class="el">Logos</div>
-    <button class="xb xg" onclick="document.getElementById('hlogof').click()">🔴 Home</button>
-    <button class="xb xg" onclick="document.getElementById('alogof').click()">🔵 Away</button>
-  </div>
   <div class="er" style="margin-top:5px;gap:5px">
     <button class="xb xo" style="flex:1" onclick="saveEp()">💾 Save</button>
-    <button class="xb xg" onclick="clearM()">🗑</button>
+    <button class="xb xg" onclick="clearM()">🗑 Clear</button>
     <button class="xb xg" onclick="closeEp()">✕</button>
   </div>
 </div>
 
-<input type="file" id="hlogof" accept="image/*" onchange="upLogo('top-h',this)">
-<input type="file" id="alogof" accept="image/*" onchange="upLogo('top-a',this)">
-<input type="file" id="hlogof2" accept="image/*" onchange="upLogo('card-h',this)">
-<input type="file" id="alogof2" accept="image/*" onchange="upLogo('card-a',this)">
-
 <script>
-function autoScale(){const s=Math.min(window.innerWidth/1920,window.innerHeight/1080);document.body.style.transform=`scale(${s})`;}
-autoScale(); window.addEventListener('resize',autoScale);
-
 // ── Config ──
 const JSON_URL = 'https://boexaw-ship-it.github.io/lid-official/data/prediction.json';
-const TOTAL = 8;
-let cur = 0;
-let ms = [];
-let jsonLoaded = false;
 
-// ── Default match template ──
-function defM(i){
+// ── State ──
+let allMatches  = [];   // all matches from JSON
+let filtered    = [];   // current filtered list
+let curIdx      = 0;    // index in filtered
+let activeFilter = 'ALL';
+
+// ── Auto scale ──
+function autoScale(){
+  const s = Math.min(window.innerWidth/1920, window.innerHeight/1080);
+  document.body.style.transform = `scale(${s})`;
+}
+autoScale(); window.addEventListener('resize', autoScale);
+
+// ── LocalStorage key per match id ──
+function lsKey(id){ return 'lid_m_' + id; }
+
+function loadSaved(id){
+  try { return JSON.parse(localStorage.getItem(lsKey(id)) || 'null'); }
+  catch(e){ return null; }
+}
+
+function saveCurrent(){
+  const m = filtered[curIdx];
+  if(!m) return;
+  const sv = loadSaved(m.id) || {};
+  const updated = {
+    ...sv,
+    pred: m._pred || sv.pred || 'home',
+    ho:   m._ho   || sv.ho   || '-',
+    do:   m._do   || sv.do   || '-',
+    ao:   m._ao   || sv.ao   || '-',
+    conf: m._conf !== undefined ? m._conf : (sv.conf || 70),
+    notes: m._notes !== undefined ? m._notes : (sv.notes || ''),
+    res:  m._res  || sv.res  || 'pending',
+    hf:   m._hf   || sv.hf   || m.home_form || ['?','?','?'],
+    af:   m._af   || sv.af   || m.away_form || ['?','?','?'],
+  };
+  localStorage.setItem(lsKey(m.id), JSON.stringify(updated));
+}
+
+function getMerged(m){
+  const sv = loadSaved(m.id) || {};
   return {
-    id: i+1,
-    lg:'Premier League · GW32',
-    home:'HOME '+(i+1), away:'AWAY '+(i+1),
-    time:'TBA', date_fmt:'TBA',
-    home_crest:'', away_crest:'',
-    hf:['?','?','?'], af:['?','?','?'],
-    pred:'home', ho:'-', do:'-', ao:'-',
-    conf:70, notes:'', res:'pending',
-    competition:'Premier League', gw:32
+    pred:  sv.pred  || 'home',
+    ho:    sv.ho    || '-',
+    do:    sv.do    || '-',
+    ao:    sv.ao    || '-',
+    conf:  sv.conf  !== undefined ? sv.conf : 70,
+    notes: sv.notes || '',
+    res:   sv.res   || 'pending',
+    hf:    sv.hf    || m.home_form || ['?','?','?'],
+    af:    sv.af    || m.away_form || ['?','?','?'],
   };
 }
 
-// ── Merge JSON data with LocalStorage saved predictions ──
-function mergeData(jsonMatches) {
-  const saved = JSON.parse(localStorage.getItem('lid_pred8') || '[]');
-  const savedMap = {};
-  saved.forEach(m => { if(m.id) savedMap[m.id] = m; });
+// ── Build filter tabs from matches ──
+function buildTabs(matches){
+  const tabsEl = document.getElementById('filter-tabs');
+  tabsEl.innerHTML = '';
 
-  return jsonMatches.slice(0, TOTAL).map((jm, i) => {
-    const sv = savedMap[jm.id] || {};
-    return {
-      id:         jm.id || (i+1),
-      lg:         (jm.competition || 'EPL') + ' · ' + (jm.gw ? 'GW'+jm.gw : '-'),
-      competition: jm.competition || 'EPL',
-      gw:         jm.gw || '-',
-      home:       jm.home || 'HOME',
-      away:       jm.away || 'AWAY',
-      home_crest: jm.home_crest || '',
-      away_crest: jm.away_crest || '',
-      time:       jm.date_fmt || jm.date || 'TBA',
-      hf:         sv.hf || jm.home_form || ['?','?','?'],
-      af:         sv.af || jm.away_form || ['?','?','?'],
-      // user predictions saved in localStorage
-      pred:       sv.pred || 'home',
-      ho:         sv.ho || '-',
-      do:         sv.do || '-',
-      ao:         sv.ao || '-',
-      conf:       sv.conf || 70,
-      notes:      sv.notes || '',
-      res:        sv.res || 'pending'
-    };
+  // ALL tab
+  addTab(tabsEl, 'ALL', 'ALL', false);
+
+  // EPL day tabs
+  const days = {};
+  matches.forEach(m => {
+    if(m.competition === 'Premier League' && m.weekday){
+      const key = m.weekday + '_' + m.match_date;
+      if(!days[key]) days[key] = {label: m.weekday + ' ' + m.match_date.slice(8,10), filter: key};
+    }
   });
+  Object.values(days).forEach(d => addTab(tabsEl, d.filter, d.label, false));
+
+  // UCL tab
+  const hasUCL = matches.some(m => m.competition === 'Champions League');
+  if(hasUCL) addTab(tabsEl, 'UCL', '⭐ UCL QF', true);
+
+  // Other competitions
+  const others = [...new Set(matches.filter(m=>m.competition!=='Premier League'&&m.competition!=='Champions League').map(m=>m.competition))];
+  others.forEach(c => addTab(tabsEl, 'COMP_'+c, c, false));
+
+  // Set ALL active
+  setFilter('ALL', tabsEl.querySelector('[data-filter="ALL"]'));
 }
 
-// ── Save only prediction data (not match data from JSON) ──
-function save(){
-  const toSave = ms.map(m => ({
-    id: m.id, pred: m.pred, ho: m.ho, do: m.do, ao: m.ao,
-    conf: m.conf, notes: m.notes, res: m.res, hf: m.hf, af: m.af
-  }));
-  localStorage.setItem('lid_pred8', JSON.stringify(toSave));
+function addTab(container, filterKey, label, isUCL){
+  const t = document.createElement('div');
+  t.className = 'ftab' + (isUCL ? ' ucl' : '');
+  t.dataset.filter = filterKey;
+  t.textContent = label;
+  t.onclick = () => setFilter(filterKey, t);
+  container.appendChild(t);
 }
 
-// ── Show loading state ──
-function showLoading(){
-  document.getElementById('rlist').innerHTML =
-    '<div style="padding:20px;text-align:center;color:rgba(255,100,0,0.5);font-size:12px;letter-spacing:3px">⏳ LOADING...</div>';
-}
+// ── Set active filter ──
+function setFilter(key, el){
+  activeFilter = key;
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  if(el) el.classList.add('active');
 
-// ── Show error state ──
-function showError(msg){
-  document.getElementById('rlist').innerHTML =
-    `<div style="padding:16px;color:rgba(255,80,80,0.7);font-size:11px;letter-spacing:2px">❌ ${msg}</div>`;
-  // fallback to default matches
-  ms = Array.from({length:TOTAL},(_,i)=>defM(i));
-  // merge with any saved data
-  const saved = JSON.parse(localStorage.getItem('lid_pred8') || '[]');
-  const savedMap = {};
-  saved.forEach(m => { if(m.id) savedMap[m.id] = m; });
-  ms = ms.map(m => {
-    const sv = savedMap[m.id] || {};
-    return {...m, ...sv, home:m.home, away:m.away};
-  });
-  render();
-}
-
-// ── Fetch JSON ──
-async function loadJSON(){
-  showLoading();
-  try {
-    const res = await fetch(JSON_URL + '?t=' + Date.now());
-    if(!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    const matches = data.matches || data.fixtures || [];
-    if(!matches.length) throw new Error('No matches found');
-    ms = mergeData(matches);
-    jsonLoaded = true;
-    // Update total count
-    document.getElementById('done-count').textContent = '0 / ' + ms.length + ' ပွဲ';
-    render();
-    console.log('✅ JSON loaded —', ms.length, 'matches');
-  } catch(e) {
-    console.warn('JSON fetch failed:', e.message);
-    showError('JSON load failed — using defaults');
+  if(key === 'ALL'){
+    filtered = [...allMatches];
+  } else if(key === 'UCL'){
+    filtered = allMatches.filter(m => m.competition === 'Champions League');
+  } else if(key.startsWith('COMP_')){
+    const comp = key.replace('COMP_','');
+    filtered = allMatches.filter(m => m.competition === comp);
+  } else {
+    // day filter: "Sat_2025-03-22"
+    filtered = allMatches.filter(m => {
+      const k = m.weekday + '_' + m.match_date;
+      return k === key;
+    });
   }
+
+  curIdx = 0;
+  renderList();
+  if(filtered.length > 0) render();
+  else clearCard();
 }
 
-// ── Render current match ──
-function render(){
-  if(!ms.length) return;
-  const m = ms[cur];
-  const total = ms.length;
+// ── Clear card when no matches ──
+function clearCard(){
+  document.getElementById('rcounter').textContent = '0 / 0';
+  document.getElementById('th-name').textContent = '-';
+  document.getElementById('ta-name').textContent = '-';
+  document.getElementById('th-time').textContent = '-';
+  document.getElementById('rleague').textContent = 'No matches';
+  document.getElementById('rh-name').textContent = '-';
+  document.getElementById('ra-name').textContent = '-';
+  document.getElementById('rtime').textContent = '-';
+  document.getElementById('pv-h').textContent = '-';
+  document.getElementById('pv-a').textContent = '-';
+}
 
-  document.getElementById('rcounter').textContent = (cur+1) + ' / ' + total;
+// ── Render current match card ──
+function render(){
+  if(!filtered.length) return;
+  const m   = filtered[curIdx];
+  const sv  = getMerged(m);
+  const total = filtered.length;
+
+  document.getElementById('rcounter').textContent = (curIdx+1) + ' / ' + total;
+
+  // Competition label
+  const isUCL = m.competition === 'Champions League';
+  const compIcon = isUCL ? '⭐' : '⚽';
+  document.getElementById('rp-comp').textContent = compIcon + ' ' + (m.competition || '');
+  const leagueEl = document.getElementById('rleague');
+  leagueEl.textContent = m.competition + (m.gw ? ' · ' + m.gw : '');
+  leagueEl.className = 'rp-league' + (isUCL ? ' ucl-league' : '');
 
   // Top bar
-  document.getElementById('h-name').textContent = m.home;
-  document.getElementById('a-name').textContent = m.away;
-  document.getElementById('top-time').textContent = m.time;
+  document.getElementById('th-name').textContent = m.home || '-';
+  document.getElementById('ta-name').textContent = m.away || '-';
+  document.getElementById('th-time').textContent = m.date_mmt || m.date_fmt || '-';
+  setCrest('th', m.home_crest, m.home);
+  setCrest('ta', m.away_crest, m.away);
 
-  // Crests in top bar
-  setCrest('h', m.home_crest);
-  setCrest('a', m.away_crest);
+  // Card teams
+  document.getElementById('rh-name').textContent = m.home || '-';
+  document.getElementById('ra-name').textContent = m.away || '-';
+  document.getElementById('rtime').textContent = m.date_mmt || '-';
+  setCrest('rh', m.home_crest, m.home);
+  setCrest('ra', m.away_crest, m.away);
 
-  // Card
-  document.getElementById('rleague').textContent = m.lg;
-  document.getElementById('rh-name').textContent = m.home;
-  document.getElementById('ra-name').textContent = m.away;
-  document.getElementById('rtime').textContent = m.time;
-  document.getElementById('pv-h').textContent = m.home;
-  document.getElementById('pv-a').textContent = m.away;
-  document.getElementById('po-ho').textContent = m.ho || '-';
-  document.getElementById('po-do').textContent = m.do || '-';
-  document.getElementById('po-ao').textContent = m.ao || '-';
-  document.getElementById('hflbl').textContent = m.home + ' · Last 3';
-  document.getElementById('aflbl').textContent = m.away + ' · Last 3';
-  document.getElementById('ntxt').textContent = m.notes || 'Click to add notes...';
+  // Prediction options
+  document.getElementById('pv-h').textContent = m.home || '-';
+  document.getElementById('pv-a').textContent = m.away || '-';
+  document.getElementById('po-ho').textContent = sv.ho || '-';
+  document.getElementById('po-do').textContent = sv.do || '-';
+  document.getElementById('po-ao').textContent = sv.ao || '-';
 
-  // Crests in card
-  setCrest('rh', m.home_crest);
-  setCrest('ra', m.away_crest);
+  // Form
+  document.getElementById('hflbl').textContent = (m.home||'Home') + ' · Last 3';
+  document.getElementById('aflbl').textContent = (m.away||'Away') + ' · Last 3';
+  renderForm('hfd', sv.hf);
+  renderForm('afd', sv.af);
 
-  setConf(m.conf, false);
-  selPUI(m.pred);
-  renderForm('hfd', m.hf);
-  renderForm('afd', m.af);
+  // Prediction
+  selPUI(sv.pred);
+
+  // Notes + conf
+  document.getElementById('ntxt').textContent = sv.notes || 'Click to add notes...';
+  setConf(sv.conf, false);
+
+  // Store in match object for easy save
+  m._pred = sv.pred; m._ho = sv.ho; m._do = sv.do; m._ao = sv.ao;
+  m._conf = sv.conf; m._notes = sv.notes; m._res = sv.res;
+  m._hf = sv.hf; m._af = sv.af;
+
   renderList();
   updateSum();
 }
 
-// ── Set crest image ──
-function setCrest(prefix, url){
+// ── Set crest ──
+function setCrest(prefix, url, fallbackName){
   const img = document.getElementById(prefix+'-logo');
   const em  = document.getElementById(prefix+'-emoji');
   if(!img || !em) return;
@@ -605,131 +554,163 @@ function setCrest(prefix, url){
     img.src = url;
     img.style.display = 'block';
     em.style.display = 'none';
-    img.onerror = () => { img.style.display='none'; em.style.display='block'; };
+    img.onerror = () => { img.style.display='none'; em.style.display='block'; em.textContent='⚽'; };
   } else {
     img.style.display = 'none';
     em.style.display = 'block';
+    em.textContent = '⚽';
   }
 }
 
+// ── Render form dots ──
 function renderForm(id, arr){
-  const c = document.getElementById(id); c.innerHTML='';
-  arr.forEach((v,i)=>{
+  const c = document.getElementById(id); c.innerHTML = '';
+  (arr||['?','?','?']).forEach((v,i)=>{
     const d = document.createElement('div');
-    const cls = v === '?' ? 'fd D' : 'fd '+v;
-    d.className = cls; d.textContent = v === '?' ? '?' : v;
-    d.onclick = ()=>{
+    const validV = ['W','D','L'].includes(v) ? v : '?';
+    d.className = 'fd ' + validV;
+    d.textContent = validV;
+    d.onclick = () => {
       const nx = {W:'D',D:'L',L:'W','?':'W'};
-      d.textContent = nx[d.textContent] || 'W';
-      d.className = 'fd ' + d.textContent;
-      if(id==='hfd') ms[cur].hf[i] = d.textContent;
-      else ms[cur].af[i] = d.textContent;
-      save();
+      const nv = nx[d.textContent] || 'W';
+      d.textContent = nv; d.className = 'fd ' + nv;
+      const m = filtered[curIdx];
+      if(!m) return;
+      if(id==='hfd'){ m._hf = m._hf||[...arr]; m._hf[i]=nv; }
+      else           { m._af = m._af||[...arr]; m._af[i]=nv; }
+      saveCurrent();
     };
     c.appendChild(d);
   });
 }
 
+// ── Render left list ──
 function renderList(){
   const list = document.getElementById('rlist');
   list.innerHTML = '';
-  const total = ms.length;
-  const done = ms.filter(m=>m.res!=='pending').length;
-  document.getElementById('done-count').textContent = done + ' / ' + total + ' ပွဲ';
+  const total = filtered.length;
+  document.getElementById('lp-count').textContent = total + ' ပွဲ';
 
-  ms.forEach((m,i)=>{
-    const pn = {home:m.home, draw:'DRAW', away:m.away};
-    const sc = m.res==='correct'?'st-c':m.res==='wrong'?'st-w':'st-p';
-    const st = m.res==='correct'?'✅':m.res==='wrong'?'❌':'⏳';
-    const comp = m.competition === 'Champions League' ? '⭐' : '⚽';
-    const r = document.createElement('div');
-    r.className = 'rrow' + (i===cur?' active':'');
+  filtered.forEach((m,i)=>{
+    const sv  = getMerged(m);
+    const pn  = {home:m.home, draw:'DRAW', away:m.away};
+    const sc  = sv.res==='correct'?'st-c':sv.res==='wrong'?'st-w':'st-p';
+    const st  = sv.res==='correct'?'✅':sv.res==='wrong'?'❌':'⏳';
+    const ucl = m.competition==='Champions League';
+    const r   = document.createElement('div');
+    r.className = 'rrow' + (ucl?' ucl-row':'') + (i===curIdx?' active':'');
     r.innerHTML = `
       <div class="ridx">${i+1}</div>
       <div class="rinfo">
-        <div class="rteams">${comp} ${m.home} vs ${m.away}</div>
-        <div class="rpred">→ ${pn[m.pred]||'-'} · ${m.time}</div>
+        <div class="rteams">${ucl?'⭐':'⚽'} ${m.home} vs ${m.away}</div>
+        <div class="rtime">${m.date_mmt||''}</div>
+        <div class="rpred">→ ${pn[sv.pred]||'-'}</div>
       </div>
       <div class="rst ${sc}">${st}</div>`;
-    r.onclick = ()=>{ cur=i; render(); };
+    r.onclick = () => { curIdx=i; render(); };
     list.appendChild(r);
   });
+
+  updateSum();
 }
 
+// ── Summary ──
 function updateSum(){
-  document.getElementById('sw').textContent = ms.filter(m=>m.res==='correct').length;
-  document.getElementById('sl').textContent = ms.filter(m=>m.res==='wrong').length;
-  document.getElementById('sp').textContent = ms.filter(m=>m.res==='pending').length;
+  const all = allMatches;
+  let w=0,l=0,p=0;
+  all.forEach(m=>{ const sv=getMerged(m); if(sv.res==='correct')w++; else if(sv.res==='wrong')l++; else p++; });
+  document.getElementById('sw').textContent = w;
+  document.getElementById('sl').textContent = l;
+  document.getElementById('sp').textContent = p;
 }
 
-function selP(t){ ms[cur].pred=t; selPUI(t); save(); renderList(); }
+// ── Prediction select ──
+function selP(t){
+  const m = filtered[curIdx]; if(!m) return;
+  m._pred = t;
+  selPUI(t);
+  saveCurrent();
+  renderList();
+}
 function selPUI(t){ ['home','draw','away'].forEach(o=>document.getElementById('po-'+o).classList.toggle('sel',o===t)); }
-function next(){ if(cur<ms.length-1){ cur++; render(); } }
-function prev(){ if(cur>0){ cur--; render(); } }
 
+// ── Nav ──
+function next(){ if(curIdx < filtered.length-1){ curIdx++; render(); } }
+function prev(){ if(curIdx > 0){ curIdx--; render(); } }
+
+// ── Confidence ──
 function setConf(v, doSave=true){
   const p = Math.min(100, Math.max(0, parseInt(v)||0));
   document.getElementById('cpct').textContent = p+'%';
   document.getElementById('cfill').style.width = p+'%';
-  if(doSave){ ms[cur].conf=p; save(); }
-}
-
-function startN(el){ el.contentEditable='true'; el.focus(); if(el.textContent==='Click to add notes...') el.textContent=''; }
-function endN(el){ el.contentEditable='false'; ms[cur].notes=el.textContent; save(); }
-
-function setRes(r){ ms[cur].res=r; save(); renderList(); updateSum(); }
-
-function upLogo(type, input){
-  const f = input.files[0]; if(!f) return;
-  const url = URL.createObjectURL(f);
-  const map = {
-    'top-h': ['h-logo','h-emoji'],
-    'top-a': ['a-logo','a-emoji'],
-    'card-h': ['rh-logo','rh-emoji'],
-    'card-a': ['ra-logo','ra-emoji']
-  };
-  const [imgId, emId] = map[type] || [];
-  if(imgId){
-    document.getElementById(imgId).src = url;
-    document.getElementById(imgId).style.display = 'block';
-    document.getElementById(emId).style.display = 'none';
+  if(doSave){
+    const m = filtered[curIdx]; if(!m) return;
+    m._conf = p; saveCurrent();
   }
 }
 
+// ── Notes ──
+function startN(el){ el.contentEditable='true'; el.focus(); if(el.textContent==='Click to add notes...') el.textContent=''; }
+function endN(el){
+  el.contentEditable='false';
+  const m = filtered[curIdx]; if(!m) return;
+  m._notes = el.textContent; saveCurrent();
+}
+
+// ── Result ──
+function setRes(r){
+  const m = filtered[curIdx]; if(!m) return;
+  m._res = r; saveCurrent(); renderList(); updateSum();
+}
+
+// ── Edit panel ──
 function openEp(){
-  const m = ms[cur];
-  document.getElementById('ei-lg').value = m.lg;
-  document.getElementById('ei-h').value = m.home;
-  document.getElementById('ei-a').value = m.away;
-  document.getElementById('ei-t').value = m.time;
-  document.getElementById('ei-ho').value = m.ho;
-  document.getElementById('ei-do').value = m.do;
-  document.getElementById('ei-ao').value = m.ao;
-  document.getElementById('ei-cf').value = m.conf;
+  const m = filtered[curIdx]; if(!m) return;
+  const sv = getMerged(m);
+  document.getElementById('ei-ho').value = sv.ho||'-';
+  document.getElementById('ei-do').value = sv.do||'-';
+  document.getElementById('ei-ao').value = sv.ao||'-';
+  document.getElementById('ei-cf').value = sv.conf||70;
   document.getElementById('ep').classList.add('open');
 }
-
 function saveEp(){
-  const m = ms[cur];
-  m.lg   = document.getElementById('ei-lg').value;
-  m.home = document.getElementById('ei-h').value.toUpperCase();
-  m.away = document.getElementById('ei-a').value.toUpperCase();
-  m.time = document.getElementById('ei-t').value;
-  m.ho   = document.getElementById('ei-ho').value;
-  m.do   = document.getElementById('ei-do').value;
-  m.ao   = document.getElementById('ei-ao').value;
-  m.conf = parseInt(document.getElementById('ei-cf').value)||70;
-  save(); render(); closeEp();
+  const m = filtered[curIdx]; if(!m) return;
+  m._ho   = document.getElementById('ei-ho').value;
+  m._do   = document.getElementById('ei-do').value;
+  m._ao   = document.getElementById('ei-ao').value;
+  m._conf = parseInt(document.getElementById('ei-cf').value)||70;
+  saveCurrent(); render(); closeEp();
 }
-
-function clearM(){ 
-  const m = ms[cur];
-  ms[cur] = {...defM(cur), id:m.id, home:m.home, away:m.away, lg:m.lg, time:m.time, home_crest:m.home_crest, away_crest:m.away_crest, hf:m.hf, af:m.af};
-  save(); render(); closeEp(); 
+function clearM(){
+  const m = filtered[curIdx]; if(!m) return;
+  localStorage.removeItem(lsKey(m.id));
+  m._pred=undefined; m._ho=undefined; m._do=undefined; m._ao=undefined;
+  m._conf=undefined; m._notes=undefined; m._res=undefined;
+  render(); closeEp();
 }
 function closeEp(){ document.getElementById('ep').classList.remove('open'); }
 
-// ── Reload JSON button ──
+// ── JSON Fetch ──
+async function loadJSON(){
+  document.getElementById('rlist').innerHTML =
+    '<div style="padding:20px;text-align:center;color:rgba(255,100,0,0.5);font-size:11px;letter-spacing:3px">⏳ Loading...</div>';
+
+  try {
+    const res = await fetch(JSON_URL + '?t=' + Date.now());
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    allMatches = data.matches || data.fixtures || [];
+    if(!allMatches.length) throw new Error('No matches');
+
+    buildTabs(allMatches);
+    console.log('✅ Loaded', allMatches.length, 'matches');
+  } catch(e) {
+    console.warn('JSON failed:', e.message);
+    document.getElementById('rlist').innerHTML =
+      `<div style="padding:16px;color:rgba(255,80,80,0.6);font-size:10px;letter-spacing:2px">❌ Load failed<br>${e.message}</div>`;
+  }
+}
+
 function reloadJSON(){ loadJSON(); }
 
 // ── Init ──
