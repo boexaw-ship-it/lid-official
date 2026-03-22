@@ -410,6 +410,7 @@ input[type="file"] { display:none; }
     <button class="abtn ab-edit" onclick="openEp()">✏️ Edit</button>
     <button class="abtn ab-ok" onclick="setRes('correct')">✅ Correct</button>
     <button class="abtn ab-no" onclick="setRes('wrong')">❌ Wrong</button>
+    <button class="abtn ab-edit" onclick="reloadJSON()" title="Reload JSON">🔄</button>
   </div>
 </div>
 
@@ -445,139 +446,294 @@ input[type="file"] { display:none; }
 function autoScale(){const s=Math.min(window.innerWidth/1920,window.innerHeight/1080);document.body.style.transform=`scale(${s})`;}
 autoScale(); window.addEventListener('resize',autoScale);
 
-const TOTAL=8;
-let cur=0;
+// ── Config ──
+const JSON_URL = 'https://boexaw-ship-it.github.io/lid-official/data/prediction.json';
+const TOTAL = 8;
+let cur = 0;
+let ms = [];
+let jsonLoaded = false;
 
-function defM(i){return{lg:'Premier League · GW'+(32+i),home:'HOME '+(i+1),away:'AWAY '+(i+1),time:'TBA',hf:['W','W','W'],af:['W','L','W'],pred:'home',ho:'2.00',do:'3.40',ao:'3.20',conf:70,notes:'',res:'pending'};}
+// ── Default match template ──
+function defM(i){
+  return {
+    id: i+1,
+    lg:'Premier League · GW32',
+    home:'HOME '+(i+1), away:'AWAY '+(i+1),
+    time:'TBA', date_fmt:'TBA',
+    home_crest:'', away_crest:'',
+    hf:['?','?','?'], af:['?','?','?'],
+    pred:'home', ho:'-', do:'-', ao:'-',
+    conf:70, notes:'', res:'pending',
+    competition:'Premier League', gw:32
+  };
+}
 
-let ms=(()=>{const s=localStorage.getItem('lid_pred8');if(s)return JSON.parse(s);return Array.from({length:TOTAL},(_,i)=>defM(i));})();
+// ── Merge JSON data with LocalStorage saved predictions ──
+function mergeData(jsonMatches) {
+  const saved = JSON.parse(localStorage.getItem('lid_pred8') || '[]');
+  const savedMap = {};
+  saved.forEach(m => { if(m.id) savedMap[m.id] = m; });
 
-function save(){localStorage.setItem('lid_pred8',JSON.stringify(ms));}
-
-function render(){
-  const m=ms[cur];
-  document.getElementById('rcounter').textContent=(cur+1)+' / '+TOTAL;
-  // top bar
-  document.getElementById('h-name').textContent=m.home;
-  document.getElementById('a-name').textContent=m.away;
-  document.getElementById('top-time').textContent=m.time;
-  // card
-  document.getElementById('rleague').textContent=m.lg;
-  document.getElementById('rh-name').textContent=m.home;
-  document.getElementById('ra-name').textContent=m.away;
-  document.getElementById('rtime').textContent=m.time;
-  document.getElementById('pv-h').textContent=m.home;
-  document.getElementById('pv-a').textContent=m.away;
-  document.getElementById('po-ho').textContent=m.ho;
-  document.getElementById('po-do').textContent=m.do;
-  document.getElementById('po-ao').textContent=m.ao;
-  document.getElementById('hflbl').textContent=m.home+' · Last 3';
-  document.getElementById('aflbl').textContent=m.away+' · Last 3';
-  document.getElementById('ntxt').textContent=m.notes||'Click to add notes...';
-  setConf(m.conf,false);
-  selPUI(m.pred);
-  renderForm('hfd',m.hf);
-  renderForm('afd',m.af);
-  // reset logos
-  ['h','a','rh','ra'].forEach(t=>{
-    const img=document.getElementById(t+'-logo');
-    const em=document.getElementById(t+'-emoji');
-    if(img){img.style.display='none';}
-    if(em){em.style.display='block';}
+  return jsonMatches.slice(0, TOTAL).map((jm, i) => {
+    const sv = savedMap[jm.id] || {};
+    return {
+      id:         jm.id || (i+1),
+      lg:         (jm.competition || 'EPL') + ' · ' + (jm.gw ? 'GW'+jm.gw : '-'),
+      competition: jm.competition || 'EPL',
+      gw:         jm.gw || '-',
+      home:       jm.home || 'HOME',
+      away:       jm.away || 'AWAY',
+      home_crest: jm.home_crest || '',
+      away_crest: jm.away_crest || '',
+      time:       jm.date_fmt || jm.date || 'TBA',
+      hf:         sv.hf || jm.home_form || ['?','?','?'],
+      af:         sv.af || jm.away_form || ['?','?','?'],
+      // user predictions saved in localStorage
+      pred:       sv.pred || 'home',
+      ho:         sv.ho || '-',
+      do:         sv.do || '-',
+      ao:         sv.ao || '-',
+      conf:       sv.conf || 70,
+      notes:      sv.notes || '',
+      res:        sv.res || 'pending'
+    };
   });
+}
+
+// ── Save only prediction data (not match data from JSON) ──
+function save(){
+  const toSave = ms.map(m => ({
+    id: m.id, pred: m.pred, ho: m.ho, do: m.do, ao: m.ao,
+    conf: m.conf, notes: m.notes, res: m.res, hf: m.hf, af: m.af
+  }));
+  localStorage.setItem('lid_pred8', JSON.stringify(toSave));
+}
+
+// ── Show loading state ──
+function showLoading(){
+  document.getElementById('rlist').innerHTML =
+    '<div style="padding:20px;text-align:center;color:rgba(255,100,0,0.5);font-size:12px;letter-spacing:3px">⏳ LOADING...</div>';
+}
+
+// ── Show error state ──
+function showError(msg){
+  document.getElementById('rlist').innerHTML =
+    `<div style="padding:16px;color:rgba(255,80,80,0.7);font-size:11px;letter-spacing:2px">❌ ${msg}</div>`;
+  // fallback to default matches
+  ms = Array.from({length:TOTAL},(_,i)=>defM(i));
+  // merge with any saved data
+  const saved = JSON.parse(localStorage.getItem('lid_pred8') || '[]');
+  const savedMap = {};
+  saved.forEach(m => { if(m.id) savedMap[m.id] = m; });
+  ms = ms.map(m => {
+    const sv = savedMap[m.id] || {};
+    return {...m, ...sv, home:m.home, away:m.away};
+  });
+  render();
+}
+
+// ── Fetch JSON ──
+async function loadJSON(){
+  showLoading();
+  try {
+    const res = await fetch(JSON_URL + '?t=' + Date.now());
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const matches = data.matches || data.fixtures || [];
+    if(!matches.length) throw new Error('No matches found');
+    ms = mergeData(matches);
+    jsonLoaded = true;
+    // Update total count
+    document.getElementById('done-count').textContent = '0 / ' + ms.length + ' ပွဲ';
+    render();
+    console.log('✅ JSON loaded —', ms.length, 'matches');
+  } catch(e) {
+    console.warn('JSON fetch failed:', e.message);
+    showError('JSON load failed — using defaults');
+  }
+}
+
+// ── Render current match ──
+function render(){
+  if(!ms.length) return;
+  const m = ms[cur];
+  const total = ms.length;
+
+  document.getElementById('rcounter').textContent = (cur+1) + ' / ' + total;
+
+  // Top bar
+  document.getElementById('h-name').textContent = m.home;
+  document.getElementById('a-name').textContent = m.away;
+  document.getElementById('top-time').textContent = m.time;
+
+  // Crests in top bar
+  setCrest('h', m.home_crest);
+  setCrest('a', m.away_crest);
+
+  // Card
+  document.getElementById('rleague').textContent = m.lg;
+  document.getElementById('rh-name').textContent = m.home;
+  document.getElementById('ra-name').textContent = m.away;
+  document.getElementById('rtime').textContent = m.time;
+  document.getElementById('pv-h').textContent = m.home;
+  document.getElementById('pv-a').textContent = m.away;
+  document.getElementById('po-ho').textContent = m.ho || '-';
+  document.getElementById('po-do').textContent = m.do || '-';
+  document.getElementById('po-ao').textContent = m.ao || '-';
+  document.getElementById('hflbl').textContent = m.home + ' · Last 3';
+  document.getElementById('aflbl').textContent = m.away + ' · Last 3';
+  document.getElementById('ntxt').textContent = m.notes || 'Click to add notes...';
+
+  // Crests in card
+  setCrest('rh', m.home_crest);
+  setCrest('ra', m.away_crest);
+
+  setConf(m.conf, false);
+  selPUI(m.pred);
+  renderForm('hfd', m.hf);
+  renderForm('afd', m.af);
   renderList();
   updateSum();
 }
 
-function renderForm(id,arr){
-  const c=document.getElementById(id); c.innerHTML='';
+// ── Set crest image ──
+function setCrest(prefix, url){
+  const img = document.getElementById(prefix+'-logo');
+  const em  = document.getElementById(prefix+'-emoji');
+  if(!img || !em) return;
+  if(url && url.startsWith('http')){
+    img.src = url;
+    img.style.display = 'block';
+    em.style.display = 'none';
+    img.onerror = () => { img.style.display='none'; em.style.display='block'; };
+  } else {
+    img.style.display = 'none';
+    em.style.display = 'block';
+  }
+}
+
+function renderForm(id, arr){
+  const c = document.getElementById(id); c.innerHTML='';
   arr.forEach((v,i)=>{
-    const d=document.createElement('div');
-    d.className='fd '+v; d.textContent=v;
-    d.onclick=()=>{const nx={W:'D',D:'L',L:'W'};d.textContent=nx[d.textContent];d.className='fd '+d.textContent;
-      if(id==='hfd')ms[cur].hf[i]=d.textContent; else ms[cur].af[i]=d.textContent; save();};
+    const d = document.createElement('div');
+    const cls = v === '?' ? 'fd D' : 'fd '+v;
+    d.className = cls; d.textContent = v === '?' ? '?' : v;
+    d.onclick = ()=>{
+      const nx = {W:'D',D:'L',L:'W','?':'W'};
+      d.textContent = nx[d.textContent] || 'W';
+      d.className = 'fd ' + d.textContent;
+      if(id==='hfd') ms[cur].hf[i] = d.textContent;
+      else ms[cur].af[i] = d.textContent;
+      save();
+    };
     c.appendChild(d);
   });
 }
 
 function renderList(){
-  const list=document.getElementById('rlist'); list.innerHTML='';
-  const done=ms.filter(m=>m.res!=='pending').length;
-  document.getElementById('done-count').textContent=done+' / '+TOTAL+' ပွဲ';
+  const list = document.getElementById('rlist');
+  list.innerHTML = '';
+  const total = ms.length;
+  const done = ms.filter(m=>m.res!=='pending').length;
+  document.getElementById('done-count').textContent = done + ' / ' + total + ' ပွဲ';
+
   ms.forEach((m,i)=>{
-    const pn={home:m.home,draw:'DRAW',away:m.away};
-    const sc=m.res==='correct'?'st-c':m.res==='wrong'?'st-w':'st-p';
-    const st=m.res==='correct'?'✅':m.res==='wrong'?'❌':'⏳';
-    const r=document.createElement('div');
-    r.className='rrow'+(i===cur?' active':'');
-    r.innerHTML=`<div class="ridx">${i+1}</div><div class="rinfo"><div class="rteams">${m.home} vs ${m.away}</div><div class="rpred">→ ${pn[m.pred]||'-'}</div></div><div class="rst ${sc}">${st}</div>`;
-    r.onclick=()=>{cur=i;render();};
+    const pn = {home:m.home, draw:'DRAW', away:m.away};
+    const sc = m.res==='correct'?'st-c':m.res==='wrong'?'st-w':'st-p';
+    const st = m.res==='correct'?'✅':m.res==='wrong'?'❌':'⏳';
+    const comp = m.competition === 'Champions League' ? '⭐' : '⚽';
+    const r = document.createElement('div');
+    r.className = 'rrow' + (i===cur?' active':'');
+    r.innerHTML = `
+      <div class="ridx">${i+1}</div>
+      <div class="rinfo">
+        <div class="rteams">${comp} ${m.home} vs ${m.away}</div>
+        <div class="rpred">→ ${pn[m.pred]||'-'} · ${m.time}</div>
+      </div>
+      <div class="rst ${sc}">${st}</div>`;
+    r.onclick = ()=>{ cur=i; render(); };
     list.appendChild(r);
   });
 }
 
 function updateSum(){
-  document.getElementById('sw').textContent=ms.filter(m=>m.res==='correct').length;
-  document.getElementById('sl').textContent=ms.filter(m=>m.res==='wrong').length;
-  document.getElementById('sp').textContent=ms.filter(m=>m.res==='pending').length;
+  document.getElementById('sw').textContent = ms.filter(m=>m.res==='correct').length;
+  document.getElementById('sl').textContent = ms.filter(m=>m.res==='wrong').length;
+  document.getElementById('sp').textContent = ms.filter(m=>m.res==='pending').length;
 }
 
-function selP(t){ms[cur].pred=t;selPUI(t);save();renderList();}
-function selPUI(t){['home','draw','away'].forEach(o=>document.getElementById('po-'+o).classList.toggle('sel',o===t));}
-function next(){if(cur<TOTAL-1){cur++;render();}}
-function prev(){if(cur>0){cur--;render();}}
+function selP(t){ ms[cur].pred=t; selPUI(t); save(); renderList(); }
+function selPUI(t){ ['home','draw','away'].forEach(o=>document.getElementById('po-'+o).classList.toggle('sel',o===t)); }
+function next(){ if(cur<ms.length-1){ cur++; render(); } }
+function prev(){ if(cur>0){ cur--; render(); } }
 
-function setConf(v,doSave=true){
-  const p=Math.min(100,Math.max(0,parseInt(v)||0));
-  document.getElementById('cpct').textContent=p+'%';
-  document.getElementById('cfill').style.width=p+'%';
-  if(doSave){ms[cur].conf=p;save();}
+function setConf(v, doSave=true){
+  const p = Math.min(100, Math.max(0, parseInt(v)||0));
+  document.getElementById('cpct').textContent = p+'%';
+  document.getElementById('cfill').style.width = p+'%';
+  if(doSave){ ms[cur].conf=p; save(); }
 }
 
-function startN(el){el.contentEditable='true';el.focus();if(el.textContent==='Click to add notes...')el.textContent='';}
-function endN(el){el.contentEditable='false';ms[cur].notes=el.textContent;save();}
+function startN(el){ el.contentEditable='true'; el.focus(); if(el.textContent==='Click to add notes...') el.textContent=''; }
+function endN(el){ el.contentEditable='false'; ms[cur].notes=el.textContent; save(); }
 
-function setRes(r){ms[cur].res=r;save();renderList();updateSum();}
+function setRes(r){ ms[cur].res=r; save(); renderList(); updateSum(); }
 
-function upLogo(type,input){
-  const f=input.files[0];if(!f)return;
-  const url=URL.createObjectURL(f);
-  if(type==='top-h'){document.getElementById('h-logo').src=url;document.getElementById('h-logo').style.display='block';document.getElementById('h-emoji').style.display='none';}
-  else if(type==='top-a'){document.getElementById('a-logo').src=url;document.getElementById('a-logo').style.display='block';document.getElementById('a-emoji').style.display='none';}
-  else if(type==='card-h'){document.getElementById('rh-logo').src=url;document.getElementById('rh-logo').style.display='block';document.getElementById('rh-emoji').style.display='none';}
-  else if(type==='card-a'){document.getElementById('ra-logo').src=url;document.getElementById('ra-logo').style.display='block';document.getElementById('ra-emoji').style.display='none';}
+function upLogo(type, input){
+  const f = input.files[0]; if(!f) return;
+  const url = URL.createObjectURL(f);
+  const map = {
+    'top-h': ['h-logo','h-emoji'],
+    'top-a': ['a-logo','a-emoji'],
+    'card-h': ['rh-logo','rh-emoji'],
+    'card-a': ['ra-logo','ra-emoji']
+  };
+  const [imgId, emId] = map[type] || [];
+  if(imgId){
+    document.getElementById(imgId).src = url;
+    document.getElementById(imgId).style.display = 'block';
+    document.getElementById(emId).style.display = 'none';
+  }
 }
 
 function openEp(){
-  const m=ms[cur];
-  document.getElementById('ei-lg').value=m.lg;
-  document.getElementById('ei-h').value=m.home;
-  document.getElementById('ei-a').value=m.away;
-  document.getElementById('ei-t').value=m.time;
-  document.getElementById('ei-ho').value=m.ho;
-  document.getElementById('ei-do').value=m.do;
-  document.getElementById('ei-ao').value=m.ao;
-  document.getElementById('ei-cf').value=m.conf;
+  const m = ms[cur];
+  document.getElementById('ei-lg').value = m.lg;
+  document.getElementById('ei-h').value = m.home;
+  document.getElementById('ei-a').value = m.away;
+  document.getElementById('ei-t').value = m.time;
+  document.getElementById('ei-ho').value = m.ho;
+  document.getElementById('ei-do').value = m.do;
+  document.getElementById('ei-ao').value = m.ao;
+  document.getElementById('ei-cf').value = m.conf;
   document.getElementById('ep').classList.add('open');
 }
 
 function saveEp(){
-  const m=ms[cur];
-  m.lg=document.getElementById('ei-lg').value;
-  m.home=document.getElementById('ei-h').value.toUpperCase();
-  m.away=document.getElementById('ei-a').value.toUpperCase();
-  m.time=document.getElementById('ei-t').value;
-  m.ho=document.getElementById('ei-ho').value;
-  m.do=document.getElementById('ei-do').value;
-  m.ao=document.getElementById('ei-ao').value;
-  m.conf=parseInt(document.getElementById('ei-cf').value)||70;
+  const m = ms[cur];
+  m.lg   = document.getElementById('ei-lg').value;
+  m.home = document.getElementById('ei-h').value.toUpperCase();
+  m.away = document.getElementById('ei-a').value.toUpperCase();
+  m.time = document.getElementById('ei-t').value;
+  m.ho   = document.getElementById('ei-ho').value;
+  m.do   = document.getElementById('ei-do').value;
+  m.ao   = document.getElementById('ei-ao').value;
+  m.conf = parseInt(document.getElementById('ei-cf').value)||70;
   save(); render(); closeEp();
 }
 
-function clearM(){ms[cur]=defM(cur);save();render();closeEp();}
-function closeEp(){document.getElementById('ep').classList.remove('open');}
+function clearM(){ 
+  const m = ms[cur];
+  ms[cur] = {...defM(cur), id:m.id, home:m.home, away:m.away, lg:m.lg, time:m.time, home_crest:m.home_crest, away_crest:m.away_crest, hf:m.hf, af:m.af};
+  save(); render(); closeEp(); 
+}
+function closeEp(){ document.getElementById('ep').classList.remove('open'); }
 
-render();
+// ── Reload JSON button ──
+function reloadJSON(){ loadJSON(); }
+
+// ── Init ──
+loadJSON();
 </script>
 </body>
 </html>
