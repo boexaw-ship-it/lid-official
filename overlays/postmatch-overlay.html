@@ -299,8 +299,107 @@ body {
 function autoScale(){const s=Math.min(window.innerWidth/1920,window.innerHeight/1080);document.body.style.transform=`scale(${s})`;}
 autoScale(); window.addEventListener('resize',autoScale);
 
-let homeGoals=2, awayGoals=1;
+const JSON_URL = 'https://boexaw-ship-it.github.io/lid-official/data/postmatch.json';
 
+let homeGoals=0, awayGoals=0;
+
+// ── JSON Fetch ──
+async function loadJSON(){
+  try {
+    const res = await fetch(JSON_URL + '?t=' + Date.now());
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const d = await res.json();
+    const m = d.featured;
+    if(!m) throw new Error('No match');
+
+    // Team names + crests
+    updateTeam('home', m.home || '');
+    updateTeam('away', m.away || '');
+    document.getElementById('inp-home').value = m.home || '';
+    document.getElementById('inp-away').value = m.away || '';
+    setCrest('home', m.home_crest);
+    setCrest('away', m.away_crest);
+
+    // Score
+    homeGoals = m.home_score || 0;
+    awayGoals = m.away_score || 0;
+    document.getElementById('home-score').textContent = homeGoals;
+    document.getElementById('away-score').textContent = awayGoals;
+
+    // Stats
+    if(d.stats && d.stats.length){
+      renderStats(d.stats);
+    }
+
+    // Goal scorers
+    if(d.home_scorers || d.away_scorers){
+      const sc = [
+        d.home_scorers ? d.home_scorers : '',
+        d.away_scorers ? '| '+d.away_scorers : ''
+      ].filter(Boolean).join(' ');
+      document.getElementById('scorers').textContent = sc.toUpperCase();
+      document.getElementById('inp-scorers').value = sc;
+    }
+
+    // MOTM
+    if(d.motm){
+      document.getElementById('motm-name').textContent = d.motm.toUpperCase();
+      document.getElementById('inp-motm').value = d.motm;
+    }
+
+    // Prediction
+    if(d.prediction){
+      document.getElementById('inp-pred').value = d.prediction;
+      updatePred(d.prediction);
+    }
+
+    // Prediction result
+    if(d.prediction_result === 'correct') setPred(true);
+    else if(d.prediction_result === 'wrong') setPred(false);
+
+    save();
+    console.log('✅ postmatch.json loaded:', m.home, m.home_score, '-', m.away_score, m.away);
+
+  } catch(e) {
+    console.warn('JSON failed:', e.message);
+    loadSaved(); // fallback to localStorage
+  }
+}
+
+// ── Set crest ──
+function setCrest(team, url){
+  if(!url || !url.startsWith('http')) return;
+  const img   = document.getElementById(team+'-logo-img');
+  const emoji = document.getElementById(team+'-emoji');
+  if(!img) return;
+  img.src = url;
+  img.style.display = 'block';
+  emoji.style.display = 'none';
+  img.onerror = ()=>{ img.style.display='none'; emoji.style.display='block'; };
+}
+
+// ── Render stats bars ──
+function renderStats(stats){
+  const rows = document.querySelectorAll('.tv-stat-row');
+  stats.forEach((s, i)=>{
+    if(!rows[i]) return;
+    const homeEl = rows[i].querySelector('.stat-home');
+    const awayEl = rows[i].querySelector('.stat-away');
+    const barEl  = rows[i].querySelector('.stat-bar-fill');
+    const lblEl  = rows[i].querySelector('.stat-label');
+    if(lblEl) lblEl.textContent = s.label || '';
+    if(homeEl && s.home !== null && s.home !== undefined) homeEl.textContent = s.home;
+    if(awayEl && s.away !== null && s.away !== undefined) awayEl.textContent = s.away;
+    if(barEl && s.home !== null && s.away !== null){
+      const hv = parseFloat(String(s.home).replace('%','')) || 0;
+      const av = parseFloat(String(s.away).replace('%','')) || 0;
+      const pct = (hv+av) > 0 ? Math.round(hv/(hv+av)*100) : 50;
+      barEl.style.width = pct + '%';
+    }
+  });
+}
+
+// ── Score ──
 function changeScore(t,d){
   if(t==='home'){homeGoals=Math.max(0,homeGoals+d);document.getElementById('home-score').textContent=homeGoals;}
   else{awayGoals=Math.max(0,awayGoals+d);document.getElementById('away-score').textContent=awayGoals;}
@@ -364,7 +463,9 @@ function loadSaved(){
 }
 
 function clearAll(){localStorage.removeItem('lid_pmov');location.reload();}
-loadSaved();
+
+// ── Init ──
+loadJSON();
 </script>
 </body>
 </html>
