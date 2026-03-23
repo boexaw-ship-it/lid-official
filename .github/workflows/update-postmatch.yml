@@ -44,31 +44,32 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Fetch Finished Matches
+      - name: Fetch Matches on Date
         run: |
           COMP="${{ github.event.inputs.competition }}"
           DATE="${{ github.event.inputs.date }}"
 
           if [ "$COMP" = "PL" ]; then
-            URL="https://api.football-data.org/v4/competitions/PL/matches?dateFrom=${DATE}&dateTo=${DATE}&status=FINISHED"
+            URL="https://api.football-data.org/v4/competitions/PL/matches?dateFrom=${DATE}&dateTo=${DATE}"
           else
-            URL="https://api.football-data.org/v4/competitions/CL/matches?dateFrom=${DATE}&dateTo=${DATE}&status=FINISHED"
+            URL="https://api.football-data.org/v4/competitions/CL/matches?dateFrom=${DATE}&dateTo=${DATE}"
           fi
 
           curl -s "$URL" \
             -H "X-Auth-Token: ${{ secrets.FOOTBALL_API_KEY }}" \
             -o data/pm_matches_raw.json
 
-          echo "✅ Finished matches fetched"
+          echo "✅ Matches fetched"
           python3 -c "
           import json
           with open('data/pm_matches_raw.json') as f:
             d = json.load(f)
           matches = d.get('matches', [])
-          print(f'   Found: {len(matches)} finished matches')
+          print(f'   Found: {len(matches)} matches')
           for m in matches:
             sc = m.get('score',{}).get('fullTime',{})
-            print(f'   {m[\"homeTeam\"][\"shortName\"]} {sc.get(\"home\",\"?\")} - {sc.get(\"away\",\"?\")} {m[\"awayTeam\"][\"shortName\"]}')
+            status = m.get('status','?')
+            print(f'   [{status}] {m[\"homeTeam\"][\"shortName\"]} {sc.get(\"home\",\"?\")} - {sc.get(\"away\",\"?\")} {m[\"awayTeam\"][\"shortName\"]}')
           "
 
       - name: Fetch Specific Match
@@ -151,17 +152,31 @@ jobs:
               m = json.load(f)
             featured = build_match(m)
 
-          # Fallback to first finished match on date
+          # Fallback — any match on that date (not just finished)
           if not featured and os.path.exists('data/pm_matches_raw.json'):
             with open('data/pm_matches_raw.json') as f:
               data = json.load(f)
             matches = data.get('matches', [])
-            if matches:
-              featured = build_match(matches[0])
+            # Prefer finished, then any
+            finished = [m for m in matches if m.get('status') == 'FINISHED']
+            use = finished if finished else matches
+            if use:
+              featured = build_match(use[0])
+              print(f"   Using: {use[0]['homeTeam']['shortName']} vs {use[0]['awayTeam']['shortName']} [{use[0].get('status')}]")
 
           if not featured:
-            print("❌ No finished match found!")
-            exit(1)
+            print("⚠️ No match found — using manual data only")
+            # Create empty featured from manual inputs
+            featured = {
+              "id": 0, "competition": COMP,
+              "home": "", "home_full": "", "home_crest": "",
+              "away": "", "away_full": "", "away_crest": "",
+              "date_utc": "", "date_mmt": DATE,
+              "status": "FINISHED",
+              "home_score": 0, "away_score": 0,
+              "ht_home": None, "ht_away": None,
+              "venue": "", "matchday": 0, "stats": {}
+            }
 
           # ── Build stats cards ──
           raw_stats = featured.get('stats', {})
