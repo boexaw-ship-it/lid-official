@@ -1,0 +1,40 @@
+{
+  "updated": "2025-03-22T00:00:00Z",
+  "updated_mmt": "22 Mar 2025 · 06:30 MMT",
+  "date": "2025-03-22",
+  "competition": "PL",
+  "featured": {
+    "id": 0,
+    "competition": "PL",
+    "home": "MAN UTD",
+    "home_full": "Manchester United FC",
+    "home_crest": "",
+    "away": "ARSENAL",
+    "away_full": "Arsenal FC",
+    "away_crest": "",
+    "date_utc": "2025-03-22T14:00:00Z",
+    "date_mmt": "Sat 22 Mar · 20:30 MMT",
+    "status": "FINISHED",
+    "home_score": 2,
+    "away_score": 1,
+    "ht_home": 1,
+    "ht_away": 0,
+    "venue": "Old Trafford",
+    "matchday": 32,
+    "stats": {}
+  },
+  "home_score": 2,
+  "away_score": 1,
+  "home_scorers": "Rashford 23, Hojlund 67",
+  "away_scorers": "Saka 45",
+  "motm": "Bruno Fernandes",
+  "prediction": "MAN UTD WIN",
+  "prediction_result": "correct",
+  "stats": [
+    {"label": "Possession",      "home": "55%", "away": "45%"},
+    {"label": "Shots on Target", "home": 6,     "away": 4},
+    {"label": "Total Shots",     "home": 12,    "away": 10},
+    {"label": "Corners",         "home": 7,     "away": 5},
+    {"label": "Yellow Cards",    "home": 1,     "away": 2}
+  ]
+}
