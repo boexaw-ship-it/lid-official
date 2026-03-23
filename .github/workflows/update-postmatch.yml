@@ -1,0 +1,222 @@
+name: Update Post Match Data
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Match date (e.g. 2025-03-22)'
+        required: true
+        default: ''
+      competition:
+        description: 'PL = Premier League, CL = Champions League'
+        required: true
+        default: 'PL'
+      match_id:
+        description: 'Match ID (optional — blank = first finished match on date)'
+        required: false
+        default: ''
+      motm:
+        description: 'Man of the Match (e.g. Bruno Fernandes)'
+        required: false
+        default: ''
+      prediction:
+        description: 'Your prediction (e.g. MAN UTD WIN)'
+        required: false
+        default: ''
+      prediction_result:
+        description: 'Prediction result: correct / wrong'
+        required: false
+        default: 'pending'
+      home_scorers:
+        description: 'Home goal scorers (e.g. Rashford 23, Hojlund 67)'
+        required: false
+        default: ''
+      away_scorers:
+        description: 'Away goal scorers (e.g. Saka 45)'
+        required: false
+        default: ''
+
+jobs:
+  update-postmatch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Fetch Finished Matches
+        run: |
+          COMP="${{ github.event.inputs.competition }}"
+          DATE="${{ github.event.inputs.date }}"
+
+          if [ "$COMP" = "PL" ]; then
+            URL="https://api.football-data.org/v4/competitions/PL/matches?dateFrom=${DATE}&dateTo=${DATE}&status=FINISHED"
+          else
+            URL="https://api.football-data.org/v4/competitions/CL/matches?dateFrom=${DATE}&dateTo=${DATE}&status=FINISHED"
+          fi
+
+          curl -s "$URL" \
+            -H "X-Auth-Token: ${{ secrets.FOOTBALL_API_KEY }}" \
+            -o data/pm_matches_raw.json
+
+          echo "✅ Finished matches fetched"
+          python3 -c "
+          import json
+          with open('data/pm_matches_raw.json') as f:
+            d = json.load(f)
+          matches = d.get('matches', [])
+          print(f'   Found: {len(matches)} finished matches')
+          for m in matches:
+            sc = m.get('score',{}).get('fullTime',{})
+            print(f'   {m[\"homeTeam\"][\"shortName\"]} {sc.get(\"home\",\"?\")} - {sc.get(\"away\",\"?\")} {m[\"awayTeam\"][\"shortName\"]}')
+          "
+
+      - name: Fetch Specific Match
+        if: ${{ github.event.inputs.match_id != '' }}
+        run: |
+          curl -s \
+            "https://api.football-data.org/v4/matches/${{ github.event.inputs.match_id }}" \
+            -H "X-Auth-Token: ${{ secrets.FOOTBALL_API_KEY }}" \
+            -o data/pm_match_raw.json
+          echo "✅ Specific match fetched"
+
+      - name: Build postmatch.json
+        run: |
+          python3 << 'PYEOF'
+          import json, os
+          from datetime import datetime, timezone, timedelta
+
+          DATE       = "${{ github.event.inputs.date }}"
+          COMP       = "${{ github.event.inputs.competition }}"
+          MATCH_ID   = "${{ github.event.inputs.match_id }}"
+          MOTM       = "${{ github.event.inputs.motm }}"
+          PREDICTION = "${{ github.event.inputs.prediction }}"
+          PRED_RES   = "${{ github.event.inputs.prediction_result }}"
+          HOME_SC    = "${{ github.event.inputs.home_scorers }}"
+          AWAY_SC    = "${{ github.event.inputs.away_scorers }}"
+
+          MMT = timezone(timedelta(hours=6, minutes=30))
+
+          def to_mmt(utc_str):
+            try:
+              dt = datetime.fromisoformat(utc_str.replace('Z','+00:00'))
+              mmt = dt.astimezone(MMT)
+              days = {0:'Mon',1:'Tue',2:'Wed',3:'Thu',4:'Fri',5:'Sat',6:'Sun'}
+              return mmt.strftime(f"{days[mmt.weekday()]} %d %b · %H:%M MMT")
+            except:
+              return utc_str
+
+          def build_match(m):
+            h  = m['homeTeam']
+            a  = m['awayTeam']
+            sc = m.get('score',{})
+            ft = sc.get('fullTime',{})
+            ht = sc.get('halfTime',{})
+
+            # Stats if available
+            stats = {}
+            for s in m.get('statistics', []):
+              stats[s.get('type','')] = {
+                'home': s.get('home'),
+                'away': s.get('away')
+              }
+
+            return {
+              "id":           m['id'],
+              "competition":  COMP,
+              "home":         h.get('shortName', h.get('name','')),
+              "home_full":    h.get('name',''),
+              "home_crest":   h.get('crest',''),
+              "away":         a.get('shortName', a.get('name','')),
+              "away_full":    a.get('name',''),
+              "away_crest":   a.get('crest',''),
+              "date_utc":     m.get('utcDate',''),
+              "date_mmt":     to_mmt(m.get('utcDate','')),
+              "status":       m.get('status','FINISHED'),
+              "home_score":   ft.get('home', 0),
+              "away_score":   ft.get('away', 0),
+              "ht_home":      ht.get('home'),
+              "ht_away":      ht.get('away'),
+              "venue":        m.get('venue',''),
+              "matchday":     m.get('matchday', 0),
+              "stats":        stats
+            }
+
+          # ── Get featured match ──
+          featured = None
+
+          # Try specific match first
+          if MATCH_ID and os.path.exists('data/pm_match_raw.json'):
+            with open('data/pm_match_raw.json') as f:
+              m = json.load(f)
+            featured = build_match(m)
+
+          # Fallback to first finished match on date
+          if not featured and os.path.exists('data/pm_matches_raw.json'):
+            with open('data/pm_matches_raw.json') as f:
+              data = json.load(f)
+            matches = data.get('matches', [])
+            if matches:
+              featured = build_match(matches[0])
+
+          if not featured:
+            print("❌ No finished match found!")
+            exit(1)
+
+          # ── Build stats cards ──
+          raw_stats = featured.get('stats', {})
+
+          def get_stat(key, fallback_h=None, fallback_a=None):
+            s = raw_stats.get(key, {})
+            return {
+              "home": s.get('home') if s.get('home') is not None else fallback_h,
+              "away": s.get('away') if s.get('away') is not None else fallback_a
+            }
+
+          stats_display = [
+            {"label": "Possession",       "home": get_stat('ball_possession',{}).get('home'), "away": get_stat('ball_possession',{}).get('away')},
+            {"label": "Shots on Target",  "home": get_stat('shots_on_goal',{}).get('home'),   "away": get_stat('shots_on_goal',{}).get('away')},
+            {"label": "Total Shots",      "home": get_stat('total_shots',{}).get('home'),     "away": get_stat('total_shots',{}).get('away')},
+            {"label": "Corners",          "home": get_stat('corner_kicks',{}).get('home'),    "away": get_stat('corner_kicks',{}).get('away')},
+            {"label": "Yellow Cards",     "home": get_stat('yellow_cards',{}).get('home'),    "away": get_stat('yellow_cards',{}).get('away')},
+          ]
+
+          # ── Output ──
+          out = {
+            "updated":          datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "updated_mmt":      datetime.now(MMT).strftime("%d %b %Y · %H:%M MMT"),
+            "date":             DATE,
+            "competition":      COMP,
+            "featured":         featured,
+            "home_score":       featured['home_score'],
+            "away_score":       featured['away_score'],
+            "home_scorers":     HOME_SC,
+            "away_scorers":     AWAY_SC,
+            "motm":             MOTM,
+            "prediction":       PREDICTION,
+            "prediction_result": PRED_RES,
+            "stats":            stats_display
+          }
+
+          with open('data/postmatch.json','w') as f:
+            json.dump(out, f, indent=2, ensure_ascii=False)
+
+          print(f"✅ postmatch.json built")
+          print(f"   {featured['home']} {featured['home_score']} - {featured['away_score']} {featured['away']}")
+          print(f"   MOTM:       {MOTM}")
+          print(f"   Prediction: {PREDICTION} → {PRED_RES}")
+          print(f"   Home scorers: {HOME_SC}")
+          print(f"   Away scorers: {AWAY_SC}")
+          PYEOF
+
+      - name: Cleanup
+        run: |
+          rm -f data/pm_matches_raw.json data/pm_match_raw.json
+
+      - name: Commit and Push
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add data/postmatch.json
+          git diff --staged --quiet || git commit -m "Post Match: ${{ github.event.inputs.competition }} ${{ github.event.inputs.date }}"
+          git push
