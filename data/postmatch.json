@@ -1,40 +1,60 @@
 {
-  "updated": "2025-03-22T00:00:00Z",
-  "updated_mmt": "22 Mar 2025 · 06:30 MMT",
-  "date": "2025-03-22",
+  "updated": "2026-03-23T12:53:38Z",
+  "updated_mmt": "23 Mar 2026 · 19:23 MMT",
+  "date": "2026-03-22",
   "competition": "PL",
   "featured": {
-    "id": 0,
+    "id": 538092,
     "competition": "PL",
-    "home": "MAN UTD",
-    "home_full": "Manchester United FC",
-    "home_crest": "",
-    "away": "ARSENAL",
-    "away_full": "Arsenal FC",
-    "away_crest": "",
-    "date_utc": "2025-03-22T14:00:00Z",
-    "date_mmt": "Sat 22 Mar · 20:30 MMT",
+    "home": "Newcastle",
+    "home_full": "Newcastle United FC",
+    "home_crest": "https://crests.football-data.org/67.png",
+    "away": "Sunderland",
+    "away_full": "Sunderland AFC",
+    "away_crest": "https://crests.football-data.org/71.png",
+    "date_utc": "2026-03-22T12:00:00Z",
+    "date_mmt": "Sun 22 Mar · 18:30 MMT",
     "status": "FINISHED",
-    "home_score": 2,
-    "away_score": 1,
+    "home_score": 1,
+    "away_score": 2,
     "ht_home": 1,
     "ht_away": 0,
-    "venue": "Old Trafford",
-    "matchday": 32,
+    "venue": "",
+    "matchday": 31,
     "stats": {}
   },
-  "home_score": 2,
-  "away_score": 1,
-  "home_scorers": "Rashford 23, Hojlund 67",
-  "away_scorers": "Saka 45",
-  "motm": "Bruno Fernandes",
-  "prediction": "MAN UTD WIN",
-  "prediction_result": "correct",
+  "home_score": 1,
+  "away_score": 2,
+  "home_scorers": "",
+  "away_scorers": "",
+  "motm": "",
+  "prediction": "Manchester City Win",
+  "prediction_result": "pending",
   "stats": [
-    {"label": "Possession",      "home": "55%", "away": "45%"},
-    {"label": "Shots on Target", "home": 6,     "away": 4},
-    {"label": "Total Shots",     "home": 12,    "away": 10},
-    {"label": "Corners",         "home": 7,     "away": 5},
-    {"label": "Yellow Cards",    "home": 1,     "away": 2}
+    {
+      "label": "Possession",
+      "home": {},
+      "away": null
+    },
+    {
+      "label": "Shots on Target",
+      "home": {},
+      "away": null
+    },
+    {
+      "label": "Total Shots",
+      "home": {},
+      "away": null
+    },
+    {
+      "label": "Corners",
+      "home": {},
+      "away": null
+    },
+    {
+      "label": "Yellow Cards",
+      "home": {},
+      "away": null
+    }
   ]
 }
