@@ -1,22 +1,19 @@
 {
-  "updated": "2026-03-24T06:50:41Z",
-  "gameweek": 32,
-  "team_name": "gangja",
-  "manager": "zaw moe",
-  "overall_rank": 1646482,
-  "total_points": 1712,
-  "team_value": 98.3,
-  "bank": 0.6,
-  "gw_points": 70,
-  "gw_rank": 245551,
-  "transfers_made": 0,
+  "updated": "2026-03-24T13:03:52Z",
+  "gameweek": 31,
+  "team_name": "",
+  "manager": " ",
+  "overall_rank": 0,
+  "total_points": 0,
+  "team_value": 0.0,
+  "bank": 0.0,
+  "gw_points": 0,
+  "gw_rank": 0,
   "formation": "0-0-0",
-  "captain": {
-    "gw_points": 70
-  },
+  "captain": {},
   "vice_captain": {},
   "transfer_in": {
-    "name": ""
+    "name": "299669"
   },
   "transfer_out": {
     "name": ""
