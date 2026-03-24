@@ -1,25 +1,45 @@
 {
-  "updated": "2026-03-24T13:03:52Z",
-  "gameweek": 31,
-  "team_name": "",
-  "manager": " ",
-  "overall_rank": 0,
-  "total_points": 0,
-  "team_value": 0.0,
-  "bank": 0.0,
-  "gw_points": 0,
-  "gw_rank": 0,
+  "updated": "2026-03-24T13:07:03Z",
+  "gameweek": 32,
+  "team_name": "gangja",
+  "manager": "zaw moe",
+  "overall_rank": 1646482,
+  "total_points": 1712,
+  "team_value": 98.3,
+  "bank": 0.6,
+  "gw_points": 70,
+  "gw_rank": 245551,
   "formation": "0-0-0",
   "captain": {},
   "vice_captain": {},
   "transfer_in": {
-    "name": "299669"
+    "name": "Palmer "
   },
   "transfer_out": {
-    "name": ""
+    "id": 430,
+    "name": "Haaland",
+    "team": "MCI",
+    "team_code": 43,
+    "position": "FWD",
+    "element_type": 4,
+    "photo": "https://resources.premierleague.com/premierleague/photos/players/110x140/p223094.png",
+    "jersey": "https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_43-110.png",
+    "price": 14.5,
+    "total_pts": 197,
+    "gw_points": 0
   },
   "differential": {
-    "name": ""
+    "id": 47,
+    "name": "Rogers",
+    "team": "AVL",
+    "team_code": 7,
+    "position": "MID",
+    "element_type": 3,
+    "photo": "https://resources.premierleague.com/premierleague/photos/players/110x140/p244850.png",
+    "jersey": "https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_7-110.png",
+    "price": 7.5,
+    "total_pts": 138,
+    "gw_points": 0
   },
   "squad": []
 }
