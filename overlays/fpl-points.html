@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=1920, initial-scale=1.0">
 <title>LID — FPL Overlay</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
@@ -11,7 +11,9 @@ html,body { width:100%; height:100%; }
 body {
   width:1920px; height:1080px;
   overflow:hidden;
-  font-family:'Barlow Condensed',sans-serif;
+  font-family:
+    'Barlow Condensed',
+    sans-serif;
   transform-origin:top left;
   background:transparent;
 }
@@ -21,21 +23,25 @@ body {
   position:absolute;
   top:0; left:0; right:0; height:88px;
   background:linear-gradient(to bottom,rgba(0,0,0,0.92),rgba(0,0,0,0.65));
-  border-bottom:3px solid #FF6400;
+  border-bottom:3px solid #9b59ff;
   display:flex; align-items:center;
   justify-content:space-between;
   padding:0 36px;
   z-index: 100;
 }
 .logo-area { display:flex; align-items:center; gap:12px; }
-.logo-txt { font-family:'Bebas Neue',sans-serif; font-size:40px; color:#FF6400; letter-spacing:4px; text-shadow:0 0 20px rgba(255,100,0,0.6); line-height:1; }
-.logo-div { width:2px; height:26px; background:rgba(255,100,0,0.4); }
+.logo-txt { font-family:
+    'Bebas Neue',
+    sans-serif; font-size:40px; color:#9b59ff; letter-spacing:4px; text-shadow:0 0 20px rgba(155,89,255,0.6); line-height:1; }
+.logo-div { width:2px; height:26px; background:rgba(155,89,255,0.4); }
 .logo-sub { font-size:11px; font-weight:700; letter-spacing:4px; color:rgba(255,255,255,0.35); text-transform:uppercase; line-height:1.6; }
 
 .gw-center { display:flex; align-items:center; gap:32px; }
 .gw-block { text-align:center; }
 .gw-label { font-size:10px; font-weight:700; letter-spacing:4px; color:rgba(155,89,255,0.7); text-transform:uppercase; }
-.gw-val { font-family:'Bebas Neue',sans-serif; font-size:44px; color:#fff; line-height:1; letter-spacing:2px; }
+.gw-val { font-family:
+    'Bebas Neue',
+    sans-serif; font-size:44px; color:#fff; line-height:1; letter-spacing:2px; }
 .gw-val.orange { color:#FF6400; text-shadow:0 0 20px rgba(255,100,0,0.5); }
 .gw-val.purple { color:#9b59ff; text-shadow:0 0 20px rgba(155,89,255,0.5); }
 .gw-divider { width:1px; height:40px; background:rgba(255,255,255,0.1); }
@@ -57,6 +63,7 @@ body {
   border: 2px solid rgba(255,255,255,0.1);
   position: relative;
   border-radius: 8px;
+  z-index: 10;
 }
 .wc-label {
   position: absolute; bottom: 20px; left: 0; right: 0;
@@ -67,21 +74,41 @@ body {
 /* ══ PITCH VIEW ══ */
 .pitch-container {
   flex: 1;
-  background: rgba(0,0,0,0.3);
+  background: #228B22; /* Darker green for pitch */
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  z-index: 10;
 }
 .pitch-bg {
   position: absolute; inset: 0;
   background: 
-    linear-gradient(rgba(255,100,0,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,100,0,0.03) 1px, transparent 1px);
+    linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
   background-size: 50px 50px;
   z-index: -1;
+}
+.pitch-line {
+  position: absolute;
+  border: 2px solid rgba(255,255,255,0.4);
+  pointer-events: none;
+}
+.pitch-center-circle {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 150px; height: 150px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.pitch-half-line {
+  position: absolute;
+  top: 50%; left: 0; right: 0;
+  height: 2px;
+  background: rgba(255,255,255,0.4);
 }
 .pitch-area {
   flex: 1;
@@ -115,7 +142,9 @@ body {
   font-size: 12px; font-weight: 700; color: #fff; text-transform: uppercase;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.p-pts { font-family: 'Bebas Neue', sans-serif; font-size: 15px; color: #FF6400; margin-top: -1px; }
+.p-pts { font-family:
+    'Bebas Neue',
+    sans-serif; font-size: 15px; color: #FF6400; margin-top: -1px; }
 
 .bench-container {
   height: 140px; background: rgba(0,0,0,0.5); border-top: 1px solid rgba(255,255,255,0.1);
@@ -127,6 +156,110 @@ body {
   text-transform: uppercase; letter-spacing: 4px;
 }
 
+/* ══ RIGHT PANELS ══ */
+.right-panels {
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  z-index: 10;
+}
+
+.player-card {
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.player-card.captain { border-color: #FF6400; }
+.player-card.vice { border-color: #9b59ff; }
+
+.player-photo-wrap {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+}
+.player-photo-img { width: 100%; height: 100%; object-fit: cover; }
+.player-photo-placeholder { font-size: 30px; color: rgba(255,255,255,0.3); }
+
+.jersey-wrap {
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+}
+.jersey-img { width: 100%; height: 100%; object-fit: contain; }
+.jersey-placeholder { font-size: 20px; color: rgba(255,255,255,0.3); }
+
+.player-info {
+  flex: 1;
+}
+.player-role { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: rgba(255,255,255,0.4); text-transform: uppercase; }
+.player-name-main { font-family:
+    'Bebas Neue',
+    sans-serif; font-size: 24px; color: #fff; letter-spacing: 1px; line-height: 1; }
+.player-team-pos { font-size: 12px; color: rgba(255,255,255,0.6); }
+
+.player-pts {
+  font-family:
+    'Bebas Neue',
+    sans-serif; font-size: 32px; color: #FF6400; line-height: 1;
+}
+.pts-label { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; }
+
+.transfer-card {
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+.transfer-card.in { border-color: #00BFFF; }
+.transfer-card.out { border-color: #FF4500; }
+.transfer-arrow { font-size: 24px; }
+.transfer-photo { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; }
+.transfer-photo-ph { font-size: 20px; color: rgba(255,255,255,0.3); }
+.transfer-jersey { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
+.transfer-info { flex: 1; }
+.transfer-role { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: rgba(255,255,255,0.4); text-transform: uppercase; }
+.transfer-name { font-family:
+    'Bebas Neue',
+    sans-serif; font-size: 18px; color: #fff; line-height: 1; }
+.transfer-meta { font-size: 10px; color: rgba(255,255,255,0.6); }
+.transfer-price { font-family:
+    'Bebas Neue',
+    sans-serif; font-size: 20px; color: #00BFFF; line-height: 1; }
+.transfer-card.out .transfer-price { color: #FF4500; }
+
+.diff-card {
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-color: #FFD700;
+}
+.diff-photo { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; }
+.diff-photo-ph { font-size: 20px; color: rgba(255,255,255,0.3); }
+.diff-jersey { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
+.diff-info { flex: 1; }
+.diff-role { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: rgba(255,255,255,0.4); text-transform: uppercase; }
+.diff-name { font-family:
+    'Bebas Neue',
+    sans-serif; font-size: 18px; color: #fff; line-height: 1; }
+.diff-meta { font-size: 10px; color: rgba(255,255,255,0.6); }
+.diff-ownership { font-family:
+    'Bebas Neue',
+    sans-serif; font-size: 20px; color: #FFD700; line-height: 1; }
+
 /* ══ TICKER ══ */
 .ticker-bar {
   position: absolute; bottom: 0; left: 0; right: 0; height: 60px;
@@ -134,7 +267,9 @@ body {
   display: flex; align-items: center; z-index: 100;
 }
 .ticker-lbl {
-  background: #9b59ff; color: #fff; font-family: 'Bebas Neue', sans-serif;
+  background: #9b59ff; color: #fff; font-family:
+    'Bebas Neue',
+    sans-serif;
   font-size: 24px; padding: 0 30px; height: 100%; display: flex; align-items: center;
 }
 .ticker-track { flex: 1; overflow: hidden; white-space: nowrap; }
@@ -144,7 +279,7 @@ body {
 .ticker-dot { color: #9b59ff; }
 
 /* ══ STATUS ══ */
-.json-st { position: absolute; top: 100px; right: 40px; font-size: 12px; color: rgba(255,255,255,0.2); }
+.json-st { position: absolute; top: 100px; right: 40px; font-size: 12px; color: rgba(255,255,255,0.2); z-index: 10; }
 </style>
 </head>
 <body>
@@ -171,7 +306,9 @@ body {
       <div class="gw-val" id="overall-rank" style="font-size:28px">-</div>
     </div>
   </div>
-  <div style="font-family:'Bebas Neue',sans-serif; font-size:18px; color:#9b59ff; letter-spacing:4px;">🏆 FPL TIPS</div>
+  <div style="font-family:
+    'Bebas Neue',
+    sans-serif; font-size:18px; color:#9b59ff; letter-spacing:4px;">🏆 FPL TIPS</div>
 </div>
 
 <div class="json-st" id="json-st">⏳ Loading...</div>
@@ -183,9 +320,107 @@ body {
 
   <div class="pitch-container">
     <div class="pitch-bg"></div>
+    <div class="pitch-half-line"></div>
+    <div class="pitch-center-circle"></div>
     <div class="pitch-area" id="pitch-main"></div>
     <div class="bench-label">Substitutes</div>
     <div class="bench-container" id="pitch-bench"></div>
+  </div>
+
+  <div class="right-panels">
+    <div class="player-card captain">
+      <div class="player-photo-wrap">
+        <img class="player-photo-img" id="cap-photo" src="" onerror="this.style.display=\'none\';document.getElementById(\'cap-photo-ph\').style.display=\'flex\'" style="display:none"/>
+        <div class="player-photo-placeholder" id="cap-photo-ph">👤</div>
+      </div>
+      <div class="jersey-wrap">
+        <img class="jersey-img" id="cap-jersey" src="" onerror="this.style.display=\'none\'" style="display:none"/>
+        <div class="jersey-placeholder" id="cap-jersey-ph">👕</div>
+      </div>
+      <div class="player-info">
+        <div class="player-role">⭐ Captain (2×)</div>
+        <div class="player-name-main" id="cap-name">-</div>
+        <div class="player-team-pos" id="cap-meta">-</div>
+      </div>
+      <div>
+        <div class="player-pts" id="cap-pts">-</div>
+        <div class="pts-label">pts</div>
+      </div>
+    </div>
+
+    <div class="player-card vice">
+      <div class="player-photo-wrap">
+        <img class="player-photo-img" id="vc-photo" src="" onerror="this.style.display=\'none\';document.getElementById(\'vc-photo-ph\').style.display=\'flex\'" style="display:none"/>
+        <div class="player-photo-placeholder" id="vc-photo-ph">👤</div>
+      </div>
+      <div class="jersey-wrap">
+        <img class="jersey-img" id="vc-jersey" src="" onerror="this.style.display=\'none\'" style="display:none"/>
+        <div class="jersey-placeholder" id="vc-jersey-ph">👕</div>
+      </div>
+      <div class="player-info">
+        <div class="player-role">🔷 Vice Captain</div>
+        <div class="player-name-main" id="vc-name">-</div>
+        <div class="player-team-pos" id="vc-meta">-</div>
+      </div>
+      <div>
+        <div class="player-pts" id="vc-pts">-</div>
+        <div class="pts-label">pts</div>
+      </div>
+    </div>
+
+    <div class="transfer-row" style="display:flex; gap:10px;">
+      <div class="transfer-card in">
+        <div class="transfer-arrow">🔄</div>
+        <div class="transfer-photo">
+          <img id="tin-photo" src="" onerror="this.style.display=\'none\';document.getElementById(\'tin-photo-ph\').style.display=\'flex\'" style="display:none"/>
+          <div class="transfer-photo-ph" id="tin-photo-ph">👤</div>
+        </div>
+        <div class="transfer-jersey">
+          <img id="tin-jersey" src="" onerror="this.style.display=\'none\'" style="display:none"/>
+        </div>
+        <div class="transfer-info">
+          <div class="transfer-role">Transfer In</div>
+          <div class="transfer-name" id="tin-name">-</div>
+          <div class="transfer-meta" id="tin-meta">-</div>
+        </div>
+        <div class="transfer-price" id="tin-price">-</div>
+      </div>
+      <div class="transfer-card out">
+        <div class="transfer-arrow">❌</div>
+        <div class="transfer-photo">
+          <img id="tout-photo" src="" onerror="this.style.display=\'none\';document.getElementById(\'tout-photo-ph\').style.display=\'flex\'" style="display:none"/>
+          <div class="transfer-photo-ph" id="tout-photo-ph">👤</div>
+        </div>
+        <div class="transfer-jersey">
+          <img id="tout-jersey" src="" onerror="this.style.display=\'none\'" style="display:none"/>
+        </div>
+        <div class="transfer-info">
+          <div class="transfer-role">Transfer Out</div>
+          <div class="transfer-name" id="tout-name">-</div>
+          <div class="transfer-meta" id="tout-meta">-</div>
+        </div>
+        <div class="transfer-price" id="tout-price">-</div>
+      </div>
+    </div>
+
+    <div class="diff-card">
+      <div class="diff-photo">
+        <img id="diff-photo" src="" onerror="this.style.display=\'none\';document.getElementById(\'diff-photo-ph\').style.display=\'flex\'" style="display:none"/>
+        <div class="diff-photo-ph" id="diff-photo-ph">👤</div>
+      </div>
+      <div class="diff-jersey">
+        <img id="diff-jersey" src="" onerror="this.style.display=\'none\'" style="display:none"/>
+      </div>
+      <div class="diff-info">
+        <div class="diff-role">🎯 Differential</div>
+        <div class="diff-name" id="diff-name">-</div>
+        <div class="diff-meta" id="diff-meta">-</div>
+      </div>
+      <div>
+        <div class="diff-ownership" id="diff-own">-%</div>
+        <div style="font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.25);text-transform:uppercase">owned</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -209,53 +444,239 @@ function autoScale(){
   const s = Math.min(window.innerWidth/1920, window.innerHeight/1080);
   document.body.style.transform = `scale(${s})`;
 }
-autoScale(); window.addEventListener('resize', autoScale);
+autoScale(); window.addEventListener(
+    'resize',
+    autoScale
+);
 
-const JSON_URL = 'https://boexaw-ship-it.github.io/lid-official/data/fpl.json';
+const JSON_URL = 
+    'https://boexaw-ship-it.github.io/lid-official/data/fpl.json';
+
+function setImg(imgId, phId, url){
+  const img = document.getElementById(imgId);
+  const ph = document.getElementById(phId);
+  if(!img) return;
+  if(url && url.startsWith(
+    'http'
+  )){
+    img.src = url;
+    img.style.display = 
+        'block';
+    if(ph) ph.style.display = 
+        'none';
+    img.onerror = () => { img.style.display=
+        'none'; if(ph) ph.style.display=
+        'flex'; };
+  } else {
+    img.style.display = 
+        'none';
+    if(ph) ph.style.display = 
+        'flex';
+  }
+}
 
 async function loadData() {
   try {
-    const res = await fetch(JSON_URL + '?t=' + Date.now());
+    const res = await fetch(JSON_URL + 
+        '?t='
+         + Date.now());
     const d = await res.json();
     
-    document.getElementById('json-st').textContent = '✅ Updated: ' + d.updated.slice(11,16);
-    document.getElementById('gw-num').textContent = 'GW' + d.gameweek;
-    document.getElementById('gw-pts').textContent = d.gw_points || '0';
-    document.getElementById('overall-rank').textContent = (d.overall_rank || 0).toLocaleString();
+    document.getElementById(
+        'json-st'
+    ).textContent = 
+        '✅ Updated: '
+         + d.updated.slice(11,16);
+    document.getElementById(
+        'gw-num'
+    ).textContent = 
+        'GW'
+         + d.gameweek;
+    document.getElementById(
+        'gw-pts'
+    ).textContent = d.gw_points || 
+        '0';
+    document.getElementById(
+        'overall-rank'
+    ).textContent = (d.overall_rank || 0).toLocaleString();
+    
+    // Captain & Vice
+    if(d.captain) {
+      setImg(
+        'cap-photo',
+        'cap-photo-ph',
+        d.captain.photo
+      );
+      setImg(
+        'cap-jersey',
+        'cap-jersey-ph',
+        d.captain.jersey
+      );
+      document.getElementById(
+        'cap-name'
+      ).textContent = d.captain.name || 
+        '-';
+      document.getElementById(
+        'cap-meta'
+      ).textContent = `${d.captain.team} · ${d.captain.position}`;
+      document.getElementById(
+        'cap-pts'
+      ).textContent = (d.captain.gw_points * 2) || 
+        '-'; // 2x points
+    }
+    if(d.vice_captain) {
+      setImg(
+        'vc-photo',
+        'vc-photo-ph',
+        d.vice_captain.photo
+      );
+      setImg(
+        'vc-jersey',
+        'vc-jersey-ph',
+        d.vice_captain.jersey
+      );
+      document.getElementById(
+        'vc-name'
+      ).textContent = d.vice_captain.name || 
+        '-';
+      document.getElementById(
+        'vc-meta'
+      ).textContent = `${d.vice_captain.team} · ${d.vice_captain.position}`;
+      document.getElementById(
+        'vc-pts'
+      ).textContent = d.vice_captain.gw_points || 
+        '-';
+    }
+
+    // Transfer In
+    if(d.transfer_in && d.transfer_in.name && d.transfer_in.name !== 
+        ''
+    ) {
+      setImg(
+        'tin-photo',
+        'tin-photo-ph',
+        d.transfer_in.photo
+      );
+      setImg(
+        'tin-jersey',
+        'tin-jersey-ph',
+        d.transfer_in.jersey
+      );
+      document.getElementById(
+        'tin-name'
+      ).textContent = d.transfer_in.name;
+      document.getElementById(
+        'tin-meta'
+      ).textContent = `${d.transfer_in.team} · ${d.transfer_in.position}`;
+      document.getElementById(
+        'tin-price'
+      ).textContent = `£${d.transfer_in.price}m`;
+    }
+
+    // Transfer Out
+    if(d.transfer_out && d.transfer_out.name && d.transfer_out.name !== 
+        ''
+    ) {
+      setImg(
+        'tout-photo',
+        'tout-photo-ph',
+        d.transfer_out.photo
+      );
+      setImg(
+        'tout-jersey',
+        'tout-jersey-ph',
+        d.transfer_out.jersey
+      );
+      document.getElementById(
+        'tout-name'
+      ).textContent = d.transfer_out.name;
+      document.getElementById(
+        'tout-meta'
+      ).textContent = `${d.transfer_out.team} · ${d.transfer_out.position}`;
+      document.getElementById(
+        'tout-price'
+      ).textContent = `£${d.transfer_out.price}m`;
+    }
+
+    // Differential
+    if(d.differential && d.differential.name && d.differential.name !== 
+        ''
+    ) {
+      setImg(
+        'diff-photo',
+        'diff-photo-ph',
+        d.differential.photo
+      );
+      setImg(
+        'diff-jersey',
+        'diff-jersey-ph',
+        d.differential.jersey
+      );
+      document.getElementById(
+        'diff-name'
+      ).textContent = d.differential.name;
+      document.getElementById(
+        'diff-meta'
+      ).textContent = `${d.differential.team} · ${d.differential.position}`;
+      document.getElementById(
+        'diff-own'
+      ).textContent = `${d.differential.selected_pct}%`;
+    }
     
     // Ticker info
-    if(d.captain && d.captain.name) document.getElementById('tk-cap').textContent = `⭐ Captain: ${d.captain.name} (${d.captain.gw_points || 0} pts)`;
-    if(d.transfer_in && d.transfer_in.name) document.getElementById('tk-tin').textContent = `🔄 Transfer In: ${d.transfer_in.name}`;
-    if(d.differential && d.differential.name) document.getElementById('tk-diff').textContent = `🎯 Differential: ${d.differential.name}`;
+    if(d.captain && d.captain.name) document.getElementById(
+        'tk-cap'
+    ).textContent = `⭐ Captain: ${d.captain.name} (${d.captain.gw_points * 2} pts)`;
+    if(d.transfer_in && d.transfer_in.name) document.getElementById(
+        'tk-tin'
+    ).textContent = `🔄 Transfer In: ${d.transfer_in.name}`;
+    if(d.differential && d.differential.name) document.getElementById(
+        'tk-diff'
+    ).textContent = `🎯 Differential: ${d.differential.name}`;
     
     // Pitch
     renderPitch(d.squad);
   } catch(e) {
-    document.getElementById('json-st').textContent = '❌ Error loading data';
+    document.getElementById(
+        'json-st'
+    ).textContent = 
+        '❌ Error loading data';
     console.error(e);
   }
 }
 
 function renderPitch(squad) {
-  const main = document.getElementById('pitch-main');
-  const bench = document.getElementById('pitch-bench');
+  const main = document.getElementById(
+    'pitch-main'
+  );
+  const bench = document.getElementById(
+    'pitch-bench'
+  );
   if(!main || !bench) return;
-  main.innerHTML = ''; bench.innerHTML = '';
+  main.innerHTML = 
+    ''; bench.innerHTML = 
+    '';
   
   if(!squad || squad.length === 0) {
-    main.innerHTML = '<div style="color:rgba(255,255,255,0.1); font-size:40px; font-weight:900; width:100%; text-align:center;">NO SQUAD DATA</div>';
+    main.innerHTML = 
+        '<div style="color:rgba(255,255,255,0.1); font-size:40px; font-weight:900; width:100%; text-align:center;">NO SQUAD DATA</div>';
     return;
   }
   
   const starters = squad.filter(p => p.is_starting);
   const subs = squad.filter(p => !p.is_starting);
   
-  const byPos = { 1: [], 2: [], 3: [], 4: [] };
+  const byPos = { 1: [], 2: [], 3: [], 4: [] }; // 1: GK, 2: DEF, 3: MID, 4: FWD
   starters.forEach(p => { if(byPos[p.element_type]) byPos[p.element_type].push(p); });
   
-  [1, 2, 3, 4].forEach(posType => {
-    const row = document.createElement('div');
-    row.className = 'pitch-row';
+  // Render Rows (GK, DEF, MID, FWD)
+  // Order: FWD, MID, DEF, GK (because of flex-direction: column-reverse)
+  [4, 3, 2, 1].forEach(posType => {
+    const row = document.createElement(
+        'div'
+    );
+    row.className = 
+        'pitch-row';
     byPos[posType].forEach(p => { row.appendChild(createPlayerEl(p)); });
     main.appendChild(row);
   });
@@ -264,15 +685,24 @@ function renderPitch(squad) {
 }
 
 function createPlayerEl(p, isBench = false) {
-  const el = document.createElement('div');
-  el.className = 'p-player';
-  if(isBench) el.style.width = '90px';
-  const capBadge = p.is_captain ? '<div class="p-cap-badge">C</div>' : '';
+  const el = document.createElement(
+    'div'
+  );
+  el.className = 
+    'p-player';
+  if(isBench) el.style.width = 
+    '90px';
+  const capBadge = p.is_captain ? 
+    '<div class="p-cap-badge">C</div>'
+     : 
+    '';
   const pts = p.gw_points !== undefined ? p.gw_points : (p.total_pts || 0);
   
   el.innerHTML = `
     <div class="p-jersey-wrap">
-      <img class="p-jersey" src="${p.jersey || ''}" onerror="this.src='https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_0-110.png'">
+      <img class="p-jersey" src="${p.jersey || 
+    ''
+  }" onerror="this.src=\'https://fantasy.premierleague.com/static/media/shirts/standard/shirt_0-110.png\'"/>
       ${capBadge}
     </div>
     <div class="p-name-wrap">
