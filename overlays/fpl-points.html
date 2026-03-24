@@ -25,14 +25,13 @@ body {
   display:flex; align-items:center;
   justify-content:space-between;
   padding:0 36px;
+  z-index: 100;
 }
-
 .logo-area { display:flex; align-items:center; gap:12px; }
 .logo-txt { font-family:'Bebas Neue',sans-serif; font-size:40px; color:#FF6400; letter-spacing:4px; text-shadow:0 0 20px rgba(255,100,0,0.6); line-height:1; }
 .logo-div { width:2px; height:26px; background:rgba(255,100,0,0.4); }
 .logo-sub { font-size:11px; font-weight:700; letter-spacing:4px; color:rgba(255,255,255,0.35); text-transform:uppercase; line-height:1.6; }
 
-/* GW info center */
 .gw-center { display:flex; align-items:center; gap:32px; }
 .gw-block { text-align:center; }
 .gw-label { font-size:10px; font-weight:700; letter-spacing:4px; color:rgba(155,89,255,0.7); text-transform:uppercase; }
@@ -41,346 +40,115 @@ body {
 .gw-val.purple { color:#9b59ff; text-shadow:0 0 20px rgba(155,89,255,0.5); }
 .gw-divider { width:1px; height:40px; background:rgba(255,255,255,0.1); }
 
-.type-badge {
-  background:linear-gradient(135deg,rgba(155,89,255,0.2),rgba(100,64,255,0.15));
-  border:1px solid rgba(155,89,255,0.45);
-  color:#9b59ff;
-  font-family:'Bebas Neue',sans-serif;
-  font-size:15px; letter-spacing:4px; padding:7px 18px;
-  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
-}
-
-/* JSON status */
-.json-st {
-  position:absolute; top:8px; right:120px;
-  font-size:9px; font-weight:700; letter-spacing:2px;
-  text-transform:uppercase; color:rgba(255,100,0,0.5);
-}
-.json-st.ok  { color:rgba(0,200,100,0.6); }
-.json-st.err { color:rgba(255,80,80,0.6); }
-
 /* ══ MAIN LAYOUT ══ */
 .main-layout {
-  position:absolute;
-  top:88px; bottom:58px;
-  left:0; right:0;
-  display:flex;
+  position: absolute;
+  top: 88px; left: 0; right: 0; bottom: 60px;
+  display: flex;
+  padding: 40px;
+  gap: 40px;
 }
 
-/* ══ LEFT — WEBCAM ══ */
+/* ══ WEBCAM ZONE ══ */
 .webcam-zone {
-  width:640px; height:100%;
-  flex-shrink:0;
-  border-right:2px solid rgba(255,100,0,0.2);
-  position:relative;
-  display:flex; align-items:center; justify-content:center;
+  width: 640px;
+  height: 840px;
+  background: rgba(0,0,0,0.4);
+  border: 2px solid rgba(255,255,255,0.1);
+  position: relative;
+  border-radius: 8px;
 }
-.wc-corner { position:absolute; width:28px; height:28px; }
-.wc-tl { top:10px; left:10px; border-top:2px solid rgba(255,100,0,0.5); border-left:2px solid rgba(255,100,0,0.5); }
-.wc-tr { top:10px; right:10px; border-top:2px solid rgba(255,100,0,0.5); border-right:2px solid rgba(255,100,0,0.5); }
-.wc-bl { bottom:10px; left:10px; border-bottom:2px solid rgba(155,89,255,0.4); border-left:2px solid rgba(155,89,255,0.4); }
-.wc-br { bottom:10px; right:10px; border-bottom:2px solid rgba(155,89,255,0.4); border-right:2px solid rgba(155,89,255,0.4); }
-.wc-label { font-size:11px; font-weight:700; letter-spacing:5px; color:rgba(255,100,0,0.15); text-transform:uppercase; }
-
-/* ══ RIGHT — INFO PANELS ══ */
-.right-panels {
-  flex:1; height:100%;
-  display:flex; flex-direction:column;
-  gap:0;
+.wc-label {
+  position: absolute; bottom: 20px; left: 0; right: 0;
+  text-align: center; font-size: 12px; color: rgba(255,255,255,0.2);
+  text-transform: uppercase; letter-spacing: 4px;
 }
-
-/* ══ CAPTAIN + VICE ROW ══ */
-.cap-row {
-  display:grid; grid-template-columns:1fr 1fr;
-  gap:0;
-  border-bottom:1px solid rgba(255,255,255,0.05);
-  flex-shrink:0;
-}
-
-.player-card {
-  padding:14px 20px;
-  border-right:1px solid rgba(255,255,255,0.05);
-  display:flex; align-items:center; gap:14px;
-  position:relative; overflow:hidden;
-}
-.player-card:last-child { border-right:none; }
-.player-card.captain { background:rgba(255,215,0,0.05); }
-.player-card.vice    { background:rgba(155,89,255,0.05); }
-
-/* Player photo */
-.player-photo-wrap {
-  width:72px; height:88px;
-  flex-shrink:0; position:relative;
-  overflow:hidden;
-  border-radius:4px;
-  background:rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.1);
-}
-.player-photo-img {
-  width:100%; height:100%;
-  object-fit:cover; object-position:top;
-  display:block;
-}
-.player-photo-placeholder {
-  width:100%; height:100%;
-  display:flex; align-items:center; justify-content:center;
-  font-size:32px;
-}
-
-/* Jersey overlay */
-.jersey-wrap {
-  width:48px; height:48px;
-  flex-shrink:0;
-}
-.jersey-img {
-  width:100%; height:100%;
-  object-fit:contain;
-}
-.jersey-placeholder {
-  width:100%; height:100%;
-  display:flex; align-items:center; justify-content:center;
-  font-size:24px;
-}
-
-.player-info { flex:1; min-width:0; }
-.player-role {
-  font-size:9px; font-weight:700; letter-spacing:4px;
-  text-transform:uppercase; margin-bottom:3px;
-}
-.captain .player-role  { color:#FFD700; }
-.vice    .player-role  { color:#9b59ff; }
-.player-name-main {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:26px; color:#fff; letter-spacing:2px; line-height:1;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-.player-team-pos {
-  font-size:11px; font-weight:700; letter-spacing:2px;
-  color:rgba(255,255,255,0.35); text-transform:uppercase; margin-top:3px;
-}
-.player-pts {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:32px; line-height:1; text-align:right;
-  flex-shrink:0;
-}
-.captain .player-pts { color:#FFD700; }
-.vice    .player-pts { color:#9b59ff; }
-.pts-label { font-size:8px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.25); text-transform:uppercase; text-align:right; }
-
-/* ══ TRANSFER ROW ══ */
-.transfer-row {
-  display:grid; grid-template-columns:1fr 1fr;
-  gap:0;
-  border-bottom:1px solid rgba(255,255,255,0.05);
-  flex-shrink:0;
-}
-
-.transfer-card {
-  padding:12px 20px;
-  border-right:1px solid rgba(255,255,255,0.05);
-  display:flex; align-items:center; gap:12px;
-}
-.transfer-card:last-child { border-right:none; }
-.transfer-card.in  { background:rgba(0,200,100,0.04); }
-.transfer-card.out { background:rgba(200,0,0,0.04); }
-
-.transfer-arrow { font-size:24px; flex-shrink:0; }
-.transfer-photo {
-  width:52px; height:64px; flex-shrink:0;
-  border-radius:3px; overflow:hidden;
-  background:rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.08);
-}
-.transfer-photo img { width:100%; height:100%; object-fit:cover; object-position:top; }
-.transfer-photo-ph { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:22px; }
-.transfer-jersey { width:36px; height:36px; flex-shrink:0; }
-.transfer-jersey img { width:100%; height:100%; object-fit:contain; }
-.transfer-info { flex:1; min-width:0; }
-.transfer-role {
-  font-size:9px; font-weight:700; letter-spacing:3px; text-transform:uppercase; margin-bottom:2px;
-}
-.in  .transfer-role { color:rgba(0,200,100,0.7); }
-.out .transfer-role { color:rgba(200,100,100,0.7); }
-.transfer-name { font-family:'Bebas Neue',sans-serif; font-size:22px; color:#fff; letter-spacing:1px; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.transfer-meta { font-size:10px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-top:2px; }
-.transfer-price { font-family:'Bebas Neue',sans-serif; font-size:22px; flex-shrink:0; color:rgba(255,255,255,0.5); }
-
-/* ══ DIFFERENTIAL + STATS ROW ══ */
-.bottom-row {
-  flex:1;
-  display:grid; grid-template-columns:1fr 1fr;
-  gap:0;
-  overflow:hidden;
-}
-
-.diff-card {
-  padding:12px 20px;
-  border-right:1px solid rgba(255,255,255,0.05);
-  background:rgba(255,100,0,0.04);
-  display:flex; align-items:center; gap:12px;
-}
-.diff-photo { width:52px; height:64px; flex-shrink:0; border-radius:3px; overflow:hidden; background:rgba(255,255,255,0.05); border:1px solid rgba(255,100,0,0.15); }
-.diff-photo img { width:100%; height:100%; object-fit:cover; object-position:top; }
-.diff-photo-ph { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:22px; }
-.diff-jersey { width:36px; height:36px; flex-shrink:0; }
-.diff-jersey img { width:100%; height:100%; object-fit:contain; }
-.diff-info { flex:1; min-width:0; }
-.diff-role { font-size:9px; font-weight:700; letter-spacing:3px; color:rgba(255,100,0,0.65); text-transform:uppercase; margin-bottom:2px; }
-.diff-name { font-family:'Bebas Neue',sans-serif; font-size:22px; color:#fff; letter-spacing:1px; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.diff-meta { font-size:10px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-top:2px; }
-.diff-ownership { font-family:'Bebas Neue',sans-serif; font-size:22px; flex-shrink:0; color:#FF6400; }
-
-/* Stats mini */
-.stats-card {
-  padding:10px 18px;
-  display:flex; flex-direction:column; justify-content:center; gap:6px;
-}
-.stat-mini-row { display:flex; align-items:center; gap:8px; }
-.stat-mini-lbl { font-size:9px; font-weight:700; letter-spacing:2px; color:rgba(155,89,255,0.55); text-transform:uppercase; width:80px; }
-.stat-mini-bar { flex:1; height:4px; background:rgba(255,255,255,0.07); border-radius:2px; overflow:hidden; }
-.stat-mini-fill { height:100%; background:linear-gradient(90deg,#FF6400,#FF9500); border-radius:2px; }
-.stat-mini-val { font-family:'Bebas Neue',sans-serif; font-size:16px; color:#fff; min-width:40px; text-align:right; }
-
-/* ══ BOTTOM TICKER ══ */
-.ticker-bar {
-  position:absolute;
-  bottom:0; left:0; right:0; height:58px;
-  background:linear-gradient(to right,rgba(0,0,0,0.88),rgba(10,0,20,0.85));
-  border-top:2px solid rgba(155,89,255,0.3);
-  display:flex; align-items:center; overflow:hidden;
-}
-.ticker-lbl { flex-shrink:0; background:linear-gradient(135deg,#9b59ff,#6840ff); color:#fff; font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:3px; padding:0 18px; height:100%; display:flex; align-items:center; }
-.ticker-track { flex:1; overflow:hidden; height:100%; display:flex; align-items:center; }
-.ticker-inner { display:flex; align-items:center; white-space:nowrap; animation:tickerMove 30s linear infinite; }
-@keyframes tickerMove{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.ticker-item { font-size:18px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.8); padding:0 36px; }
-.ticker-dot { color:rgba(155,89,255,0.5); }
-
-/* ══ EDIT PANEL ══ */
-.ep { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(5,5,15,0.97); border:1px solid rgba(155,89,255,0.5); padding:18px 22px; display:none; flex-direction:column; gap:8px; z-index:200; min-width:380px; }
-.ep.open { display:flex; }
-.etl { font-family:'Bebas Neue',sans-serif; font-size:18px; color:#9b59ff; letter-spacing:3px; border-bottom:1px solid rgba(155,89,255,0.3); padding-bottom:5px; margin-bottom:2px; }
-.er { display:flex; align-items:center; gap:8px; }
-.el { font-size:10px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.35); text-transform:uppercase; min-width:80px; }
-.ei { background:rgba(255,255,255,0.06); border:1px solid rgba(155,89,255,0.3); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; padding:4px 9px; flex:1; }
-.ei:focus { outline:none; border-color:#9b59ff; }
-.xb { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:900; letter-spacing:2px; text-transform:uppercase; padding:5px 12px; border:none; cursor:pointer; }
-.xp { background:#9b59ff; color:#fff; }
-.xg { background:rgba(255,255,255,0.1); color:#fff; }
-
-/* Edit toggle */
-.edit-toggle { position:absolute; top:88px; left:650px; z-index:10; background:rgba(0,0,0,0.7); border:1px solid rgba(155,89,255,0.4); color:#9b59ff; font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:900; letter-spacing:3px; text-transform:uppercase; padding:5px 14px; cursor:pointer; }
-
-input[type="file"] { display:none; }
 
 /* ══ PITCH VIEW ══ */
 .pitch-container {
-  position: absolute;
-  top: 100px;
-  left: 48px;
-  width: 620px;
-  height: 840px;
+  flex: 1;
   background: rgba(0,0,0,0.3);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 12px;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
 }
 .pitch-bg {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background: 
-    linear-gradient(rgba(255,100,0,0.05) 2px, transparent 2px),
-    linear-gradient(90deg, rgba(255,100,0,0.05) 2px, transparent 2px);
-  background-size: 40px 40px;
+    linear-gradient(rgba(255,100,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,100,0,0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
   z-index: -1;
 }
 .pitch-area {
   flex: 1;
-  position: relative;
   display: flex;
   flex-direction: column-reverse; /* GK at bottom, FWD at top */
   justify-content: space-around;
   padding: 20px 0;
 }
 .pitch-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-  width: 100%;
+  display: flex; justify-content: center; align-items: center; gap: 30px; width: 100%;
 }
 .p-player {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100px;
+  display: flex; flex-direction: column; align-items: center; width: 110px;
+  animation: pPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards;
 }
-.p-jersey-wrap {
-  position: relative;
-  width: 54px; height: 54px;
-  margin-bottom: 4px;
-}
+@keyframes pPop { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+
+.p-jersey-wrap { position: relative; width: 64px; height: 64px; margin-bottom: 6px; }
 .p-jersey { width: 100%; height: 100%; object-fit: contain; }
 .p-cap-badge {
-  position: absolute;
-  top: -4px; right: -4px;
-  background: #FF6400; color: #000;
-  font-size: 10px; font-weight: 900;
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  border: 2px solid #000;
+  position: absolute; top: -5px; right: -5px;
+  background: #FF6400; color: #000; font-size: 11px; font-weight: 900;
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; border: 2px solid #000;
 }
 .p-name-wrap {
-  background: rgba(0,0,0,0.85);
-  border: 1px solid rgba(255,255,255,0.15);
-  padding: 2px 8px;
-  border-radius: 3px;
-  width: 100%;
-  text-align: center;
+  background: rgba(0,0,0,0.85); border: 1px solid rgba(255,255,255,0.15);
+  padding: 3px 10px; border-radius: 4px; width: 100%; text-align: center;
 }
 .p-name {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 11px; font-weight: 700;
-  color: #fff;
-  text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 12px; font-weight: 700; color: #fff; text-transform: uppercase;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.p-pts {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 13px;
-  color: #FF6400;
-  margin-top: -2px;
-}
+.p-pts { font-family: 'Bebas Neue', sans-serif; font-size: 15px; color: #FF6400; margin-top: -1px; }
+
 .bench-container {
-  height: 120px;
-  background: rgba(0,0,0,0.5);
-  border-top: 1px solid rgba(255,255,255,0.1);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  padding: 0 20px;
+  height: 140px; background: rgba(0,0,0,0.5); border-top: 1px solid rgba(255,255,255,0.1);
+  display: flex; justify-content: center; align-items: center; gap: 20px; padding: 0 20px;
 }
 .bench-label {
-  position: absolute;
-  bottom: 125px; left: 50%;
-  transform: translateX(-50%);
-  font-size: 9px; font-weight: 900;
-  color: rgba(255,255,255,0.3);
-  text-transform: uppercase;
-  letter-spacing: 3px;
+  position: absolute; bottom: 145px; left: 50%; transform: translateX(-50%);
+  font-size: 10px; font-weight: 900; color: rgba(255,255,255,0.3);
+  text-transform: uppercase; letter-spacing: 4px;
 }
 
+/* ══ TICKER ══ */
+.ticker-bar {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 60px;
+  background: #1a1a1a; border-top: 2px solid #9b59ff;
+  display: flex; align-items: center; z-index: 100;
+}
+.ticker-lbl {
+  background: #9b59ff; color: #fff; font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px; padding: 0 30px; height: 100%; display: flex; align-items: center;
+}
+.ticker-track { flex: 1; overflow: hidden; white-space: nowrap; }
+.ticker-inner { display: inline-block; animation: ticker 30s linear infinite; padding-left: 100%; }
+@keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+.ticker-item { font-size: 18px; color: #fff; font-weight: 700; margin: 0 40px; }
+.ticker-dot { color: #9b59ff; }
+
+/* ══ STATUS ══ */
+.json-st { position: absolute; top: 100px; right: 40px; font-size: 12px; color: rgba(255,255,255,0.2); }
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
 <div class="top-bar">
   <div class="logo-area">
     <div class="logo-txt">LID⚽</div>
@@ -390,7 +158,7 @@ input[type="file"] { display:none; }
   <div class="gw-center">
     <div class="gw-block">
       <div class="gw-label">Gameweek</div>
-      <div class="gw-val purple" id="gw-num">GW32</div>
+      <div class="gw-val purple" id="gw-num">GW--</div>
     </div>
     <div class="gw-divider"></div>
     <div class="gw-block">
@@ -402,395 +170,82 @@ input[type="file"] { display:none; }
       <div class="gw-label">Overall Rank</div>
       <div class="gw-val" id="overall-rank" style="font-size:28px">-</div>
     </div>
-    <div class="gw-divider"></div>
-    <div class="gw-block">
-      <div class="gw-label">Team Value</div>
-      <div class="gw-val" id="team-val" style="font-size:28px">-</div>
-    </div>
-    <div class="gw-divider"></div>
-    <div class="gw-block">
-      <div class="gw-label">Bank</div>
-      <div class="gw-val" id="bank-val" style="font-size:28px">-</div>
-    </div>
   </div>
-  <div class="type-badge">🏆 FPL Tips</div>
+  <div style="font-family:'Bebas Neue',sans-serif; font-size:18px; color:#9b59ff; letter-spacing:4px;">🏆 FPL TIPS</div>
 </div>
 
-<div class="json-st" id="json-st">⏳</div>
-<button class="edit-toggle" onclick="toggleEp()">✏️ Edit</button>
+<div class="json-st" id="json-st">⏳ Loading...</div>
 
-<!-- MAIN LAYOUT -->
 <div class="main-layout">
+  <div class="webcam-zone">
+    <div class="wc-label">[ webcam ]</div>
+  </div>
 
-  <!-- PITCH VIEW -->
   <div class="pitch-container">
     <div class="pitch-bg"></div>
     <div class="pitch-area" id="pitch-main"></div>
     <div class="bench-label">Substitutes</div>
     <div class="bench-container" id="pitch-bench"></div>
   </div>
-
-
-  <!-- WEBCAM LEFT -->
-  <div class="webcam-zone">
-    <div class="wc-corner wc-tl"></div><div class="wc-corner wc-tr"></div>
-    <div class="wc-corner wc-bl"></div><div class="wc-corner wc-br"></div>
-    <div class="wc-label">[ webcam ]</div>
-  </div>
-
-  <!-- RIGHT PANELS -->
-  <div class="right-panels">
-
-    <!-- Captain + Vice -->
-    <div class="cap-row">
-      <!-- Captain -->
-      <div class="player-card captain">
-        <div class="player-photo-wrap">
-          <img class="player-photo-img" id="cap-photo" src="" onerror="this.style.display='none';document.getElementById('cap-photo-ph').style.display='flex'" style="display:none"/>
-          <div class="player-photo-placeholder" id="cap-photo-ph">👤</div>
-        </div>
-        <div class="jersey-wrap">
-          <img class="jersey-img" id="cap-jersey" src="" onerror="this.style.display='none'" style="display:none"/>
-          <div class="jersey-placeholder" id="cap-jersey-ph">👕</div>
-        </div>
-        <div class="player-info">
-          <div class="player-role">⭐ Captain (2×)</div>
-          <div class="player-name-main" id="cap-name">-</div>
-          <div class="player-team-pos" id="cap-meta">-</div>
-        </div>
-        <div>
-          <div class="player-pts" id="cap-pts">-</div>
-          <div class="pts-label">pts</div>
-        </div>
-      </div>
-      <!-- Vice -->
-      <div class="player-card vice">
-        <div class="player-photo-wrap">
-          <img class="player-photo-img" id="vc-photo" src="" onerror="this.style.display='none';document.getElementById('vc-photo-ph').style.display='flex'" style="display:none"/>
-          <div class="player-photo-placeholder" id="vc-photo-ph">👤</div>
-        </div>
-        <div class="jersey-wrap">
-          <img class="jersey-img" id="vc-jersey" src="" onerror="this.style.display='none'" style="display:none"/>
-          <div class="jersey-placeholder" id="vc-jersey-ph">👕</div>
-        </div>
-        <div class="player-info">
-          <div class="player-role">🔷 Vice Captain</div>
-          <div class="player-name-main" id="vc-name">-</div>
-          <div class="player-team-pos" id="vc-meta">-</div>
-        </div>
-        <div>
-          <div class="player-pts" id="vc-pts">-</div>
-          <div class="pts-label">pts</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Transfer In + Out -->
-    <div class="transfer-row">
-      <!-- Transfer In -->
-      <div class="transfer-card in">
-        <div class="transfer-arrow">🔄</div>
-        <div class="transfer-photo">
-          <img id="tin-photo" src="" onerror="this.style.display='none'" style="display:none"/>
-          <div class="transfer-photo-ph" id="tin-photo-ph">👤</div>
-        </div>
-        <div class="transfer-jersey">
-          <img id="tin-jersey" src="" onerror="this.style.display='none'" style="display:none"/>
-        </div>
-        <div class="transfer-info">
-          <div class="transfer-role">Transfer In</div>
-          <div class="transfer-name" id="tin-name">-</div>
-          <div class="transfer-meta" id="tin-meta">-</div>
-        </div>
-        <div class="transfer-price" id="tin-price">-</div>
-      </div>
-      <!-- Transfer Out -->
-      <div class="transfer-card out">
-        <div class="transfer-arrow">❌</div>
-        <div class="transfer-photo">
-          <img id="tout-photo" src="" onerror="this.style.display='none'" style="display:none"/>
-          <div class="transfer-photo-ph" id="tout-photo-ph">👤</div>
-        </div>
-        <div class="transfer-jersey">
-          <img id="tout-jersey" src="" onerror="this.style.display='none'" style="display:none"/>
-        </div>
-        <div class="transfer-info">
-          <div class="transfer-role">Transfer Out</div>
-          <div class="transfer-name" id="tout-name">-</div>
-          <div class="transfer-meta" id="tout-meta">-</div>
-        </div>
-        <div class="transfer-price" id="tout-price">-</div>
-      </div>
-    </div>
-
-    <!-- Differential + Stats -->
-    <div class="bottom-row">
-      <!-- Differential -->
-      <div class="diff-card">
-        <div class="diff-photo">
-          <img id="diff-photo" src="" onerror="this.style.display='none'" style="display:none"/>
-          <div class="diff-photo-ph" id="diff-photo-ph">👤</div>
-        </div>
-        <div class="diff-jersey">
-          <img id="diff-jersey" src="" onerror="this.style.display='none'" style="display:none"/>
-        </div>
-        <div class="diff-info">
-          <div class="diff-role">🎯 Differential</div>
-          <div class="diff-name" id="diff-name">-</div>
-          <div class="diff-meta" id="diff-meta">-</div>
-        </div>
-        <div>
-          <div class="diff-ownership" id="diff-own">-%</div>
-          <div style="font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.25);text-transform:uppercase">owned</div>
-        </div>
-      </div>
-      <!-- Stats mini -->
-      <div class="stats-card">
-        <div class="stat-mini-row">
-          <div class="stat-mini-lbl">GW Rank</div>
-          <div class="stat-mini-bar"><div class="stat-mini-fill" style="width:60%"></div></div>
-          <div class="stat-mini-val" id="gw-rank">-</div>
-        </div>
-        <div class="stat-mini-row">
-          <div class="stat-mini-lbl">Transfers</div>
-          <div class="stat-mini-bar"><div class="stat-mini-fill" style="width:40%"></div></div>
-          <div class="stat-mini-val" id="transfers">-</div>
-        </div>
-        <div class="stat-mini-row">
-          <div class="stat-mini-lbl">Total Pts</div>
-          <div class="stat-mini-bar"><div class="stat-mini-fill" style="width:75%"></div></div>
-          <div class="stat-mini-val" id="total-pts">-</div>
-        </div>
-        <div class="stat-mini-row">
-          <div class="stat-mini-lbl">Formation</div>
-          <div class="stat-mini-bar"><div class="stat-mini-fill" style="width:50%"></div></div>
-          <div class="stat-mini-val" id="formation">-</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
 </div>
 
-<!-- TICKER -->
 <div class="ticker-bar">
   <div class="ticker-lbl">FPL</div>
   <div class="ticker-track">
-    <div class="ticker-inner">
-      <span class="ticker-item" id="tk-cap1">⭐ Captain: - · 2× Points</span>
+    <div class="ticker-inner" id="ticker-content">
+      <span class="ticker-item">LID OFFICIAL Channel ကို Subscribe လုပ်ဖို့ မမေ့နဲ့!</span>
       <span class="ticker-dot">◆</span>
-      <span class="ticker-item" id="tk-tin1">🔄 Transfer In: -</span>
+      <span class="ticker-item" id="tk-cap">⭐ Captain: -</span>
       <span class="ticker-dot">◆</span>
-      <span class="ticker-item" id="tk-diff1">🎯 Differential: - · Low Ownership</span>
+      <span class="ticker-item" id="tk-tin">🔄 Transfer In: -</span>
       <span class="ticker-dot">◆</span>
-      <span class="ticker-item">🔔 LID OFFICIAL Channel ကို Subscribe လုပ်ဖို့ မမေ့နဲ့!</span>
-      <span class="ticker-dot">◆</span>
-      <span class="ticker-item" id="tk-cap2">⭐ Captain: - · 2× Points</span>
-      <span class="ticker-dot">◆</span>
-      <span class="ticker-item" id="tk-tin2">🔄 Transfer In: -</span>
-      <span class="ticker-dot">◆</span>
-      <span class="ticker-item" id="tk-diff2">🎯 Differential: - · Low Ownership</span>
-      <span class="ticker-dot">◆</span>
-      <span class="ticker-item">🔔 LID OFFICIAL Channel ကို Subscribe လုပ်ဖို့ မမေ့နဲ့!</span>
-      <span class="ticker-dot">◆</span>
+      <span class="ticker-item" id="tk-diff">🎯 Differential: -</span>
     </div>
-  </div>
-</div>
-
-<!-- EDIT PANEL -->
-<div class="ep" id="ep">
-  <div class="etl">✏️ FPL Manual Edit</div>
-  <div class="er"><div class="el">Gameweek</div><input class="ei" id="ei-gw" value="GW32" oninput="document.getElementById('gw-num').textContent=this.value;save()"></div>
-  <div class="er"><div class="el">GW Points</div><input class="ei" id="ei-pts" value="-" oninput="document.getElementById('gw-pts').textContent=this.value;save()"></div>
-  <div class="er"><div class="el">Captain</div><input class="ei" id="ei-cap" value="-" oninput="updateCap(this.value)"></div>
-  <div class="er"><div class="el">Vice</div><input class="ei" id="ei-vc" value="-" oninput="updateVc(this.value)"></div>
-  <div class="er"><div class="el">Trans In</div><input class="ei" id="ei-tin" value="-" oninput="updateTin(this.value)"></div>
-  <div class="er"><div class="el">Trans Out</div><input class="ei" id="ei-tout" value="-" oninput="updateTout(this.value)"></div>
-  <div class="er"><div class="el">Differential</div><input class="ei" id="ei-diff" value="-" oninput="updateDiff(this.value)"></div>
-  <div class="er" style="margin-top:5px;gap:6px">
-    <button class="xb xp" style="flex:1" onclick="toggleEp()">Close ✕</button>
-    <button class="xb xg" onclick="reloadJSON()">🔄 Reload</button>
-    <button class="xb xg" onclick="clearAll()">🗑</button>
   </div>
 </div>
 
 <script>
-// ── Scale ──
-function autoScale(){const s=Math.min(window.innerWidth/1920,window.innerHeight/1080);document.body.style.transform=`scale(${s})`;}
-autoScale(); window.addEventListener('resize',autoScale);
-
-const JSON_URL='https://boexaw-ship-it.github.io/lid-official/data/fpl.json';
-
-// ── Set image with fallback ──
-function setImg(imgId, phId, url){
-  if(!url) return;
-  const img=document.getElementById(imgId);
-  const ph=document.getElementById(phId);
-  if(!img) return;
-  img.src=url;
-  img.style.display='block';
-  if(ph) ph.style.display='none';
-  img.onerror=()=>{img.style.display='none'; if(ph) ph.style.display='flex';};
+function autoScale(){
+  const s = Math.min(window.innerWidth/1920, window.innerHeight/1080);
+  document.body.style.transform = `scale(${s})`;
 }
+autoScale(); window.addEventListener('resize', autoScale);
 
-// ── Load player data into card ──
-function loadPlayer(prefix, p){
-  if(!p||!p.name) return;
-  // Photo
-  if(p.photo) setImg(prefix+'-photo', prefix+'-photo-ph', p.photo);
-  // Jersey
-  if(p.jersey){
-    const jImg=document.getElementById(prefix+'-jersey');
-    const jPh=document.getElementById(prefix+'-jersey-ph');
-    if(jImg){jImg.src=p.jersey;jImg.style.display='block';if(jPh)jPh.style.display='none';jImg.onerror=()=>{jImg.style.display='none';if(jPh)jPh.style.display='flex';};}
-  }
-  // Name
-  const nameEl=document.getElementById(prefix+'-name');
-  if(nameEl) nameEl.textContent=p.name.toUpperCase();
-  // Meta
-  const metaEl=document.getElementById(prefix+'-meta');
-  if(metaEl) metaEl.textContent=[(p.team||''),(p.position||''),(p.price?'£'+p.price+'m':'')].filter(Boolean).join(' · ');
-}
+const JSON_URL = 'https://boexaw-ship-it.github.io/lid-official/data/fpl.json';
 
-// ── JSON Fetch ──
-async function loadJSON(){
-  const st=document.getElementById('json-st');
-  st.textContent='⏳'; st.className='json-st';
-  try{
-    const res=await fetch(JSON_URL+'?t='+Date.now());
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const d=await res.json();
-
-    // Top bar stats
-    if(d.gameweek) document.getElementById('gw-num').textContent='GW'+d.gameweek;
-    if(d.gw_points!==undefined) document.getElementById('gw-pts').textContent=d.gw_points;
-    if(d.overall_rank) document.getElementById('overall-rank').textContent=Number(d.overall_rank).toLocaleString();
-    if(d.team_value) document.getElementById('team-val').textContent='£'+d.team_value+'m';
-    if(d.bank!==undefined) document.getElementById('bank-val').textContent='£'+d.bank+'m';
-    if(d.gw_rank) document.getElementById('gw-rank').textContent=Number(d.gw_rank).toLocaleString();
-    if(d.transfers_made!==undefined) document.getElementById('transfers').textContent=d.transfers_made;
-    if(d.total_points) document.getElementById('total-pts').textContent=d.total_points;
-    if(d.formation) document.getElementById('formation').textContent=d.formation;
-
-    // Captain
-    if(d.captain){
-      loadPlayer('cap', d.captain);
-      if(d.captain.gw_points!==undefined) document.getElementById('cap-pts').textContent=d.captain.gw_points*2;
-      document.getElementById('ei-cap').value=d.captain.name||'-';
-    }
-
-    // Vice
-    if(d.vice_captain){
-      loadPlayer('vc', d.vice_captain);
-      document.getElementById('ei-vc').value=d.vice_captain.name||'-';
-    }
-
-    // Transfer In
-    if(d.transfer_in&&d.transfer_in.name){
-      loadPlayer('tin', d.transfer_in);
-      if(d.transfer_in.price) document.getElementById('tin-price').textContent='£'+d.transfer_in.price+'m';
-      document.getElementById('tin-meta').textContent=[(d.transfer_in.team||''),(d.transfer_in.position||''),(d.transfer_in.form?'Form: '+d.transfer_in.form:'')].filter(Boolean).join(' · ');
-      document.getElementById('ei-tin').value=d.transfer_in.name;
-    }
-
-    // Transfer Out
-    if(d.transfer_out&&d.transfer_out.name){
-      loadPlayer('tout', d.transfer_out);
-      if(d.transfer_out.price) document.getElementById('tout-price').textContent='£'+d.transfer_out.price+'m';
-      document.getElementById('tout-meta').textContent=[(d.transfer_out.team||''),(d.transfer_out.position||''),(d.transfer_out.form?'Form: '+d.transfer_out.form:'')].filter(Boolean).join(' · ');
-      document.getElementById('ei-tout').value=d.transfer_out.name;
-    }
-
-    // Differential
-    if(d.differential&&d.differential.name){
-      loadPlayer('diff', d.differential);
-      if(d.differential.selected_pct!==undefined) document.getElementById('diff-own').textContent=d.differential.selected_pct+'%';
-      document.getElementById('diff-meta').textContent=[(d.differential.team||''),(d.differential.position||''),(d.differential.form?'Form: '+d.differential.form:'')].filter(Boolean).join(' · ');
-      document.getElementById('ei-diff').value=d.differential.name;
-    }
-
-    // Ticker update
-    updateTicker();
-    if(d.squad) renderPitch(d.squad);
-    save();
-
-    st.textContent='✅ loaded'; st.className='json-st ok';
-    console.log('✅ fpl.json loaded — GW'+d.gameweek+' | '+d.gw_points+' pts');
-
-  } catch(e){
-    st.textContent='❌ '+e.message; st.className='json-st err';
-    console.warn('FPL JSON failed:', e.message);
-    loadSaved();
+async function loadData() {
+  try {
+    const res = await fetch(JSON_URL + '?t=' + Date.now());
+    const d = await res.json();
+    
+    document.getElementById('json-st').textContent = '✅ Updated: ' + d.updated.slice(11,16);
+    document.getElementById('gw-num').textContent = 'GW' + d.gameweek;
+    document.getElementById('gw-pts').textContent = d.gw_points || '0';
+    document.getElementById('overall-rank').textContent = (d.overall_rank || 0).toLocaleString();
+    
+    // Ticker info
+    if(d.captain && d.captain.name) document.getElementById('tk-cap').textContent = `⭐ Captain: ${d.captain.name} (${d.captain.gw_points || 0} pts)`;
+    if(d.transfer_in && d.transfer_in.name) document.getElementById('tk-tin').textContent = `🔄 Transfer In: ${d.transfer_in.name}`;
+    if(d.differential && d.differential.name) document.getElementById('tk-diff').textContent = `🎯 Differential: ${d.differential.name}`;
+    
+    // Pitch
+    renderPitch(d.squad);
+  } catch(e) {
+    document.getElementById('json-st').textContent = '❌ Error loading data';
+    console.error(e);
   }
 }
 
-function updateTicker(){
-  const cap=document.getElementById('cap-name').textContent;
-  const tin=document.getElementById('tin-name').textContent;
-  const diff=document.getElementById('diff-name').textContent;
-  const own=document.getElementById('diff-own').textContent;
-  const t1=`⭐ Captain: ${cap} · 2× Points`;
-  const t2=`🔄 Transfer In: ${tin}`;
-  const t3=`🎯 Differential: ${diff} · ${own} Owned`;
-  ['tk-cap1','tk-cap2'].forEach(id=>document.getElementById(id).textContent=t1);
-  ['tk-tin1','tk-tin2'].forEach(id=>document.getElementById(id).textContent=t2);
-  ['tk-diff1','tk-diff2'].forEach(id=>document.getElementById(id).textContent=t3);
-}
-
-// Manual update helpers
-function updateCap(v){ document.getElementById('cap-name').textContent=v.toUpperCase(); updateTicker(); if(d.squad) renderPitch(d.squad);
-    save(); }
-function updateVc(v){ document.getElementById('vc-name').textContent=v.toUpperCase(); if(d.squad) renderPitch(d.squad);
-    save(); }
-function updateTin(v){ document.getElementById('tin-name').textContent=v.toUpperCase(); updateTicker(); if(d.squad) renderPitch(d.squad);
-    save(); }
-function updateTout(v){ document.getElementById('tout-name').textContent=v.toUpperCase(); if(d.squad) renderPitch(d.squad);
-    save(); }
-function updateDiff(v){ document.getElementById('diff-name').textContent=v.toUpperCase(); updateTicker(); if(d.squad) renderPitch(d.squad);
-    save(); }
-
-// Edit panel
-function toggleEp(){ document.getElementById('ep').classList.toggle('open'); }
-function reloadJSON(){ toggleEp(); loadJSON(); }
-
-// LocalStorage
-function save(){
-  localStorage.setItem('lid_fpl_ov', JSON.stringify({
-    gw: document.getElementById('gw-num').textContent,
-    pts: document.getElementById('gw-pts').textContent,
-    cap: document.getElementById('ei-cap').value,
-    vc: document.getElementById('ei-vc').value,
-    tin: document.getElementById('ei-tin').value,
-    tout: document.getElementById('ei-tout').value,
-    diff: document.getElementById('ei-diff').value,
-  }));
-}
-
-function loadSaved(){
-  const d=localStorage.getItem('lid_fpl_ov'); if(!d) return;
-  const s=JSON.parse(d);
-  if(s.gw){document.getElementById('gw-num').textContent=s.gw;document.getElementById('ei-gw').value=s.gw;}
-  if(s.pts){document.getElementById('gw-pts').textContent=s.pts;document.getElementById('ei-pts').value=s.pts;}
-  if(s.cap){document.getElementById('cap-name').textContent=s.cap.toUpperCase();document.getElementById('ei-cap').value=s.cap;}
-  if(s.vc){document.getElementById('vc-name').textContent=s.vc.toUpperCase();document.getElementById('ei-vc').value=s.vc;}
-  if(s.tin){document.getElementById('tin-name').textContent=s.tin.toUpperCase();document.getElementById('ei-tin').value=s.tin;}
-  if(s.tout){document.getElementById('tout-name').textContent=s.tout.toUpperCase();document.getElementById('ei-tout').value=s.tout;}
-  if(s.diff){document.getElementById('diff-name').textContent=s.diff.toUpperCase();document.getElementById('ei-diff').value=s.diff;}
-  updateTicker();
-}
-
-function clearAll(){ localStorage.removeItem('lid_fpl_ov'); location.reload(); }
-
-// Init
-loadJSON();
-
-// ── Pitch Rendering ──
 function renderPitch(squad) {
   const main = document.getElementById('pitch-main');
   const bench = document.getElementById('pitch-bench');
   if(!main || !bench) return;
   main.innerHTML = ''; bench.innerHTML = '';
-  if(!squad || squad.length === 0) return;
+  
+  if(!squad || squad.length === 0) {
+    main.innerHTML = '<div style="color:rgba(255,255,255,0.1); font-size:40px; font-weight:900; width:100%; text-align:center;">NO SQUAD DATA</div>';
+    return;
+  }
   
   const starters = squad.filter(p => p.is_starting);
   const subs = squad.filter(p => !p.is_starting);
@@ -811,12 +266,13 @@ function renderPitch(squad) {
 function createPlayerEl(p, isBench = false) {
   const el = document.createElement('div');
   el.className = 'p-player';
-  if(isBench) el.style.width = '80px';
+  if(isBench) el.style.width = '90px';
   const capBadge = p.is_captain ? '<div class="p-cap-badge">C</div>' : '';
-  const pts = p.total_pts !== undefined ? p.total_pts : '-';
+  const pts = p.gw_points !== undefined ? p.gw_points : (p.total_pts || 0);
+  
   el.innerHTML = `
     <div class="p-jersey-wrap">
-      <img class="p-jersey" src="${p.jersey || ''}" onerror="this.src='https://fantasy.premierleague.com/static/media/shirts/standard/shirt_0-66.png'">
+      <img class="p-jersey" src="${p.jersey || ''}" onerror="this.src='https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_0-110.png'">
       ${capBadge}
     </div>
     <div class="p-name-wrap">
@@ -827,7 +283,8 @@ function createPlayerEl(p, isBench = false) {
   return el;
 }
 
+loadData();
+setInterval(loadData, 60000); // Auto refresh every minute
 </script>
 </body>
 </html>
-
