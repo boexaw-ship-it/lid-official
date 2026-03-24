@@ -1,5 +1,4 @@
 name: Update FPL Data
-
 on:
   workflow_dispatch:
     inputs:
@@ -11,56 +10,33 @@ on:
         description: 'Current Gameweek number'
         required: true
         default: '32'
+      transfer_in:
+        description: 'Player Name (In)'
+        required: false
+        default: ''
+      transfer_out:
+        description: 'Player Name (Out)'
+        required: false
+        default: ''
+      differential:
+        description: 'Differential Player'
+        required: false
+        default: ''
 
 jobs:
   update-fpl:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
-      - name: Fetch FPL Bootstrap (players + teams)
+      - name: Fetch FPL Data
         run: |
-          curl -s \
-            "https://fantasy.premierleague.com/api/bootstrap-static/" \
-            -H "User-Agent: Mozilla/5.0" \
-            -o data/fpl_bootstrap.json
-
-      - name: Fetch FPL My Team
-        run: |
-          curl -s \
-            "https://fantasy.premierleague.com/api/entry/${{ github.event.inputs.team_id }}/" \
-            -H "User-Agent: Mozilla/5.0" \
-            -o data/fpl_team.json
-
-      - name: Fetch GW History
-        run: |
-          curl -s \
-            "https://fantasy.premierleague.com/api/entry/${{ github.event.inputs.team_id }}/history/" \
-            -H "User-Agent: Mozilla/5.0" \
-            -o data/fpl_history.json
-
-      - name: Fetch GW Picks
-        run: |
-          curl -s \
-            "https://fantasy.premierleague.com/api/entry/${{ github.event.inputs.team_id }}/event/${{ github.event.inputs.gameweek }}/picks/" \
-            -H "User-Agent: Mozilla/5.0" \
-            -o data/fpl_picks.json
-
-      - name: Fetch GW Live Points
-        run: |
-          curl -s \
-            "https://fantasy.premierleague.com/api/event/${{ github.event.inputs.gameweek }}/live/" \
-            -H "User-Agent: Mozilla/5.0" \
-            -o data/fpl_live.json
-
-      - name: Fetch Next GW Fixtures
-        run: |
-          curl -s \
-            "https://fantasy.premierleague.com/api/fixtures/?event=${{ github.event.inputs.gameweek }}" \
-            -H "User-Agent: Mozilla/5.0" \
-            -o data/fpl_fixtures.json
+          mkdir -p data
+          curl -s "https://fantasy.premierleague.com/api/bootstrap-static/" -H "User-Agent: Mozilla/5.0" -o data/fpl_bootstrap.json
+          curl -s "https://fantasy.premierleague.com/api/entry/${{ github.event.inputs.team_id }}/" -H "User-Agent: Mozilla/5.0" -o data/fpl_team.json
+          curl -s "https://fantasy.premierleague.com/api/entry/${{ github.event.inputs.team_id }}/history/" -H "User-Agent: Mozilla/5.0" -o data/fpl_history.json
+          curl -s "https://fantasy.premierleague.com/api/entry/${{ github.event.inputs.team_id }}/event/${{ github.event.inputs.gameweek }}/picks/" -H "User-Agent: Mozilla/5.0" -o data/fpl_picks.json
+          curl -s "https://fantasy.premierleague.com/api/event/${{ github.event.inputs.gameweek }}/live/" -H "User-Agent: Mozilla/5.0" -o data/fpl_live.json
 
       - name: Build fpl.json
         run: |
@@ -68,358 +44,98 @@ jobs:
           import json
           from datetime import datetime, timezone
 
-          # ── Image URL helpers ──
           def player_photo(code):
-            return f"https://resources.premierleague.com/premierleague/photos/players/110x140/p{code}.png"
-
+              return f"https://resources.premierleague.com/premierleague/photos/players/110x140/p{code}.png"
           def jersey_url(team_code):
-            return f"https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_{team_code}-110.png"
-
+              return f"https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_{team_code}-110.png"
           def gk_jersey_url(team_code):
-            return f"https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_{team_code}_1-110.png"
+              return f"https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_{team_code}_1-110.png"
 
-          # ── Load data ──
-          with open('data/fpl_team.json') as f:
-            team = json.load(f)
-          with open('data/fpl_history.json') as f:
-            history = json.load(f)
-          with open('data/fpl_picks.json') as f:
-            picks_data = json.load(f)
-          with open('data/fpl_bootstrap.json') as f:
-            bootstrap = json.load(f)
-          with open('data/fpl_live.json') as f:
-            live_data = json.load(f)
-          with open('data/fpl_fixtures.json') as f:
-            fixtures = json.load(f)
+          with open('data/fpl_team.json') as f: team = json.load(f)
+          with open('data/fpl_history.json') as f: history = json.load(f)
+          with open('data/fpl_picks.json') as f: picks_data = json.load(f)
+          with open('data/fpl_bootstrap.json') as f: bootstrap = json.load(f)
+          with open('data/fpl_live.json') as f: live_data = json.load(f)
 
-          # ── Lookups ──
-          players   = {p['id']: p for p in bootstrap['elements']}
+          players = {p['id']: p for p in bootstrap['elements']}
           teams_map = {t['id']: t for t in bootstrap['teams']}
-
-          # Live points lookup
-          live_elements = {
-            e['id']: e.get('stats', {})
-            for e in live_data.get('elements', [])
-          }
-
-          # ── GW history ──
+          live_elements = {e['id']: e.get('stats', {}) for e in live_data.get('elements', [])}
+          
           gw_history = history.get('current', [])
           current_gw = gw_history[-1] if gw_history else {}
-
-          # ── Picks ──
-          picks      = picks_data.get('picks', [])
+          picks = picks_data.get('picks', [])
+          
           captain_id = next((p['element'] for p in picks if p.get('is_captain')), None)
-          vice_id    = next((p['element'] for p in picks if p.get('is_vice_captain')), None)
-
+          vice_id = next((p['element'] for p in picks if p.get('is_vice_captain')), None)
           pos_names = {1:'GK', 2:'DEF', 3:'MID', 4:'FWD'}
 
           def build_player(pid, extra={}):
-            p  = players.get(pid, {})
-            t  = teams_map.get(p.get('team', 0), {})
-            tc = t.get('code', 0)
-            et = p.get('element_type', 0)
-            live_pts = live_elements.get(pid, {}).get('total_points', 0)
-            return {
-              "id":           pid,
-              "name":         p.get('web_name', ''),
-              "full_name":    p.get('first_name','') + ' ' + p.get('second_name',''),
-              "team":         t.get('short_name', ''),
-              "team_name":    t.get('name', ''),
-              "team_code":    tc,
-              "position":     pos_names.get(et, ''),
-              "element_type": et,
-              "photo":        player_photo(p.get('code', pid)),
-              "jersey":       gk_jersey_url(tc) if et == 1 else jersey_url(tc),
-              "price":        round(p.get('now_cost', 0) / 10, 1),
-              "total_pts":    p.get('total_points', 0),
-              "gw_live_pts":  live_pts,
-              "form":         float(p.get('form', '0.0') or '0.0'),
-              "selected_pct": float(p.get('selected_by_percent', '0.0') or '0.0'),
-              "ict_index":    float(p.get('ict_index', '0.0') or '0.0'),
-              **extra
-            }
+              p = players.get(pid, {})
+              t = teams_map.get(p.get('team', 0), {})
+              tc = t.get('code', 0)
+              et = p.get('element_type', 0)
+              return {
+                  "id": pid,
+                  "name": p.get('web_name', ''),
+                  "team": t.get('short_name', ''),
+                  "team_code": tc,
+                  "position": pos_names.get(et, ''),
+                  "element_type": et,
+                  "photo": player_photo(p.get('code', pid)),
+                  "jersey": gk_jersey_url(tc) if et == 1 else jersey_url(tc),
+                  "price": round(p.get('now_cost', 0) / 10, 1),
+                  "total_pts": p.get('total_points', 0),
+                  "gw_points": live_elements.get(pid, {}).get('total_points', 0),
+                  **extra
+              }
 
-          # ── Formation ──
           starting = [p for p in picks if p.get('position', 0) <= 11]
           starters_by_type = {1:0, 2:0, 3:0, 4:0}
           for p in starting:
-            pl = players.get(p['element'], {})
-            et = pl.get('element_type', 0)
-            starters_by_type[et] = starters_by_type.get(et, 0) + 1
-          formation = f"{starters_by_type[2]}-{starters_by_type[3]}-{starters_by_type[4]}"
-
-          # ── Squad list ──
-          my_player_ids = {p['element'] for p in picks}
-          squad_list = []
-          for p in picks:
-            live_pts = live_elements.get(p['element'], {}).get('total_points', 0)
-            pl_data = build_player(p['element'], {
-              "is_captain":    p.get('is_captain', False),
-              "is_vice":       p.get('is_vice_captain', False),
-              "multiplier":    p.get('multiplier', 1),
-              "pick_position": p.get('position', 0),
-              "is_starting":   p.get('position', 0) <= 11,
-              "gw_live_pts":   live_pts * p.get('multiplier', 1)
-            })
-            squad_list.append(pl_data)
-
-          # ── Captain & Vice ──
-          cap_data  = build_player(captain_id) if captain_id else {}
-          vice_data = build_player(vice_id)    if vice_id    else {}
-
-          # ── Auto Transfer In ──
-          # Best form player NOT in my squad, good fixtures
-          gw_num = int("${{ github.event.inputs.gameweek }}")
-          team_fixtures = {}
-          for fx in fixtures:
-            for side in ['team_h', 'team_a']:
-              tid = fx.get(side)
-              if tid not in team_fixtures:
-                team_fixtures[tid] = []
-              opp = fx.get('team_a' if side == 'team_h' else 'team_h')
-              team_fixtures[tid].append({
-                'difficulty': fx.get(side + '_difficulty', 3),
-                'opponent_id': opp
-              })
-
-          # Score = form * 2 + ict - price + (5 - avg_difficulty)
-          def transfer_score(p):
-            form = float(p.get('form', '0') or '0')
-            ict  = float(p.get('ict_index', '0') or '0')
-            cost = p.get('now_cost', 100) / 10
-            tid  = p.get('team', 0)
-            fxs  = team_fixtures.get(tid, [])
-            avg_diff = sum(f['difficulty'] for f in fxs[:2]) / max(len(fxs[:2]), 1)
-            return (form * 2) + (ict * 0.1) + (5 - avg_diff) - (cost * 0.1)
-
-          # Transfer In — best non-squad player
-          candidates_in = [
-            p for p in bootstrap['elements']
-            if p['id'] not in my_player_ids
-            and float(p.get('form', '0') or '0') > 4.0
-            and p.get('status') == 'a'
-          ]
-          candidates_in.sort(key=transfer_score, reverse=True)
-          tin_player = candidates_in[0] if candidates_in else None
-          tin_data   = build_player(tin_player['id']) if tin_player else {}
-
-          # Transfer Out — worst form player in my squad (exclude captain)
-          candidates_out = [
-            p for p in picks
-            if not p.get('is_captain') and p.get('position', 0) <= 11
-          ]
-          def out_score(p):
-            pl = players.get(p['element'], {})
-            return float(pl.get('form', '0') or '0')
-          candidates_out.sort(key=out_score)
-          tout_id   = candidates_out[0]['element'] if candidates_out else None
-          tout_data = build_player(tout_id) if tout_id else {}
-
-          # ── Auto Differential ──
-          # Low ownership (<12%) + high form (>5.5) + good fixtures
-          diff_candidates = [
-            p for p in bootstrap['elements']
-            if float(p.get('selected_by_percent', '0') or '0') < 12.0
-            and float(p.get('form', '0') or '0') > 5.5
-            and p.get('status') == 'a'
-            and p['id'] not in my_player_ids
-          ]
-          diff_candidates.sort(key=transfer_score, reverse=True)
-          diff_player = diff_candidates[0] if diff_candidates else None
-          diff_data   = build_player(diff_player['id']) if diff_player else {}
-
-          # ── Top 3 Transfer In suggestions ──
-          top3_in = [build_player(p['id']) for p in candidates_in[:3]]
-
-          # ── Top 3 Differentials ──
-          top3_diff = [build_player(p['id']) for p in diff_candidates[:3]]
-
-          # ── Final output ──
-          out = {
-            "updated":        datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "gameweek":       gw_num,
-            "team_name":      team.get('name', ''),
-            "manager":        team.get('player_first_name','') + ' ' + team.get('player_last_name',''),
-            "overall_rank":   team.get('summary_overall_rank', 0),
-            "total_points":   team.get('summary_overall_points', 0),
-            "team_value":     round(team.get('last_deadline_value', 0) / 10, 1),
-            "bank":           round(team.get('last_deadline_bank', 0) / 10, 1),
-            "gw_points":      current_gw.get('points', 0),
-            "gw_rank":        current_gw.get('rank', 0),
-            "transfers_made": current_gw.get('event_transfers', 0),
-            "formation":      formation,
-            "captain":        {**cap_data, "gw_points": current_gw.get('points', 0)},
-            "vice_captain":   vice_data,
-            "transfer_in":    tin_data,
-            "transfer_out":   tout_data,
-            "differential":   diff_data,
-            "top3_transfer_in":   top3_in,
-            "top3_differential":  top3_diff,
-            "squad":          squad_list
-          }
-
-          with open('data/fpl.json', 'w') as f:
-            json.dump(out, f, indent=2)
-
-          print(f"✅ FPL data built")
-          print(f"   Team:       {out['team_name']}")
-          print(f"   Formation:  {formation}")
-          print(f"   GW Points:  {out['gw_points']}")
-          print(f"   Rank:       {out['overall_rank']:,}")
-          print(f"   Captain:    {cap_data.get('name','?')}")
-          print(f"   Transfer In:  {tin_data.get('name','?')} (form: {tin_data.get('form','?')})")
-          print(f"   Transfer Out: {tout_data.get('name','?')} (form: {tout_data.get('form','?')})")
-          print(f"   Differential: {diff_data.get('name','?')} ({diff_data.get('selected_pct','?')}% owned)")
-          PYEOF
-
-      - name: Build fpl.json
-        run: |
-          python3 << 'PYEOF'
-          import json
-          from datetime import datetime, timezone
-
-          # Image URL helpers
-          def player_photo(code):
-            return f"https://resources.premierleague.com/premierleague/photos/players/110x140/p{code}.png"
-
-          def jersey_url(team_code):
-            return f"https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_{team_code}-110.png"
-
-          def gk_jersey_url(team_code):
-            return f"https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_{team_code}_1-110.png"
-
-          # Load data
-          with open('data/fpl_team.json') as f:
-            team = json.load(f)
-          with open('data/fpl_history.json') as f:
-            history = json.load(f)
-          with open('data/fpl_picks.json') as f:
-            picks_data = json.load(f)
-          with open('data/fpl_bootstrap.json') as f:
-            bootstrap = json.load(f)
-
-          # Lookups
-          players   = {p['id']: p for p in bootstrap['elements']}
-          teams_map = {t['id']: t for t in bootstrap['teams']}
-
-          # GW history
-          gw_history  = history.get('current', [])
-          current_gw  = gw_history[-1] if gw_history else {}
-
-          # Picks
-          picks      = picks_data.get('picks', [])
-          captain_id = next((p['element'] for p in picks if p.get('is_captain')), None)
-          vice_id    = next((p['element'] for p in picks if p.get('is_vice_captain')), None)
-
-          # Position type names
-          pos_names = {1:'GK', 2:'DEF', 3:'MID', 4:'FWD'}
-
-          def build_player(pid, extra={}):
-            p  = players.get(pid, {})
-            t  = teams_map.get(p.get('team', 0), {})
-            tc = t.get('code', 0)
-            et = p.get('element_type', 0)
-            return {
-              "id":           pid,
-              "name":         p.get('web_name', ''),
-              "full_name":    p.get('first_name','') + ' ' + p.get('second_name',''),
-              "team":         t.get('short_name', ''),
-              "team_code":    tc,
-              "position":     pos_names.get(et, ''),
-              "element_type": et,
-              "photo":        player_photo(p.get('code', pid)),
-              "jersey":       gk_jersey_url(tc) if et == 1 else jersey_url(tc),
-              "price":        round(p.get('now_cost', 0) / 10, 1),
-              "total_pts":    p.get('total_points', 0),
-              "form":         p.get('form', '0.0'),
-              "selected_pct": p.get('selected_by_percent', '0.0'),
-              **extra
-            }
-
-          # Build squad with formation
-          # picks positions 1-11 = starting XI, 12-15 = bench
-          starting = [p for p in picks if p.get('position', 0) <= 11]
-          bench    = [p for p in picks if p.get('position', 0) > 11]
-
-          # Detect formation from starting XI
-          starters_by_type = {1:0, 2:0, 3:0, 4:0}
-          for p in starting:
-            pl = players.get(p['element'], {})
-            et = pl.get('element_type', 0)
-            starters_by_type[et] = starters_by_type.get(et, 0) + 1
-
+              pl = players.get(p['element'], {})
+              et = pl.get('element_type', 0)
+              starters_by_type[et] = starters_by_type.get(et, 0) + 1
           formation = f"{starters_by_type[2]}-{starters_by_type[3]}-{starters_by_type[4]}"
 
           squad_list = []
           for p in picks:
-            pl_data = build_player(p['element'], {
-              "is_captain":   p.get('is_captain', False),
-              "is_vice":      p.get('is_vice_captain', False),
-              "multiplier":   p.get('multiplier', 1),
-              "pick_position": p.get('position', 0),
-              "is_starting":  p.get('position', 0) <= 11
-            })
-            squad_list.append(pl_data)
+              squad_list.append(build_player(p['element'], {
+                  "is_captain": p.get('is_captain', False),
+                  "is_vice": p.get('is_vice_captain', False),
+                  "multiplier": p.get('multiplier', 1),
+                  "pick_position": p.get('position', 0),
+                  "is_starting": p.get('position', 0) <= 11
+              }))
 
-          # Captain & vice info
-          cap_data  = build_player(captain_id) if captain_id else {}
-          vice_data = build_player(vice_id)    if vice_id    else {}
-
-          # Transfer player info
-          tin_name  = "${{ github.event.inputs.transfer_in }}"
-          tout_name = "${{ github.event.inputs.transfer_out }}"
-          diff_name = "${{ github.event.inputs.differential }}"
-
-          # Find transfer in player data from bootstrap
-          def find_player_by_name(name):
-            if not name:
+          def find_player(name):
+              if not name: return {"name": name}
+              nl = name.lower()
+              for p in bootstrap['elements']:
+                  if nl in p.get('web_name','').lower() or nl in p.get('second_name','').lower():
+                      return build_player(p['id'])
               return {"name": name}
-            nl = name.lower()
-            for p in bootstrap['elements']:
-              if nl in p.get('web_name','').lower() or nl in p.get('second_name','').lower():
-                return build_player(p['id'])
-            return {"name": name}
 
-          tin_data  = find_player_by_name(tin_name)
-          tout_data = find_player_by_name(tout_name)
-          diff_data = find_player_by_name(diff_name)
-
-          # Final output
           out = {
-            "updated":        datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "gameweek":       int("${{ github.event.inputs.gameweek }}"),
-            "team_name":      team.get('name', ''),
-            "manager":        team.get('player_first_name','') + ' ' + team.get('player_last_name',''),
-            "overall_rank":   team.get('summary_overall_rank', 0),
-            "total_points":   team.get('summary_overall_points', 0),
-            "team_value":     round(team.get('last_deadline_value', 0) / 10, 1),
-            "bank":           round(team.get('last_deadline_bank', 0) / 10, 1),
-            "gw_points":      current_gw.get('points', 0),
-            "gw_rank":        current_gw.get('rank', 0),
-            "transfers_made": current_gw.get('event_transfers', 0),
-            "formation":      formation,
-            "captain":        {**cap_data,  "gw_points": current_gw.get('points', 0)},
-            "vice_captain":   vice_data,
-            "transfer_in":    tin_data,
-            "transfer_out":   tout_data,
-            "differential":   diff_data,
-            "squad":          squad_list
+              "updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+              "gameweek": int("${{ github.event.inputs.gameweek }}"),
+              "team_name": team.get('name', ''),
+              "manager": f"{team.get('player_first_name','')} {team.get('player_last_name','')}",
+              "overall_rank": team.get('summary_overall_rank', 0),
+              "total_points": team.get('summary_overall_points', 0),
+              "team_value": round(team.get('last_deadline_value', 0) / 10, 1),
+              "bank": round(team.get('last_deadline_bank', 0) / 10, 1),
+              "gw_points": current_gw.get('points', 0),
+              "gw_rank": current_gw.get('rank', 0),
+              "formation": formation,
+              "captain": build_player(captain_id) if captain_id else {},
+              "vice_captain": build_player(vice_id) if vice_id else {},
+              "transfer_in": find_player("${{ github.event.inputs.transfer_in }}"),
+              "transfer_out": find_player("${{ github.event.inputs.transfer_out }}"),
+              "differential": find_player("${{ github.event.inputs.differential }}"),
+              "squad": squad_list
           }
-
-          with open('data/fpl.json', 'w') as f:
-            json.dump(out, f, indent=2)
-
-          print(f"✅ FPL data built — Team: {out['team_name']}")
-          print(f"   Formation: {formation}")
-          print(f"   GW Points: {out['gw_points']}")
-          print(f"   Overall Rank: {out['overall_rank']:,}")
-          print(f"   Captain: {cap_data.get('name','?')} — {cap_data.get('jersey','')}")
+          with open('data/fpl.json', 'w') as f: json.dump(out, f, indent=2)
           PYEOF
-
-      - name: Cleanup
-        run: |
-          rm -f data/fpl_bootstrap.json data/fpl_team.json
-          rm -f data/fpl_history.json data/fpl_picks.json data/fpl_live.json
 
       - name: Commit and Push
         run: |
