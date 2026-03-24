@@ -696,7 +696,7 @@ function createPlayerEl(p, isBench = false) {
     '<div class="p-cap-badge">C</div>'
      : 
     '';
-  const pts = p.gw_points !== undefined ? p.gw_points : (p.total_pts || 0);
+  const pts = p.is_captain ? (p.gw_points !== undefined ? p.gw_points * 2 : (p.total_pts || 0) * 2) : (p.gw_points !== undefined ? p.gw_points : (p.total_pts || 0));
   
   el.innerHTML = `
     <div class="p-jersey-wrap">
