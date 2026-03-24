@@ -1,25 +1,28 @@
 {
-  "updated": "2025-03-22T00:00:00Z",
+  "updated": "2026-03-24T06:50:41Z",
   "gameweek": 32,
-  "team_name": "LID FC",
-  "manager": "Zaw Boe",
-  "overall_rank": 125430,
-  "total_points": 1842,
-  "team_value": 102.4,
-  "bank": 1.5,
-  "gw_points": 68,
-  "gw_rank": 85000,
-  "transfers_made": 1,
+  "team_name": "gangja",
+  "manager": "zaw moe",
+  "overall_rank": 1646482,
+  "total_points": 1712,
+  "team_value": 98.3,
+  "bank": 0.6,
+  "gw_points": 70,
+  "gw_rank": 245551,
+  "transfers_made": 0,
+  "formation": "0-0-0",
   "captain": {
-    "name": "Salah",
-    "team": "LIV",
-    "points": 18
+    "gw_points": 70
   },
-  "vice_captain": {
-    "name": "Haaland",
-    "team": "MCI"
+  "vice_captain": {},
+  "transfer_in": {
+    "name": ""
   },
-  "transfer_in": "Isak",
-  "transfer_out": "Watkins",
-  "differential": "Isak"
+  "transfer_out": {
+    "name": ""
+  },
+  "differential": {
+    "name": ""
+  },
+  "squad": []
 }
